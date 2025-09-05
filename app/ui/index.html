@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PrimordiumEvolv Minimal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>body{font-family:system-ui, sans-serif;max-width:900px;margin:20px auto;padding:0 12px}textarea{width:100%;height:140px}</style>
+</head>
+<body>
+  <h2>PrimordiumEvolv Minimal</h2>
+  <textarea id="prompt" placeholder="Type a prompt or task..."></textarea>
+  <div>
+    <button onclick="doChat()">Chat</button>
+    <button onclick="doEvolve()">Evolve</button>
+    <button onclick="doSearch()">Web Search</button>
+    <button onclick="doRagBuild()">RAG Build</button>
+    <button onclick="doRagQuery()">RAG Query</button>
+  </div>
+  <h3>TODO</h3>
+  <input id="todoText" placeholder="Add todo"/><button onclick="addTodo()">Add</button>
+  <pre id="out"></pre>
+  <script src="/static/app.js"></script>
+</body>
+</html>

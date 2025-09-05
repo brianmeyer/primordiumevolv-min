@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+requests
+beautifulsoup4
+lxml
+python-dotenv
+faiss-cpu
+sentence-transformers
+pypdf
+pydantic
+tenacity

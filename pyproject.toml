@@ -1,0 +1,8 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "primordiumevolv-min"
+version = "0.2.0"
+description = "Minimal local UI + tools + evolution loop for Ollama with hardening"
+requires-python = ">=3.11"
