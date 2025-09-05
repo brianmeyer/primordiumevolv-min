@@ -219,6 +219,9 @@ function showToast(text){
   setTimeout(()=>{ try{ document.body.removeChild(div);}catch(_e){} }, 2500);
 }
 
+// No-op dashboard refresher retained for compatibility
+function refreshDashboard(){}
+
 function saveMetaState(){
   const state = {
     tc: document.getElementById('metaTaskClass').value,
@@ -318,70 +321,7 @@ function showJudgeResults(judgeData) {
   }
 }
 
-// Enhanced runMetaEvolution with judge results display
-async function runMetaEvolution() {
-  try {
-    const taskClass = document.getElementById("metaTaskClass").value.trim();
-    const task = document.getElementById("metaTask").value.trim();
-    const n = parseInt(document.getElementById("metaIterations").value);
-    const useBandit = document.getElementById("metaBandit").checked;
-    const eps = parseFloat(document.getElementById("metaEps").value);
-    const memoryK = parseInt(document.getElementById("metaMemoryK").value);
-    const ragK = parseInt(document.getElementById("metaRagK").value);
-    
-    const forceEngine = document.getElementById("mrForceEngine").value;
-    const compareGroq = document.getElementById("mrCompareGroq").checked;
-    const useJudge = document.getElementById("mrJudge").checked;
-    
-    // Get selected framework mask
-    const frameworkSelect = document.getElementById("metaFramework");
-    const frameworkMask = Array.from(frameworkSelect.selectedOptions).map(opt => opt.value);
-    
-    if (!taskClass || !task) {
-      alert("Please provide both task class and task description");
-      return;
-    }
-    
-    const payload = {
-      task_class: taskClass,
-      task,
-      n,
-      eps,
-      use_bandit: useBandit,
-      memory_k: memoryK,
-      rag_k: ragK,
-      framework_mask: frameworkMask,
-      force_engine: forceEngine || null,
-      compare_with_groq: compareGroq,
-      judge_mode: useJudge ? "pairwise_groq" : "off"
-    };
-    
-    document.getElementById("btnRunMeta").disabled = true;
-    document.getElementById("btnRunMeta").textContent = "🔄 Running...";
-    
-    const result = await post("/api/meta/run", payload);
-    
-    document.getElementById("metaOutput").textContent = JSON.stringify(result, null, 2);
-    
-    // Show judge results if available
-    if (result.judge) {
-      showJudgeResults(result.judge);
-    }
-    // Populate latest run table
-    if (result.run_id) {
-      await showLatestRun(result.run_id);
-    }
-    
-    // Refresh dashboard to show new data
-    refreshDashboard();
-    
-  } catch (e) {
-    alert("Meta-evolution failed: " + e.message);
-  } finally {
-    document.getElementById("btnRunMeta").disabled = false;
-    document.getElementById("btnRunMeta").textContent = "🚀 Run Meta-Evolution";
-  }
-}
+// (duplicate runMetaEvolution removed)
 
 // Load sessions and check health on page load
 window.addEventListener('load', () => { 
