@@ -61,11 +61,6 @@
 </head>
 <body>
   <h2>PrimordiumEvolv Minimal</h2>
-  <div class="tabbar" style="margin:10px 0; border-bottom:1px solid #ddd; display:flex; gap:12px;">
-    <button id="btnTabChat" onclick="setTab('chat')">Chat & Tools</button>
-    <button id="btnTabMeta" onclick="setTab('meta')">Meta</button>
-    <button id="btnTabDash" onclick="setTab('dash')">Dashboard</button>
-  </div>
   
   <div style="margin-bottom:16px;padding:8px;background:#f8f9fa;border-radius:6px;border:1px solid #dee2e6;">
     <strong>System Health:</strong>
@@ -74,7 +69,7 @@
     <button onclick="checkHealth()" style="margin-left:10px;padding:2px 8px;font-size:12px;">🔄 Refresh</button>
   </div>
   
-  <div class="pane-chat">
+  <div>
     <label for="sessionSelect">Session:</label>
     <select id="sessionSelect"></select>
     <button onclick="newSession()">New Session</button>
@@ -94,54 +89,15 @@
   <input id="todoText" placeholder="Add todo"/><button onclick="addTodo()">Add</button>
   <pre id="out"></pre>
 
-  <div class="pane-chat" style="margin-top:16px;padding:12px;border:1px solid #ddd;border-radius:8px">
-    <h3>Meta Run</h3>
-    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-      <label>Task class <input id="mrTaskClass" placeholder="brief"></label>
-      <label>N <input id="mrN" type="number" value="12" min="1" max="24" style="width:80px"></label>
-      <label>Mem k <input id="mrMemK" type="number" value="3" min="0" max="10" style="width:80px"></label>
-      <label>RAG k <input id="mrRagK" type="number" value="3" min="0" max="10" style="width:80px"></label>
-      <label><input id="mrUseBandit" type="checkbox" checked> Use bandit</label>
-      <label><input id="mrMaskSEAL" type="checkbox" checked> SEAL</label>
-      <label><input id="mrMaskWEB" type="checkbox" checked> WEB</label>
-      <label><input id="mrMaskALPHA" type="checkbox"> ALPHA</label>
-    </div>
-    <label>Assertions (one per line)</label>
-    <textarea id="mrAssertions" placeholder="on-device or edge&#10;low latency or real-time&#10;3-item checklist" style="width:100%;height:80px"></textarea>
-    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-      <button onclick="uiNewSession()">New Session</button>
-      <button onclick="uiMemoryBuild()">Memory Build</button>
-      <button onclick="uiRagBuild()">RAG Build</button>
-      <button onclick="uiMetaRun()">Meta Run</button>
-      <button onclick="refreshDashboard()">Refresh Dashboard</button>
-    </div>
-  </div>
-
-  <div class="pane-chat" style="margin-top:16px;padding:12px;border:1px solid #ddd;border-radius:8px">
-    <h3>Eval Runner</h3>
-    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-      <label>Eval file <input id="evalPath" placeholder="eval/brief.jsonl" style="min-width:240px"></label>
-      <label>Use bandit <input id="evalUseBandit" type="checkbox" checked></label>
-      <label>N <input id="evalN" type="number" value="12" min="1" max="24" style="width:80px"></label>
-      <label>Mem k <input id="evalMemK" type="number" value="3" min="0" max="10" style="width:80px"></label>
-      <label>RAG k <input id="evalRagK" type="number" value="3" min="0" max="10" style="width:80px"></label>
-    </div>
-    <div>
-      <label><input id="evalMaskSEAL" type="checkbox" checked> SEAL</label>
-      <label><input id="evalMaskWEB" type="checkbox" checked> WEB</label>
-      <label><input id="evalMaskALPHA" type="checkbox"> ALPHA</label>
-    </div>
-    <button onclick="uiRunEval()">Run Eval</button>
-    <pre id="evalOut" style="max-height:220px; overflow:auto"></pre>
-  </div>
+  <!-- Simplified: removed legacy Meta Run and Eval Runner blocks -->
   
-  <div class="dashboard-section pane-dash">
+  <div class="dashboard-section">
     <h3>🧠 Improvement Dashboard</h3>
     <label>Task class: <input id="dashTaskClass" placeholder="code, analysis, etc. (optional)" style="width:200px;"></label>
     <button onclick="refreshDashboard()" style="margin-left:10px;">Refresh Dashboard</button>
   </div>
   
-  <div class="dashboard-section pane-meta">
+  <div class="dashboard-section">
     <h3>🚀 Meta-Evolution Control</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;">
       <div>
@@ -217,7 +173,7 @@
     </div>
   </div>
   
-  <div class="dashboard-section pane-dash" style="margin-top:10px;">
+  <div class="dashboard-section" style="margin-top:10px;">
     <div style="margin:15px 0;">
       <h4>Performance Trend</h4>
       <canvas id="trendChart" height="100"></canvas>

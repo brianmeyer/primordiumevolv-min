@@ -376,94 +376,7 @@ function loadMetaState(){
   }catch(_e){}
 }
 
-// New UI helpers for Meta Run and Eval Runner
-async function uiNewSession(){
-  const title = prompt("Session title?", "UI session");
-  if(!title) return;
-  const res = await post("/api/session/create", {title});
-  window.currentSessionId = res.id;
-  alert("Session " + res.id + " created");
-}
-
-async function uiMemoryBuild(){ 
-  try{ 
-    await post("/api/memory/build", {}); 
-    alert("Memory index built"); 
-  }catch(e){ 
-    alert("Memory build failed: " + e); 
-  } 
-}
-
-async function uiRagBuild(){ 
-  try{ 
-    await post("/api/rag/build", {}); 
-    alert("RAG index built"); 
-  }catch(e){ 
-    alert("RAG build failed: " + e); 
-  } 
-}
-
-function _g(id){ return document.getElementById(id); }
-
-function _collectMask(prefix){
-  const m=[];
-  if(_g(prefix+"SEAL")?.checked) m.push("SEAL");
-  if(_g(prefix+"WEB")?.checked) m.push("WEB");
-  if(_g(prefix+"ALPHA")?.checked) m.push("ALPHA");
-  return m;
-}
-
-async function uiMetaRun(){
-  try{
-    const task = document.getElementById("prompt").value.trim();
-    if(!task) return alert("Enter a task in the main textarea first.");
-    const session_id = window.currentSessionId || (await fetch("/api/session/list").then(r=>r.json()).then(j=>j.sessions?.[0]?.id));
-    if(!session_id) return alert("Create a session first.");
-    const assertions = _g("mrAssertions").value.split("\n").map(s=>s.trim()).filter(Boolean);
-    const body = {
-      session_id,
-      task_class: _g("mrTaskClass").value.trim() || "brief",
-      task,
-      assertions,
-      n: parseInt(_g("mrN").value||"12",10),
-      memory_k: parseInt(_g("mrMemK").value||"3",10),
-      rag_k: parseInt(_g("mrRagK").value||"3",10),
-      framework_mask: _collectMask("mrMask"),
-      use_bandit: _g("mrUseBandit").checked
-    };
-    const res = await post("/api/meta/run", body);
-    show(res);
-    refreshDashboard();
-  }catch(e){ 
-    alert("Meta run failed: " + e); 
-  }
-}
-
-async function uiRunEval(){
-  try{
-    const set_path = _g("evalPath").value.trim();
-    if(!set_path) return alert("Set eval file path (e.g., eval/brief.jsonl)");
-    const session_id = window.currentSessionId || (await fetch("/api/session/list").then(r=>r.json()).then(j=>j.sessions?.[0]?.id));
-    if(!session_id) return alert("Create a session first.");
-    const params = new URLSearchParams({
-      session_id,
-      set_path,
-      use_bandit: _g("evalUseBandit").checked ? "true" : "false",
-      n: String(parseInt(_g("evalN").value||"12",10)),
-      memory_k: String(parseInt(_g("evalMemK").value||"3",10)),
-      rag_k: String(parseInt(_g("evalRagK").value||"3",10))
-    });
-    const mask = _collectMask("evalMask");
-    if(mask.length) params.append("framework_mask", mask.join(","));
-    const url = "/api/meta/eval?" + params.toString();
-    const r = await fetch(url, {method:"POST"});
-    const j = await r.json();
-    _g("evalOut").textContent = JSON.stringify(j, null, 2);
-    refreshDashboard();
-  }catch(e){ 
-    alert("Eval failed: " + e); 
-  }
-}
+// removed legacy UI helpers (Meta Run/Eval)
 
 // Health check functionality
 async function checkHealth() {
@@ -595,36 +508,14 @@ window.addEventListener('load', () => {
   loadMetaState(); 
   loadSessions(); 
   checkHealth(); 
-  // Restore tab
-  const t = (localStorage.getItem('tab')||'chat');
-  setTab(t);
-  // Keyboard shortcuts
-  window.addEventListener('keydown', onKeyShortcuts);
+  // Keyboard shortcut: run meta (Ctrl/Cmd+Enter)
+  window.addEventListener('keydown', (e)=>{
+    const mod = e.ctrlKey || e.metaKey;
+    if(mod && e.key === 'Enter'){
+      const btn=document.getElementById('btnRunMeta'); if(btn && !btn.disabled){ runMetaEvolution(); e.preventDefault(); }
+    }
+  });
 });
-
-function setTab(tab){
-  const show = cls => document.querySelectorAll('.pane-'+cls).forEach(el=> el.style.display='');
-  const hide = cls => document.querySelectorAll('.pane-'+cls).forEach(el=> el.style.display='none');
-  ['chat','meta','dash'].forEach(c=> hide(c));
-  if(tab==='meta') show('meta');
-  else if(tab==='dash') show('dash');
-  else show('chat');
-  try{ localStorage.setItem('tab', tab); }catch(_e){}
-  // Activate tab button style
-  const map = {chat:'btnTabChat', meta:'btnTabMeta', dash:'btnTabDash'};
-  ['btnTabChat','btnTabMeta','btnTabDash'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('active'); });
-  const active=document.getElementById(map[tab]); if(active) active.classList.add('active');
-}
-
-function onKeyShortcuts(e){
-  const mod = e.ctrlKey || e.metaKey;
-  if(mod && e.key === '1'){ setTab('chat'); e.preventDefault(); }
-  if(mod && e.key === '2'){ setTab('meta'); e.preventDefault(); }
-  if(mod && e.key === '3'){ setTab('dash'); e.preventDefault(); }
-  if(mod && e.key === 'Enter'){ const btn=document.getElementById('btnRunMeta'); if(btn && !btn.disabled){ runMetaEvolution(); e.preventDefault(); } }
-  if(e.key.toLowerCase() === 'j'){ const el=document.getElementById('mrJudge'); if(el){ el.checked=!el.checked; saveMetaState(); } }
-  if(e.key.toLowerCase() === 'c'){ const el=document.getElementById('mrCompareGroq'); if(el){ el.checked=!el.checked; saveMetaState(); } }
-}
 
 async function showLatestRun(runId) {
   try {

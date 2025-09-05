@@ -1,0 +1,33 @@
+{
+  "run_id": 4,
+  "task_class": "brainstorm",
+  "task": "I'm trying to create an on device LLM to help military medics with documentation of care and basically a medical assistant while treating combat casualties. It needs to be edge running, voice activated, be able to take in everything the medic is saying in noisy combat environments, put that into a structured TCCC FHIR compliant database for each patient. Give me a plan for this.",
+  "assertions": [
+    "must mention a phase plan or approach",
+    "must mention edge device constraints"
+  ],
+  "best_score": 0.5236658724726188,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 8,
+      "avg_reward": 0.4806994351765485
+    }
+  },
+  "baseline": 0.0,
+  "improvement": 0.5236658724726188,
+  "timestamp": 1757077046
+}
