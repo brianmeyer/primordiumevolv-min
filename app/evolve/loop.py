@@ -54,3 +54,32 @@ def evolve(task: str, assertions: List[str] | None = None, n: int = 5) -> Dict:
             tried += 1
     
     return best
+
+def stitch_context(rag_snips: List[str], mem_snips: List[str], web_snips: List[str], fewshot: str = None) -> str:
+    """
+    Stitch together different context sources into a coherent context block.
+    
+    Args:
+        rag_snips: List of RAG document snippets
+        mem_snips: List of memory/conversation snippets  
+        web_snips: List of web search snippets
+        fewshot: Optional few-shot example string
+        
+    Returns:
+        Formatted context string
+    """
+    blocks = []
+    
+    if fewshot:
+        blocks.append(f"Examples:\n{fewshot}")
+        
+    if rag_snips:
+        blocks.append("RAG:\n" + "\n---\n".join(rag_snips))
+        
+    if mem_snips:
+        blocks.append("Memory:\n" + "\n---\n".join(mem_snips))
+        
+    if web_snips:
+        blocks.append("Web:\n" + "\n---\n".join(web_snips))
+    
+    return "\n\n".join(blocks)

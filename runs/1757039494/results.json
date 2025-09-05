@@ -1,0 +1,30 @@
+{
+  "run_id": 2,
+  "task_class": "code",
+  "task": "Write a Python function to add two numbers",
+  "assertions": [
+    "def add"
+  ],
+  "best_score": 0.44252098618857283,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.44252098618857283
+    }
+  },
+  "baseline": 0.0,
+  "improvement": 0.44252098618857283,
+  "timestamp": 1757039494
+}

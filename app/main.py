@@ -12,10 +12,12 @@ from app.evolve.loop import evolve
 from app.models import (
     ChatRequest, EvolveRequest, WebSearchRequest,
     RagQueryRequest, TodoAddRequest, TodoIdRequest,
-    SessionCreateRequest, MessageAppendRequest, MemoryQueryRequest
+    SessionCreateRequest, MessageAppendRequest, MemoryQueryRequest,
+    MetaRunRequest
 )
 from app import memory
 from app.middleware import RateLimiter
+from app.meta.runner import meta_run
 
 load_dotenv()
 PORT = int(os.getenv("PORT", "8000"))
@@ -208,3 +210,21 @@ async def query_memory_ep(body: MemoryQueryRequest):
         return JSONResponse({"results": results})
     except Exception as e:
         return JSONResponse({"error": "memory_query_failed", "detail": str(e)}, status_code=500)
+
+# Meta-evolution
+@app.post("/api/meta/run")
+async def meta_run_ep(body: MetaRunRequest):
+    try:
+        res = meta_run(
+            body.task_class, 
+            body.task, 
+            body.assertions, 
+            body.session_id,
+            n=body.n, 
+            memory_k=body.memory_k, 
+            rag_k=body.rag_k,
+            operators=body.operators
+        )
+        return JSONResponse(res)
+    except Exception as e:
+        return JSONResponse({"error": "meta_run_failed", "detail": str(e)}, status_code=500)

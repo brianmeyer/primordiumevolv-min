@@ -1,5 +1,5 @@
-# PrimordiumEvolv Minimal (hardened)
-Local UI, tools, and evolution loop calling a local Ollama model with validation, rate limiting, better scoring, and persistent chat memory.
+# PrimordiumEvolv Minimal (Self-Evolving Engine)
+Local UI, tools, evolution loop, and **self-evolving meta-system** calling a local Ollama model with validation, rate limiting, semantic scoring, persistent memory, and intelligent prompt optimization.
 
 ## Prereqs
 - Python 3.11+
@@ -20,6 +20,10 @@ make run      # http://localhost:8000
 ## Features
 - **Chat**: Direct Ollama model interaction with persistent session memory
 - **Memory**: Vector-based semantic search across conversation history
+- **Meta-Evolution**: Self-evolving prompt optimization with epsilon-greedy bandit
+- **Recipe Storage**: Persist and reuse successful prompt recipes per task class
+- **Operator System**: 10+ mutation operators (temperature, systems, RAG injection, etc.)
+- **Artifact Generation**: Detailed run logs and iteration data under `runs/`
 - **Evolve**: Evolutionary optimization with semantic scoring
 - **Web Search**: Tavily API (if key provided) with DDG fallback
 - **RAG**: Local vector search with FAISS and sentence-transformers
@@ -44,6 +48,9 @@ make run      # http://localhost:8000
 ### Memory System
 - `POST /api/memory/build` - Build vector index from all messages
 - `POST /api/memory/query` - Query conversation history semantically
+
+### Meta-Evolution System
+- `POST /api/meta/run` - Trigger self-evolution cycle with bandit optimization
 
 ### Tools
 - `POST /api/web/search` - Web search
@@ -87,3 +94,44 @@ curl -X POST http://localhost:8000/api/chat \
   -H "Content-Type: application/json" \
   -d '{"prompt": "What did we discuss about Python?", "session_id": 1}'
 ```
+
+## Meta-Evolution System
+
+The self-evolving engine uses epsilon-greedy bandit selection to choose optimal prompt mutations:
+
+```bash
+# Trigger meta-evolution for code generation
+curl -X POST http://localhost:8000/api/meta/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session_id": 1,
+    "task_class": "code", 
+    "task": "Write a Python function to calculate fibonacci numbers",
+    "assertions": ["def fibonacci", "recursive"],
+    "n": 12,
+    "memory_k": 3,
+    "rag_k": 3
+  }'
+```
+
+### Available Operators
+- `change_system` - Switch system prompt (engineer, analyst, optimizer)
+- `change_nudge` - Modify output format constraints
+- `raise_temp/lower_temp` - Adjust creativity vs consistency
+- `inject_rag` - Add document context from RAG
+- `inject_memory` - Include conversation history
+- `add_fewshot` - Inject domain examples
+- `toggle_web` - Enable/disable web search context
+- `raise_top_k/lower_top_k` - Modify token sampling
+
+### Generated Artifacts
+Each run creates `runs/{timestamp}/`:
+- `results.json` - Final metrics and best recipe
+- `iteration_XX.json` - Per-iteration operator selection and scoring
+- Recipes automatically saved to database for future use
+
+### Recipe Evolution
+- Successful recipes (score > baseline + 0.1) saved to `recipes` table
+- High-performing recipes (score > baseline + 0.2) auto-approved
+- Best recipes reused as base for future mutations
+- Operator statistics tracked for bandit optimization

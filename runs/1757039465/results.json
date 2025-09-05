@@ -1,0 +1,14 @@
+{
+  "run_id": 1,
+  "task_class": "code",
+  "task": "Write a Python function to add two numbers",
+  "assertions": [
+    "def add"
+  ],
+  "best_score": -Infinity,
+  "best_recipe": null,
+  "operator_stats": {},
+  "baseline": 0.0,
+  "improvement": 0,
+  "timestamp": 1757039465
+}

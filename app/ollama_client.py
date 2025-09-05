@@ -39,10 +39,12 @@ def health() -> dict:
     except Exception as e:
         return {"status": "down", "detail": str(e)}
 
-def generate(prompt: str, system: str | None = None) -> str:
+def generate(prompt: str, system: str | None = None, options: dict | None = None) -> str:
     payload = {"model": MODEL_ID, "prompt": prompt, "stream": False}
     if system:
         payload["system"] = system
+    if options:
+        payload["options"] = options
     try:
         out = _post(f"{OLLAMA_HOST}/api/generate", payload)
         return out.get("response", "")

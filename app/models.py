@@ -35,3 +35,13 @@ class MessageAppendRequest(BaseModel):
 class MemoryQueryRequest(BaseModel):
     q: constr(strip_whitespace=True, min_length=1)
     k: conint(ge=1, le=20) = 5
+
+class MetaRunRequest(BaseModel):
+    session_id: conint(ge=1)
+    task_class: constr(strip_whitespace=True, min_length=2)
+    task: constr(strip_whitespace=True, min_length=2)
+    assertions: Optional[List[constr(strip_whitespace=True, min_length=1)]] = None
+    n: conint(ge=1, le=24) = 12
+    memory_k: conint(ge=0, le=10) = 3
+    rag_k: conint(ge=0, le=10) = 3
+    operators: Optional[List[constr(strip_whitespace=True, min_length=2)]] = None

@@ -1,0 +1,19 @@
+{
+  "iteration": 0,
+  "operator": "toggle_web",
+  "plan": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "score": 0.44252098618857283,
+  "reward": 0.44252098618857283,
+  "output_preview": "<think>\nWe are writing a simple function to add two numbers.\n Since the problem is straightforward, we'll create a function that takes two arguments and returns their sum.\n Constraints: Respond in bul..."
+}
