@@ -1,6 +1,7 @@
 import os
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Query
 from fastapi.responses import FileResponse, JSONResponse
+from typing import Optional
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -18,6 +19,7 @@ from app.models import (
 from app import memory
 from app.middleware import RateLimiter
 from app.meta.runner import meta_run
+from app.meta import store
 
 load_dotenv()
 PORT = int(os.getenv("PORT", "8000"))
@@ -228,3 +230,38 @@ async def meta_run_ep(body: MetaRunRequest):
         return JSONResponse(res)
     except Exception as e:
         return JSONResponse({"error": "meta_run_failed", "detail": str(e)}, status_code=500)
+
+@app.get("/api/meta/stats")
+async def meta_stats():
+    try:
+        import time
+        operator_stats_dict = store.list_operator_stats()
+        # Convert dict to list for easier frontend consumption
+        operator_stats_list = [
+            {"name": name, "n": stats["n"], "avg_reward": stats["avg_reward"]}
+            for name, stats in operator_stats_dict.items()
+        ]
+        return JSONResponse({
+            "operator_stats": operator_stats_list,
+            "recent_runs": store.recent_runs(None, 30),
+            "now": time.time()
+        })
+    except Exception as e:
+        return JSONResponse({"error": "meta_stats_failed", "detail": str(e)}, status_code=500)
+
+@app.get("/api/meta/recipes")
+async def meta_recipes(task_class: Optional[str] = Query(default=None)):
+    try:
+        recipes = store.recipes_by_class((task_class or "").strip().lower() if task_class else "", 10)
+        return JSONResponse({"recipes": recipes})
+    except Exception as e:
+        return JSONResponse({"error": "meta_recipes_failed", "detail": str(e)}, status_code=500)
+
+@app.get("/api/meta/trend")
+async def meta_trend(task_class: Optional[str] = Query(default=None)):
+    try:
+        normalized_task_class = (task_class or "").strip().lower() if task_class else None
+        trend_data = store.recent_runs(normalized_task_class, 50)
+        return JSONResponse({"trend": trend_data})
+    except Exception as e:
+        return JSONResponse({"error": "meta_trend_failed", "detail": str(e)}, status_code=500)

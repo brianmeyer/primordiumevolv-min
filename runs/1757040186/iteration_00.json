@@ -1,0 +1,19 @@
+{
+  "iteration": 0,
+  "operator": "toggle_web",
+  "plan": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "score": 0.5372737864247585,
+  "reward": 0.5372737864247585,
+  "output_preview": "<think>\nWe are to explain the benefits of machine learning in bullet points, concise and directly usable.\n As a senior engineer, I'll focus on the most impactful and practical benefits without fluff.\n..."
+}

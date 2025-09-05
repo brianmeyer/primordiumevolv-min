@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <title>PrimordiumEvolv Minimal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>body{font-family:system-ui, sans-serif;max-width:900px;margin:20px auto;padding:0 12px}textarea{width:100%;height:140px}</style>
+  <style>body{font-family:system-ui, sans-serif;max-width:1200px;margin:20px auto;padding:0 12px}textarea{width:100%;height:140px}.dashboard-section{margin-top:30px;padding:20px;border:1px solid #ddd;border-radius:8px;background:#f9f9f9}.charts-container{display:flex;gap:24px;flex-wrap:wrap;margin:20px 0}.chart-wrapper{flex:1;min-width:280px;background:white;padding:15px;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}</style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <h2>PrimordiumEvolv Minimal</h2>
@@ -27,6 +28,34 @@
   <h3>TODO</h3>
   <input id="todoText" placeholder="Add todo"/><button onclick="addTodo()">Add</button>
   <pre id="out"></pre>
+  
+  <div class="dashboard-section">
+    <h3>🧠 Improvement Dashboard</h3>
+    <label>Task class: <input id="dashTaskClass" placeholder="code, analysis, etc. (optional)" style="width:200px;"></label>
+    <button onclick="refreshDashboard()" style="margin-left:10px;">Refresh Dashboard</button>
+    
+    <div style="margin:15px 0;">
+      <h4>Performance Trend</h4>
+      <canvas id="trendChart" height="100"></canvas>
+    </div>
+    
+    <div class="charts-container">
+      <div class="chart-wrapper">
+        <h4>Operator Rewards</h4>
+        <canvas id="rewardChart" height="120"></canvas>
+      </div>
+      <div class="chart-wrapper">
+        <h4>Selection Share</h4>
+        <canvas id="shareChart" height="120"></canvas>
+      </div>
+    </div>
+    
+    <div style="margin-top:20px;">
+      <h4>Top Recipes</h4>
+      <pre id="recipesList" style="background:white;padding:10px;border-radius:4px;max-height:200px;overflow-y:auto;font-size:12px;"></pre>
+    </div>
+  </div>
+  
   <script src="/static/app.js"></script>
 </body>
 </html>

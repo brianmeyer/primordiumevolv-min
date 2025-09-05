@@ -5,7 +5,7 @@ from typing import List, Optional, Dict, Any
 
 from app.meta import store, bandit
 from app.meta import operators as ops
-from app.config import DEFAULT_OPERATORS, EVO_DEFAULTS
+from app.config import DEFAULT_OPERATORS, EVO_DEFAULTS, OP_GROUPS
 from app.ollama_client import generate
 from app.evolve.loop import score_output, stitch_context
 from app.memory import query_memory
@@ -65,6 +65,9 @@ def meta_run(
     best_score = float('-inf')
     best_recipe = None
     
+    # Track operator sequence for analytics
+    operator_sequence = []
+    
     # Create run artifacts directory
     timestamp = int(time.time())
     artifacts_dir = f"runs/{timestamp}"
@@ -75,6 +78,12 @@ def meta_run(
         try:
             # Select operator using bandit
             selected_op = bandit_agent.select(operators, operator_stats)
+            
+            # Track operator sequence
+            operator_sequence.append(selected_op)
+            
+            # Compute operator groups for analytics
+            groups = [g for g, names in OP_GROUPS.items() if selected_op in names] or ["UNSET"]
             
             # Get base recipe (use best known recipe for task class)
             base_recipe = top_recipes[0] if top_recipes else None
@@ -122,7 +131,7 @@ def meta_run(
             # Score output
             score = score_output(output, assertions, task)
             
-            # Save variant
+            # Save variant with analytics
             variant_id = store.save_variant(
                 run_id, 
                 execution["system"],
@@ -130,7 +139,9 @@ def meta_run(
                 plan["params"],
                 execution["prompt"],
                 output,
-                score
+                score,
+                operator_name=selected_op,
+                groups_json=json.dumps(groups)
             )
             
             # Update best if this is better
@@ -171,7 +182,7 @@ def meta_run(
     
     # Finish run tracking
     if best_variant_id:
-        store.save_run_finish(run_id, best_variant_id, best_score)
+        store.save_run_finish(run_id, best_variant_id, best_score, operator_sequence)
         
         # Save best as new recipe if it's significantly better
         if best_score > baseline + 0.1:  # Threshold for improvement
