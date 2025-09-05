@@ -1,0 +1,40 @@
+{
+  "run_id": 7,
+  "task_class": "briefing",
+  "task": "I want to create an on device medical assistant for military medics in a combat zone",
+  "assertions": [],
+  "best_score": 0.40591954583581363,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 11,
+      "avg_reward": 0.45145204469214684
+    },
+    "change_nudge": {
+      "n": 1,
+      "avg_reward": 0.37004252456630715
+    }
+  },
+  "baseline": 0.0,
+  "improvement": 0.40591954583581363,
+  "timestamp": 1757097641,
+  "compare": {
+    "engine": "groq",
+    "model": "groq:llama-3.3-70b-versatile",
+    "score": 0.4079274476220346,
+    "delta_vs_best": 0.002007901786220956
+  }
+}

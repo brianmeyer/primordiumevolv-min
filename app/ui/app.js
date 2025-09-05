@@ -98,7 +98,8 @@ async function runMetaEvolution() {
     const started = await post("/api/meta/run_async", payload);
     metaOutput.textContent = `Run ${started.run_id} started...`;
     try { openRunStream(started.run_id, n); } catch(_e) { /* fallback continues */ }
-    await pollRunProgress(started.run_id, n);
+    // Fallback polling only if no SSE updates within 3s
+    setTimeout(()=>{ try{ if(!_evtSource){ pollRunProgress(started.run_id, n); } }catch(_e){} }, 3000);
 
   } catch(e) {
     document.getElementById("metaOutput").textContent = `❌ Error: ${String(e)}`;
@@ -163,10 +164,17 @@ function openRunStream(runId, expectedN){
   _evtSource = es;
   const metaOutput = document.getElementById("metaOutput");
   let count = 0;
+  let gotFirstEvent = false;
+  setTimeout(()=>{
+    if(!gotFirstEvent){
+      showToast('Still preparing... If this is your first run, models may be downloading or the model server may be starting.');
+    }
+  }, 10000);
   es.onmessage = (e)=>{
     try{
       const data = JSON.parse(e.data);
       if (data.type === 'iter'){
+        gotFirstEvent = true;
         count = data.i + 1;
         const bestLine = metaOutput.textContent.split('\n')[1]||'';
         metaOutput.textContent = `Run ${runId}: ${count}/${expectedN} iterations completed.\n${bestLine}`;

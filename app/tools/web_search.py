@@ -1,12 +1,12 @@
 import os, requests
 from bs4 import BeautifulSoup
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 def _tavily_search(q: str, top_k: int = 5):
     key = os.getenv("TAVILY_API_KEY")
     r = requests.post("https://api.tavily.com/search",
                       json={"api_key": key, "query": q, "max_results": top_k},
-                      timeout=30)
+                      timeout=5)
     r.raise_for_status()
     data = r.json()
     out = []
@@ -16,11 +16,11 @@ def _tavily_search(q: str, top_k: int = 5):
                     "snippet": (item.get("content", "") or "")[:300]})
     return out
 
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=6))
+@retry(stop=stop_after_attempt(1), wait=wait_fixed(0))
 def _ddg_search(q: str, top_k: int = 5):
     url = "https://duckduckgo.com/html"
     r = requests.get(url, params={"q": q},
-                     timeout=30,
+                     timeout=5,
                      headers={"User-Agent": "Mozilla/5.0"})
     r.raise_for_status()
     soup = BeautifulSoup(r.text, "lxml")

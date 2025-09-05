@@ -1,0 +1,21 @@
+{
+  "iteration": 0,
+  "operator": "toggle_web",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "score": 0.40591954583581363,
+  "reward": 0.40591954583581363,
+  "output_preview": "<think>\nWe are creating an on-device medical assistant for military medics in combat zones. The context provided includes:\n- Web context: AI-based combat medical assistant project by Raytheon BBN (Cam..."
+}
