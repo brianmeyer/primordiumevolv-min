@@ -57,7 +57,7 @@
     .dashboard-section,.chart-wrapper,.tabbar button,pre,table,input,select,textarea{background:#0f172a!important}
   }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
 </head>
 <body>
   <h2>PrimordiumEvolv Minimal</h2>
@@ -107,10 +107,7 @@
         <label>Iterations: <input id="metaIterations" type="number" value="5" min="1" max="24" style="width:100%;"></label>
       </div>
     </div>
-    <div>
-      <label>Task/Prompt:</label>
-      <textarea id="metaTask" placeholder="Describe the task to optimize..." style="width:100%;height:80px;"></textarea>
-    </div>
+    <div style="margin:6px 0 8px 0; color:var(--muted); font-size:12px;">Meta uses the main prompt above.</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0;">
       <div>
         <label><input type="checkbox" id="metaBandit" checked> Use Bandit</label><br>

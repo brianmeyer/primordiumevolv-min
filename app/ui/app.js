@@ -44,7 +44,7 @@ async function buildMemory(){ try{ show(await post("/api/memory/build",{})); }ca
 async function runMetaEvolution() {
   try {
     const taskClass = document.getElementById("metaTaskClass").value.trim();
-    const task = document.getElementById("metaTask").value.trim();
+    const task = document.getElementById("prompt").value.trim();
     const n = parseInt(document.getElementById("metaIterations").value);
     const useBandit = document.getElementById("metaBandit").checked;
     const eps = parseFloat(document.getElementById("metaEps").value);
@@ -56,7 +56,7 @@ async function runMetaEvolution() {
     const frameworkMask = Array.from(frameworkSelect.selectedOptions).map(opt => opt.value);
     
     if (!taskClass || !task) {
-      show("Please fill in Task Class and Task fields");
+      show("Please fill in Task Class and enter a prompt above");
       return;
     }
     
@@ -130,130 +130,7 @@ ${logs.logs.map(log =>
   }
 }
 
-// Dashboard functionality
-let trendChart, rewardChart, shareChart;
-let _dashTimer = null;
-
-async function fetchStats() {
-  return await get('/api/meta/stats');
-}
-
-async function fetchTrend(taskClass) {
-  return await get('/api/meta/trend' + (taskClass ? ('?task_class=' + encodeURIComponent(taskClass)) : ''));
-}
-
-async function fetchRecipes(taskClass) {
-  return await get('/api/meta/recipes' + (taskClass ? ('?task_class=' + encodeURIComponent(taskClass)) : ''));
-}
-
-async function _doRefreshDashboard() {
-  try {
-    const tc = document.getElementById('dashTaskClass').value.trim();
-    
-    // Fetch data
-    const [trend, stats, recipes] = await Promise.all([
-      fetchTrend(tc),
-      fetchStats(),
-      fetchRecipes(tc)
-    ]);
-    
-    // Trend chart
-    const labels = trend.trend.map(p => new Date(p.ts*1000).toLocaleDateString());
-    const data = trend.trend.map(p => p.best_score);
-    
-    trendChart && trendChart.destroy();
-    trendChart = new Chart(document.getElementById('trendChart'), {
-      type: 'line',
-      data: { 
-        labels, 
-        datasets: [{ 
-          label: 'Best Score', 
-          data, 
-          borderColor: 'rgb(75, 192, 192)',
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          tension: 0.1
-        }] 
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-    
-    // Operator rewards chart
-    const opLabels = stats.operator_stats.map(o => o.name);
-    const rewards = stats.operator_stats.map(o => o.avg_reward);
-    
-    rewardChart && rewardChart.destroy();
-    rewardChart = new Chart(document.getElementById('rewardChart'), {
-      type: 'bar',
-      data: { 
-        labels: opLabels, 
-        datasets: [{ 
-          label: 'Avg Reward', 
-          data: rewards,
-          backgroundColor: 'rgba(54, 162, 235, 0.5)',
-          borderColor: 'rgb(54, 162, 235)',
-          borderWidth: 1
-        }] 
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-    
-    // Selection share chart
-    const counts = stats.operator_stats.map(o => o.n);
-    const colors = [
-      '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-      '#FF9F40', '#C9CBCF', '#FF6384', '#36A2EB', '#FFCE56'
-    ];
-    
-    shareChart && shareChart.destroy();
-    shareChart = new Chart(document.getElementById('shareChart'), {
-      type: 'pie',
-      data: { 
-        labels: opLabels, 
-        datasets: [{ 
-          label: 'Selections', 
-          data: counts,
-          backgroundColor: colors.slice(0, opLabels.length)
-        }] 
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              font: { size: 10 }
-            }
-          }
-        }
-      }
-    });
-    
-    // Recipes list
-    document.getElementById('recipesList').textContent = recipes.recipes.length > 0 
-      ? JSON.stringify(recipes.recipes, null, 2)
-      : "No recipes found for this task class.";
-      
-    show(`Dashboard updated! Showing ${trend.trend.length} runs, ${stats.operator_stats.length} operators, ${recipes.recipes.length} recipes.`);
-    
-  } catch(e) {
-    show(String(e));
-  }
-}
-
-function refreshDashboard() {
-  if (_dashTimer) { clearTimeout(_dashTimer); }
-  _dashTimer = setTimeout(() => { _dashTimer = null; _doRefreshDashboard(); }, 600);
-}
+// Dashboard removed: simplified UI
 
 async function pollRunProgress(runId, expectedN){
   const metaOutput = document.getElementById("metaOutput");
