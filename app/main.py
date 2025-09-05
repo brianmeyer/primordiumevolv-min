@@ -11,8 +11,10 @@ from app.tools import todo as todo
 from app.evolve.loop import evolve
 from app.models import (
     ChatRequest, EvolveRequest, WebSearchRequest,
-    RagQueryRequest, TodoAddRequest, TodoIdRequest
+    RagQueryRequest, TodoAddRequest, TodoIdRequest,
+    SessionCreateRequest, MessageAppendRequest, MemoryQueryRequest
 )
+from app import memory
 from app.middleware import RateLimiter
 
 load_dotenv()
@@ -63,11 +65,31 @@ async def _startup():
         # Keep app up but report unhealthy
         print(f"[warn] Model validation failed: {e}")
 
-# Chat
+# Chat with memory integration
 @app.post("/api/chat")
 async def chat_ep(body: ChatRequest):
     try:
-        out = generate(body.prompt, system=body.system)
+        # Save user message
+        memory.append_message(body.session_id, "user", body.prompt)
+        
+        # Optionally enrich with memory context
+        context = ""
+        try:
+            relevant_messages = memory.query_memory(body.prompt, k=3)
+            if relevant_messages:
+                context = "\n\nRelevant context from past conversations:\n"
+                for msg in relevant_messages[:2]:  # Limit to top 2 to avoid token bloat
+                    context += f"- {msg['role']}: {msg['content'][:100]}...\n"
+        except Exception:
+            pass  # Continue without context if memory fails
+        
+        # Generate response
+        enriched_prompt = body.prompt + context
+        out = generate(enriched_prompt, system=body.system)
+        
+        # Save assistant response
+        memory.append_message(body.session_id, "assistant", out)
+        
         return JSONResponse({"response": out})
     except Exception as e:
         return JSONResponse({"error": "chat_failed", "detail": str(e)}, status_code=500)
@@ -136,3 +158,53 @@ async def todo_delete(body: TodoIdRequest):
         return JSONResponse({"status": "ok"})
     except Exception as e:
         return JSONResponse({"error": "todo_delete_failed", "detail": str(e)}, status_code=500)
+
+# Session management
+@app.post("/api/session/create")
+async def create_session_ep(body: SessionCreateRequest):
+    try:
+        session_id = memory.create_session(body.title)
+        return JSONResponse({"id": session_id})
+    except Exception as e:
+        return JSONResponse({"error": "session_create_failed", "detail": str(e)}, status_code=500)
+
+@app.get("/api/session/list")
+async def list_sessions_ep():
+    try:
+        sessions = memory.list_sessions()
+        return JSONResponse({"sessions": sessions})
+    except Exception as e:
+        return JSONResponse({"error": "session_list_failed", "detail": str(e)}, status_code=500)
+
+@app.get("/api/session/{session_id}/messages")
+async def get_session_messages_ep(session_id: int):
+    try:
+        messages = memory.list_messages(session_id)
+        return JSONResponse({"messages": messages})
+    except Exception as e:
+        return JSONResponse({"error": "session_messages_failed", "detail": str(e)}, status_code=500)
+
+@app.post("/api/session/{session_id}/append")
+async def append_message_ep(session_id: int, body: MessageAppendRequest):
+    try:
+        message_id = memory.append_message(session_id, body.role, body.content)
+        return JSONResponse({"id": message_id})
+    except Exception as e:
+        return JSONResponse({"error": "message_append_failed", "detail": str(e)}, status_code=500)
+
+# Memory management
+@app.post("/api/memory/build")
+async def build_memory_ep():
+    try:
+        memory.build_index()
+        return JSONResponse({"status": "ok"})
+    except Exception as e:
+        return JSONResponse({"error": "memory_build_failed", "detail": str(e)}, status_code=500)
+
+@app.post("/api/memory/query")
+async def query_memory_ep(body: MemoryQueryRequest):
+    try:
+        results = memory.query_memory(body.q, body.k)
+        return JSONResponse({"results": results})
+    except Exception as e:
+        return JSONResponse({"error": "memory_query_failed", "detail": str(e)}, status_code=500)

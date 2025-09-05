@@ -8,6 +8,12 @@
 </head>
 <body>
   <h2>PrimordiumEvolv Minimal</h2>
+  <div>
+    <label for="sessionSelect">Session:</label>
+    <select id="sessionSelect"></select>
+    <button onclick="newSession()">New Session</button>
+    <button onclick="loadSessions()">Refresh</button>
+  </div>
   <textarea id="prompt" placeholder="Type a prompt or task..."></textarea>
   <div>
     <button onclick="doChat()">Chat</button>
@@ -15,6 +21,8 @@
     <button onclick="doSearch()">Web Search</button>
     <button onclick="doRagBuild()">RAG Build</button>
     <button onclick="doRagQuery()">RAG Query</button>
+    <button onclick="doMemoryQuery()">Memory Query</button>
+    <button onclick="buildMemory()">Build Memory</button>
   </div>
   <h3>TODO</h3>
   <input id="todoText" placeholder="Add todo"/><button onclick="addTodo()">Add</button>
