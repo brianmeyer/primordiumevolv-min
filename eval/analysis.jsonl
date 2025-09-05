@@ -1,0 +1,3 @@
+{"task_class":"analysis","task":"Explain the main tradeoffs of running an LLM fully on-device for a field medic assistant. 3 bullets max.","assertions":["mentions latency","mentions privacy or security","mentions battery or resource limits","max 3 bullets"]}
+{"task_class":"analysis","task":"List the top 3 risks when deploying agents into financial workflows and how to mitigate each in one line.","assertions":["3 risks","mitigation mentioned for each","mentions monitoring or audit"]}
+{"task_class":"analysis","task":"In 3 bullets, compare RAG vs fine-tuning for domain adaptation in a regulated setting.","assertions":["mentions RAG pros/cons","mentions fine-tuning pros/cons","mentions compliance or change-management"]}

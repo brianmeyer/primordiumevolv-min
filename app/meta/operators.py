@@ -32,13 +32,14 @@ FEWSHOT_EXAMPLES = {
 def get_default_plan() -> Dict[str, Any]:
     """Get default execution plan."""
     return {
+        "engine": "ollama",
         "system": SYSTEMS[0],
         "nudge": NUDGES[0],
         "params": {"temperature": 0.7, "top_k": 40},
         "use_rag": False,
         "use_memory": False,
         "use_web": False,
-        "fewshot": None
+        "fewshot": None,
     }
 
 def build_plan(operator_name: str, base_recipe: Optional[Dict] = None) -> Dict[str, Any]:
@@ -56,6 +57,7 @@ def build_plan(operator_name: str, base_recipe: Optional[Dict] = None) -> Dict[s
         plan = get_default_plan()
     else:
         plan = {
+            "engine": base_recipe.get("engine", "ollama"),
             "system": base_recipe.get("system", SYSTEMS[0]),
             "nudge": base_recipe.get("nudge", NUDGES[0]),
             "params": base_recipe.get("params", {"temperature": 0.7, "top_k": 40}).copy(),
@@ -100,7 +102,16 @@ def build_plan(operator_name: str, base_recipe: Optional[Dict] = None) -> Dict[s
     elif operator_name == "lower_top_k":
         current_k = plan["params"].get("top_k", 40)
         plan["params"]["top_k"] = max(1, current_k - random.randint(5, 15))
+
+    elif operator_name == "use_groq":
+        # Engine switch to Groq; runner will validate availability
+        plan["engine"] = "groq"
         
+    return plan
+
+def use_groq(plan: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+    plan = dict(plan)
+    plan["engine"] = "groq"
     return plan
 
 def apply(plan: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:

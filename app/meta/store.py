@@ -9,6 +9,12 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "storage", "meta.d
 def _conn():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     c = sqlite3.connect(DB_PATH)
+    try:
+        c.execute("PRAGMA journal_mode=WAL;")
+        c.execute("PRAGMA synchronous=NORMAL;")
+        c.execute("PRAGMA temp_store=MEMORY;")
+    except Exception:
+        pass
     return c
 
 def init_db():
@@ -25,7 +31,10 @@ def init_db():
             created_at REAL,
             avg_score REAL DEFAULT 0,
             uses INTEGER DEFAULT 0,
-            approved INTEGER DEFAULT 0
+            approved INTEGER DEFAULT 0,
+            updated_at REAL DEFAULT 0,
+            engine TEXT DEFAULT 'ollama',
+            engine_confidence REAL DEFAULT 0.5
         )
     """)
     
@@ -40,15 +49,11 @@ def init_db():
             finished_at REAL,
             best_variant_id INTEGER,
             best_score REAL,
-            operator_names_json TEXT
+            operator_names_json TEXT,
+            meta_version TEXT DEFAULT 'v1',
+            config_json TEXT
         )
     """)
-    
-    # Add operator_names_json column if missing (migration)
-    try:
-        c.execute("ALTER TABLE runs ADD COLUMN operator_names_json TEXT")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
     
     # Variants table - individual attempts within a run
     c.execute("""
@@ -64,28 +69,75 @@ def init_db():
             created_at REAL,
             operator_name TEXT,
             groups_json TEXT,
+            execution_time_ms INTEGER DEFAULT 0,
+            model_id TEXT,
             FOREIGN KEY (run_id) REFERENCES runs(id)
         )
     """)
-    
-    # Add analytics columns if missing (migration)
-    try:
-        c.execute("ALTER TABLE variants ADD COLUMN operator_name TEXT")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        c.execute("ALTER TABLE variants ADD COLUMN groups_json TEXT")
-    except sqlite3.OperationalError:
-        pass
     
     # Operator stats table - bandit statistics
     c.execute("""
         CREATE TABLE IF NOT EXISTS operator_stats(
             name TEXT PRIMARY KEY,
             n INTEGER DEFAULT 0,
-            avg_reward REAL DEFAULT 0
+            avg_reward REAL DEFAULT 0,
+            total_time_ms INTEGER DEFAULT 0,
+            last_used_at REAL DEFAULT 0
         )
     """)
+    
+    # Engine-specific operator stats
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS operator_engine_stats(
+            operator_name TEXT,
+            engine TEXT,
+            n INTEGER DEFAULT 0,
+            avg_reward REAL DEFAULT 0,
+            total_time_ms INTEGER DEFAULT 0,
+            last_used_at REAL DEFAULT 0,
+            PRIMARY KEY (operator_name, engine)
+        )
+    """)
+    
+    # Migration-safe column additions
+    migrations = [
+        ("runs", "operator_names_json", "TEXT"),
+        ("runs", "meta_version", "TEXT DEFAULT 'v1'"),
+        ("runs", "config_json", "TEXT"),
+        ("variants", "operator_name", "TEXT"),
+        ("variants", "groups_json", "TEXT"),
+        ("variants", "execution_time_ms", "INTEGER DEFAULT 0"),
+        ("variants", "model_id", "TEXT"),
+        ("recipes", "updated_at", "REAL DEFAULT 0"),
+        ("recipes", "engine", "TEXT DEFAULT 'ollama'"),
+        ("recipes", "engine_confidence", "REAL DEFAULT 0.5"),
+        ("operator_stats", "total_time_ms", "INTEGER DEFAULT 0"),
+        ("operator_stats", "last_used_at", "REAL DEFAULT 0")
+    ]
+    
+    for table, column, column_type in migrations:
+        try:
+            c.execute(f"ALTER TABLE {table} ADD COLUMN {column} {column_type}")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+    
+    # Add performance indexes
+    indexes = [
+        "CREATE INDEX IF NOT EXISTS idx_runs_task_class ON runs(task_class)",
+        "CREATE INDEX IF NOT EXISTS idx_runs_started_at ON runs(started_at)",
+        "CREATE INDEX IF NOT EXISTS idx_variants_run_id ON variants(run_id)",
+        "CREATE INDEX IF NOT EXISTS idx_variants_operator ON variants(operator_name)",
+        "CREATE INDEX IF NOT EXISTS idx_variants_score ON variants(score)",
+        "CREATE INDEX IF NOT EXISTS idx_recipes_task_class ON recipes(task_class)",
+        "CREATE INDEX IF NOT EXISTS idx_recipes_score ON recipes(avg_score)",
+        "CREATE INDEX IF NOT EXISTS idx_operator_stats_name ON operator_stats(name)"
+    ]
+    
+    for idx_sql in indexes:
+        try:
+            c.execute(idx_sql)
+        except sqlite3.OperationalError:
+            pass  # Index already exists
     
     c.commit()
     c.close()
@@ -104,11 +156,12 @@ def save_run_start(task_class: str, task: str, assertions: Optional[List[str]]) 
 
 def save_variant(run_id: int, system: str, nudge: str, params: dict, 
                 prompt: str, output: str, score: float, 
-                operator_name: str = None, groups_json: str = None) -> int:
+                operator_name: str = None, groups_json: str = None,
+                execution_time_ms: int = 0, model_id: str = None) -> int:
     c = _conn()
     cursor = c.execute(
-        "INSERT INTO variants(run_id, system, nudge, params_json, prompt, output, score, created_at, operator_name, groups_json) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (run_id, system, nudge, json.dumps(params), prompt, output, score, time.time(), operator_name, groups_json)
+        "INSERT INTO variants(run_id, system, nudge, params_json, prompt, output, score, created_at, operator_name, groups_json, execution_time_ms, model_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (run_id, system, nudge, json.dumps(params), prompt, output, score, time.time(), operator_name, groups_json, execution_time_ms, model_id)
     )
     variant_id = cursor.lastrowid
     c.commit()
@@ -117,41 +170,92 @@ def save_variant(run_id: int, system: str, nudge: str, params: dict,
 
 def save_run_finish(run_id: int, best_variant_id: int, best_score: float, operator_names: List[str] = None):
     c = _conn()
-    operator_names_json = json.dumps(operator_names) if operator_names else None
-    c.execute(
-        "UPDATE runs SET finished_at = ?, best_variant_id = ?, best_score = ?, operator_names_json = ? WHERE id = ?",
-        (time.time(), best_variant_id, best_score, operator_names_json, run_id)
-    )
-    c.commit()
-    c.close()
+    try:
+        c.execute("BEGIN TRANSACTION")
+        operator_names_json = json.dumps(operator_names) if operator_names else None
+        c.execute(
+            "UPDATE runs SET finished_at = ?, best_variant_id = ?, best_score = ?, operator_names_json = ? WHERE id = ?",
+            (time.time(), best_variant_id, best_score, operator_names_json, run_id)
+        )
+        c.execute("COMMIT")
+    except Exception as e:
+        c.execute("ROLLBACK")
+        raise e
+    finally:
+        c.close()
 
-def upsert_operator_stat(name: str, reward: float):
+def upsert_operator_stat(name: str, reward: float, execution_time_ms: int = 0):
     c = _conn()
     # Get current stats
-    cursor = c.execute("SELECT n, avg_reward FROM operator_stats WHERE name = ?", (name,))
+    cursor = c.execute("SELECT n, avg_reward, total_time_ms FROM operator_stats WHERE name = ?", (name,))
     row = cursor.fetchone()
     
     if row:
-        n, avg_reward = row
+        n, avg_reward, total_time_ms = row
         new_n = n + 1
         new_avg = ((avg_reward * n) + reward) / new_n
+        new_total_time = total_time_ms + execution_time_ms
         c.execute(
-            "UPDATE operator_stats SET n = ?, avg_reward = ? WHERE name = ?",
-            (new_n, new_avg, name)
+            "UPDATE operator_stats SET n = ?, avg_reward = ?, total_time_ms = ?, last_used_at = ? WHERE name = ?",
+            (new_n, new_avg, new_total_time, time.time(), name)
         )
     else:
         c.execute(
-            "INSERT INTO operator_stats(name, n, avg_reward) VALUES(?, 1, ?)",
-            (name, reward)
+            "INSERT INTO operator_stats(name, n, avg_reward, total_time_ms, last_used_at) VALUES(?, 1, ?, ?, ?)",
+            (name, reward, execution_time_ms, time.time())
         )
     
     c.commit()
     c.close()
+
+def upsert_operator_engine_stat(operator_name: str, engine: str, reward: float, execution_time_ms: int = 0):
+    """Track operator performance by engine for analytics."""
+    c = _conn()
+    # Get current engine-specific stats
+    cursor = c.execute("SELECT n, avg_reward, total_time_ms FROM operator_engine_stats WHERE operator_name = ? AND engine = ?", (operator_name, engine))
+    row = cursor.fetchone()
+    
+    if row:
+        n, avg_reward, total_time_ms = row
+        new_n = n + 1
+        new_avg = ((avg_reward * n) + reward) / new_n
+        new_total_time = total_time_ms + execution_time_ms
+        c.execute(
+            "UPDATE operator_engine_stats SET n = ?, avg_reward = ?, total_time_ms = ?, last_used_at = ? WHERE operator_name = ? AND engine = ?",
+            (new_n, new_avg, new_total_time, time.time(), operator_name, engine)
+        )
+    else:
+        c.execute(
+            "INSERT INTO operator_engine_stats(operator_name, engine, n, avg_reward, total_time_ms, last_used_at) VALUES(?, ?, 1, ?, ?, ?)",
+            (operator_name, engine, reward, execution_time_ms, time.time())
+        )
+    
+    c.commit()
+    c.close()
+
+def get_operator_engine_stats() -> Dict[str, Dict[str, Dict]]:
+    """Get operator performance stats broken down by engine."""
+    c = _conn()
+    cursor = c.execute("SELECT operator_name, engine, n, avg_reward, total_time_ms, last_used_at FROM operator_engine_stats")
+    stats = {}
+    for row in cursor.fetchall():
+        op_name, engine, n, avg_reward, total_time_ms, last_used_at = row
+        if op_name not in stats:
+            stats[op_name] = {}
+        stats[op_name][engine] = {
+            "n": n,
+            "avg_reward": avg_reward, 
+            "total_time_ms": total_time_ms,
+            "avg_time_ms": total_time_ms / max(1, n),
+            "last_used_at": last_used_at
+        }
+    c.close()
+    return stats
 
 def top_recipes(task_class: str, limit: int = 5) -> List[Dict]:
     c = _conn()
     cursor = c.execute(
-        "SELECT id, system, nudge, params_json, avg_score, uses FROM recipes WHERE task_class = ? AND approved = 1 ORDER BY avg_score DESC LIMIT ?",
+        "SELECT id, system, nudge, params_json, avg_score, uses, engine, engine_confidence FROM recipes WHERE task_class = ? AND approved = 1 ORDER BY avg_score DESC LIMIT ?",
         (task_class, limit)
     )
     recipes = []
@@ -162,18 +266,20 @@ def top_recipes(task_class: str, limit: int = 5) -> List[Dict]:
             "nudge": row[2], 
             "params": json.loads(row[3]) if row[3] else {},
             "avg_score": row[4],
-            "uses": row[5]
+            "uses": row[5],
+            "engine": row[6] or "ollama",
+            "engine_confidence": row[7] or 0.5
         })
     c.close()
     return recipes
 
-def save_recipe(task_class: str, system: str, nudge: str, params: dict, score: float) -> int:
+def save_recipe(task_class: str, system: str, nudge: str, params: dict, score: float, engine: str = "ollama", engine_confidence: float = 0.5) -> int:
     c = _conn()
     # Normalize task_class to lowercase and strip spaces
     normalized_task_class = task_class.lower().strip()
     cursor = c.execute(
-        "INSERT INTO recipes(task_class, system, nudge, params_json, created_at, avg_score, uses) VALUES(?, ?, ?, ?, ?, ?, 0)",
-        (normalized_task_class, system, nudge, json.dumps(params), time.time(), score)
+        "INSERT INTO recipes(task_class, system, nudge, params_json, created_at, avg_score, uses, engine, engine_confidence) VALUES(?, ?, ?, ?, ?, ?, 0, ?, ?)",
+        (normalized_task_class, system, nudge, json.dumps(params), time.time(), score, engine, engine_confidence)
     )
     recipe_id = cursor.lastrowid
     c.commit()

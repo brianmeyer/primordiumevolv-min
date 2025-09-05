@@ -31,6 +31,33 @@ make run      # http://localhost:8000
 - **Rate Limiting**: Token bucket per IP (configurable)
 - **Error Handling**: Structured JSON error responses
 
+## Groq Integration
+- Set `GROQ_API_KEY` and optional `GROQ_MODEL_ID` in `.env`.
+- Verify with `GET /api/health/groq`.
+- In the UI, use "Force engine" to route Meta Runs to `ollama` or `groq`; or leave on auto and enable the ENGINE framework to allow the `use_groq` operator.
+- You can enable "Compare with Groq" to run a single-shot cross-check on the best variant.
+
+## Real-time Meta Runs
+- Async start: `POST /api/meta/run_async` returns `{ run_id }` immediately and performs the run in the background.
+- Live updates: `GET /api/meta/stream?run_id=<id>` streams Server-Sent Events with iteration, judge, and completion events.
+- UI shows a live "Latest Run" table with operator, engine, model, score, and latency per iteration.
+
+## Judge Mode
+- Enable "Judge with Groq" in the Meta panel to pairwise-judge the best local variant against a Groq challenger.
+- Responses include a `judge` block; the UI also displays a subtle toast and a verdict panel.
+
+## UI Tips
+- Tabs: switch between Chat & Tools, Meta, and Dashboard.
+- Shortcuts: Ctrl/Cmd+1/2/3 to switch tabs; Ctrl/Cmd+Enter to run Meta; J toggles Judge; C toggles Compare.
+- Health badges indicate Ollama and Groq status; use "List Groq Models" to verify Groq access.
+
+## Judge Mode + Groq
+- Set `GROQ_API_KEY` in `.env` (leave `GROQ_MODEL_ID` blank to auto-select from `/models`).
+- From the UI, click "List Groq Models" to verify availability.
+- Check "Judge with Groq" to enable pairwise judging; responses include a `judge` field like:
+  `{"judge":{"mode":"pairwise_groq","verdict":{"winner":"A|B|tie","rationale":"..."},"challenger_model":"groq:model"}}`
+- Judge does not alter `best_score`; it provides an orthogonal verdict for audit.
+
 ## API Endpoints
 
 ### Core

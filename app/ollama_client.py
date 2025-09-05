@@ -1,24 +1,46 @@
 import os, requests
+from functools import lru_cache
 from dotenv import load_dotenv
 from typing import List
+import requests.adapters
 
 load_dotenv()
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL_ID = os.getenv("MODEL_ID", "qwen3:4b")
 
+# Connection pooling for better performance
+_session = None
+
+def _get_session():
+    """Get reusable requests session with connection pooling."""
+    global _session
+    if _session is None:
+        _session = requests.Session()
+        adapter = requests.adapters.HTTPAdapter(
+            pool_connections=10,
+            pool_maxsize=20,
+            max_retries=2
+        )
+        _session.mount("http://", adapter)
+        _session.mount("https://", adapter)
+    return _session
+
 class OllamaError(RuntimeError):
     pass
 
 def _get(url: str):
-    r = requests.get(url, timeout=30)
+    session = _get_session()
+    r = session.get(url, timeout=30)
     r.raise_for_status()
     return r.json()
 
 def _post(url: str, payload: dict):
-    r = requests.post(url, json=payload, timeout=600)
+    session = _get_session()
+    r = session.post(url, json=payload, timeout=600)
     r.raise_for_status()
     return r.json()
 
+@lru_cache(maxsize=1, typed=False)
 def models_list() -> List[str]:
     try:
         data = _get(f"{OLLAMA_HOST}/api/tags")

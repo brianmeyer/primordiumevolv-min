@@ -19,7 +19,7 @@ _emb = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 def _cos(a, b): 
     return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-9))
 
-def score_output(out: str, assertions: List[str] | None, task: str) -> float:
+def score_output(out: str, assertions: List[str] | None, task: str, test_cmd: str = None, test_weight: float = 0.0) -> float:
     # semantic similarity to task
     qv = _emb.encode([task], convert_to_numpy=True, normalize_embeddings=True)[0]
     ov = _emb.encode([out[:1500]], convert_to_numpy=True, normalize_embeddings=True)[0]
@@ -30,6 +30,26 @@ def score_output(out: str, assertions: List[str] | None, task: str) -> float:
         av = _emb.encode(assertions, convert_to_numpy=True, normalize_embeddings=True)
         cov = np.mean([_cos(ov, a) for a in av])
         score += 0.5 * cov
+    
+    # external test command scoring
+    if test_cmd and test_weight > 0.0:
+        try:
+            import os
+            import subprocess
+            
+            # Write output to artifacts/out.txt for test to check
+            os.makedirs("artifacts", exist_ok=True)
+            with open("artifacts/out.txt", "w") as f:
+                f.write(out)
+            
+            # Run test command
+            result = subprocess.run(test_cmd, shell=True, capture_output=True, timeout=30)
+            test_score = 1.0 if result.returncode == 0 else 0.0
+            
+            # Blend with semantic score based on test_weight
+            score = (1 - test_weight) * score + test_weight * test_score
+        except Exception:
+            pass  # If test fails, keep original score
     
     return score
 

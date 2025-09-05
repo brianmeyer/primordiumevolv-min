@@ -40,8 +40,99 @@ async function doMemoryQuery(){ try{ const q=document.getElementById("prompt").v
 
 async function buildMemory(){ try{ show(await post("/api/memory/build",{})); }catch(e){show(String(e));}}
 
+// Meta-evolution functions
+async function runMetaEvolution() {
+  try {
+    const taskClass = document.getElementById("metaTaskClass").value.trim();
+    const task = document.getElementById("metaTask").value.trim();
+    const n = parseInt(document.getElementById("metaIterations").value);
+    const useBandit = document.getElementById("metaBandit").checked;
+    const eps = parseFloat(document.getElementById("metaEps").value);
+    const memoryK = parseInt(document.getElementById("metaMemoryK").value);
+    const ragK = parseInt(document.getElementById("metaRagK").value);
+    
+    // Get selected framework mask
+    const frameworkSelect = document.getElementById("metaFramework");
+    const frameworkMask = Array.from(frameworkSelect.selectedOptions).map(opt => opt.value);
+    
+    if (!taskClass || !task) {
+      show("Please fill in Task Class and Task fields");
+      return;
+    }
+    
+    // Show progress
+    const metaOutput = document.getElementById("metaOutput");
+    metaOutput.textContent = "🚀 Starting meta-evolution...\n";
+    
+    const payload = {
+      task_class: taskClass,
+      task: task,
+      n: n,
+      use_bandit: useBandit,
+      eps: eps,
+      memory_k: memoryK,
+      rag_k: ragK,
+      framework_mask: frameworkMask.length > 0 ? frameworkMask : null
+    };
+    // Force engine and Groq compare options
+    const forceEngine = document.getElementById("mrForceEngine").value;
+    const compareGroq = document.getElementById("mrCompareGroq").checked;
+    const judgeMode = document.getElementById("mrJudge").checked ? "pairwise_groq" : "off";
+    if (forceEngine) payload.force_engine = forceEngine;
+    if (compareGroq) payload.compare_with_groq = true;
+    payload.judge_mode = judgeMode;
+    payload.judge_include_rationale = true;
+    
+    // Disable controls and show progress
+    const btn = document.getElementById('btnRunMeta');
+    const controls = [
+      'metaTaskClass','metaIterations','metaBandit','metaEps','metaMemoryK','metaRagK','metaFramework','mrForceEngine','mrCompareGroq','mrJudge'
+    ];
+    btn.disabled = true; btn.textContent = 'Running...';
+    controls.forEach(id=>{ const el=document.getElementById(id); if(el) el.disabled = true; });
+    saveMetaState();
+
+    const started = await post("/api/meta/run_async", payload);
+    metaOutput.textContent = `Run ${started.run_id} started...`;
+    try { openRunStream(started.run_id, n); } catch(_e) { /* fallback continues */ }
+    await pollRunProgress(started.run_id, n);
+
+  } catch(e) {
+    document.getElementById("metaOutput").textContent = `❌ Error: ${String(e)}`;
+  } finally {
+    const btn = document.getElementById('btnRunMeta');
+    const controls = [
+      'metaTaskClass','metaIterations','metaBandit','metaEps','metaMemoryK','metaRagK','metaFramework','mrForceEngine','mrCompareGroq','mrJudge'
+    ];
+    btn.disabled = false; btn.textContent = '🚀 Run Meta-Evolution';
+    controls.forEach(id=>{ const el=document.getElementById(id); if(el) el.disabled = false; });
+  }
+}
+
+async function uiListGroq(){
+  try{
+    const j = await get("/api/health/groq_models");
+    document.getElementById("groqModels").textContent = JSON.stringify(j, null, 2);
+  }catch(e){ alert("Groq models query failed: " + e); }
+}
+
+async function viewMetaLogs() {
+  try {
+    const logs = await get("/api/meta/logs?limit=20");
+    const metaOutput = document.getElementById("metaOutput");
+    
+    metaOutput.textContent = `📊 Recent Meta-Evolution Logs:
+${logs.logs.map(log => 
+  `[${log.timestamp}] ${log.artifact_type}: ${JSON.stringify(log.data, null, 2)}`
+).join('\n\n')}`;
+  } catch(e) {
+    document.getElementById("metaOutput").textContent = `❌ Error fetching logs: ${String(e)}`;
+  }
+}
+
 // Dashboard functionality
 let trendChart, rewardChart, shareChart;
+let _dashTimer = null;
 
 async function fetchStats() {
   return await get('/api/meta/stats');
@@ -55,7 +146,7 @@ async function fetchRecipes(taskClass) {
   return await get('/api/meta/recipes' + (taskClass ? ('?task_class=' + encodeURIComponent(taskClass)) : ''));
 }
 
-async function refreshDashboard() {
+async function _doRefreshDashboard() {
   try {
     const tc = document.getElementById('dashTaskClass').value.trim();
     
@@ -159,5 +250,407 @@ async function refreshDashboard() {
   }
 }
 
-// Load sessions on page load
-window.addEventListener('load', loadSessions);
+function refreshDashboard() {
+  if (_dashTimer) { clearTimeout(_dashTimer); }
+  _dashTimer = setTimeout(() => { _dashTimer = null; _doRefreshDashboard(); }, 600);
+}
+
+async function pollRunProgress(runId, expectedN){
+  const metaOutput = document.getElementById("metaOutput");
+  let done = false;
+  while(!done){
+    try{
+      const data = await get(`/api/meta/runs/${runId}`);
+      const count = (data.variants||[]).length;
+      const best = (typeof data.best_score === 'number') ? data.best_score.toFixed(3) : data.best_score;
+      metaOutput.textContent = `Run ${runId}: ${count}/${expectedN} iterations completed.\nBest: ${best}`;
+      await showLatestRun(runId);
+      if (data.finished_at) {
+        metaOutput.textContent = JSON.stringify(data, null, 2);
+        done = true;
+        refreshDashboard();
+        break;
+      }
+    }catch(e){ console.warn('poll error', e); }
+    await new Promise(r=> setTimeout(r, 1200));
+  }
+}
+
+let _evtSource = null;
+function openRunStream(runId, expectedN){
+  try { if (_evtSource) { _evtSource.close(); _evtSource = null; } } catch(_e) {}
+  const es = new EventSource(`/api/meta/stream?run_id=${runId}`);
+  _evtSource = es;
+  const metaOutput = document.getElementById("metaOutput");
+  let count = 0;
+  es.onmessage = (e)=>{
+    try{
+      const data = JSON.parse(e.data);
+      if (data.type === 'iter'){
+        count = data.i + 1;
+        const bestLine = metaOutput.textContent.split('\n')[1]||'';
+        metaOutput.textContent = `Run ${runId}: ${count}/${expectedN} iterations completed.\n${bestLine}`;
+        appendVariantRow(data);
+      } else if (data.type === 'judge'){
+        showJudgeResults(data.judge);
+        // Subtle toast
+        try{ showToast(`Judge verdict: ${JSON.stringify(data.judge.verdict||data.judge)}`); }catch(_e){}
+      } else if (data.type === 'done'){
+        metaOutput.textContent = JSON.stringify(data.result, null, 2);
+        try { _evtSource.close(); } catch(_e) {}
+        _evtSource = null;
+        refreshDashboard();
+      }
+    }catch(_e){ /* ignore parse errors */ }
+  };
+  es.onerror = ()=>{
+    // Keep polling fallback running
+  };
+}
+
+function appendVariantRow(v){
+  const tbody = document.querySelector('#latestRunTable tbody');
+  if(!tbody) return;
+  const tr = document.createElement('tr');
+  const modelId = v.model_id || '';
+  const isGroq = (modelId||'').startsWith('groq:');
+  const engine = v.engine || (isGroq ? 'groq' : 'ollama');
+  const model = isGroq ? modelId.replace(/^groq:/,'') : modelId;
+  const ts = v.timestamp ? new Date(v.timestamp*1000).toLocaleString() : '';
+  tr.innerHTML = `
+    <td style="padding:6px;border-bottom:1px solid #eee;">${(v.i??0)+1}</td>
+    <td style="padding:6px;border-bottom:1px solid #eee;">${v.operator||''}</td>
+    <td style="padding:6px;border-bottom:1px solid #eee;">${engine}</td>
+    <td style="padding:6px;border-bottom:1px solid #eee;">${model}</td>
+    <td style="padding:6px;border-bottom:1px solid #eee;">${(v.score??0).toFixed(3)}</td>
+    <td style="padding:6px;border-bottom:1px solid #eee;">${v.duration_ms??''}</td>
+    <td style="padding:6px;border-bottom:1px solid #eee;">${ts}</td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function showToast(text){
+  const div = document.createElement('div');
+  div.textContent = text;
+  div.style.position='fixed'; div.style.bottom='16px'; div.style.right='16px';
+  div.style.background='var(--panel-2)'; div.style.color='var(--text)'; div.style.padding='10px 14px'; div.style.border='1px solid var(--border)'; div.style.borderRadius='8px';
+  div.style.boxShadow='0 4px 10px rgba(0,0,0,0.35)'; div.style.fontSize='12px';
+  document.body.appendChild(div);
+  setTimeout(()=>{ try{ document.body.removeChild(div);}catch(_e){} }, 2500);
+}
+
+function saveMetaState(){
+  const state = {
+    tc: document.getElementById('metaTaskClass').value,
+    n: document.getElementById('metaIterations').value,
+    bandit: document.getElementById('metaBandit').checked,
+    eps: document.getElementById('metaEps').value,
+    mk: document.getElementById('metaMemoryK').value,
+    rk: document.getElementById('metaRagK').value,
+    fm: Array.from(document.getElementById('metaFramework').selectedOptions).map(o=>o.value),
+    fe: document.getElementById('mrForceEngine').value,
+    cmp: document.getElementById('mrCompareGroq').checked,
+    judge: document.getElementById('mrJudge').checked
+  };
+  try { localStorage.setItem('metaState', JSON.stringify(state)); } catch(_e){}
+}
+
+function loadMetaState(){
+  try{
+    const s = JSON.parse(localStorage.getItem('metaState')||'null');
+    if(!s) return;
+    const set = (id, fn) => { const el=document.getElementById(id); if(el) fn(el); };
+    set('metaTaskClass', el=> el.value = s.tc||'');
+    set('metaIterations', el=> el.value = s.n||'5');
+    set('metaBandit', el=> el.checked = !!s.bandit);
+    set('metaEps', el=> el.value = s.eps||'0.1');
+    set('metaMemoryK', el=> el.value = s.mk||'3');
+    set('metaRagK', el=> el.value = s.rk||'3');
+    set('mrForceEngine', el=> el.value = s.fe||'');
+    set('mrCompareGroq', el=> el.checked = !!s.cmp);
+    set('mrJudge', el=> el.checked = !!s.judge);
+    const fm = document.getElementById('metaFramework');
+    if (fm && Array.isArray(s.fm)) {
+      Array.from(fm.options).forEach(opt => { opt.selected = s.fm.includes(opt.value); });
+    }
+  }catch(_e){}
+}
+
+// New UI helpers for Meta Run and Eval Runner
+async function uiNewSession(){
+  const title = prompt("Session title?", "UI session");
+  if(!title) return;
+  const res = await post("/api/session/create", {title});
+  window.currentSessionId = res.id;
+  alert("Session " + res.id + " created");
+}
+
+async function uiMemoryBuild(){ 
+  try{ 
+    await post("/api/memory/build", {}); 
+    alert("Memory index built"); 
+  }catch(e){ 
+    alert("Memory build failed: " + e); 
+  } 
+}
+
+async function uiRagBuild(){ 
+  try{ 
+    await post("/api/rag/build", {}); 
+    alert("RAG index built"); 
+  }catch(e){ 
+    alert("RAG build failed: " + e); 
+  } 
+}
+
+function _g(id){ return document.getElementById(id); }
+
+function _collectMask(prefix){
+  const m=[];
+  if(_g(prefix+"SEAL")?.checked) m.push("SEAL");
+  if(_g(prefix+"WEB")?.checked) m.push("WEB");
+  if(_g(prefix+"ALPHA")?.checked) m.push("ALPHA");
+  return m;
+}
+
+async function uiMetaRun(){
+  try{
+    const task = document.getElementById("prompt").value.trim();
+    if(!task) return alert("Enter a task in the main textarea first.");
+    const session_id = window.currentSessionId || (await fetch("/api/session/list").then(r=>r.json()).then(j=>j.sessions?.[0]?.id));
+    if(!session_id) return alert("Create a session first.");
+    const assertions = _g("mrAssertions").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    const body = {
+      session_id,
+      task_class: _g("mrTaskClass").value.trim() || "brief",
+      task,
+      assertions,
+      n: parseInt(_g("mrN").value||"12",10),
+      memory_k: parseInt(_g("mrMemK").value||"3",10),
+      rag_k: parseInt(_g("mrRagK").value||"3",10),
+      framework_mask: _collectMask("mrMask"),
+      use_bandit: _g("mrUseBandit").checked
+    };
+    const res = await post("/api/meta/run", body);
+    show(res);
+    refreshDashboard();
+  }catch(e){ 
+    alert("Meta run failed: " + e); 
+  }
+}
+
+async function uiRunEval(){
+  try{
+    const set_path = _g("evalPath").value.trim();
+    if(!set_path) return alert("Set eval file path (e.g., eval/brief.jsonl)");
+    const session_id = window.currentSessionId || (await fetch("/api/session/list").then(r=>r.json()).then(j=>j.sessions?.[0]?.id));
+    if(!session_id) return alert("Create a session first.");
+    const params = new URLSearchParams({
+      session_id,
+      set_path,
+      use_bandit: _g("evalUseBandit").checked ? "true" : "false",
+      n: String(parseInt(_g("evalN").value||"12",10)),
+      memory_k: String(parseInt(_g("evalMemK").value||"3",10)),
+      rag_k: String(parseInt(_g("evalRagK").value||"3",10))
+    });
+    const mask = _collectMask("evalMask");
+    if(mask.length) params.append("framework_mask", mask.join(","));
+    const url = "/api/meta/eval?" + params.toString();
+    const r = await fetch(url, {method:"POST"});
+    const j = await r.json();
+    _g("evalOut").textContent = JSON.stringify(j, null, 2);
+    refreshDashboard();
+  }catch(e){ 
+    alert("Eval failed: " + e); 
+  }
+}
+
+// Health check functionality
+async function checkHealth() {
+  try {
+    const [ollama, engines] = await Promise.all([
+      get("/api/health").catch(()=>({status:'down'})),
+      get("/api/health/groq").catch(()=>({groq:{status:'down'}}))
+    ]);
+    // Update Ollama badge
+    const ollamaEl = document.getElementById("ollamaHealth");
+    if (ollama?.status === "ok") {
+      ollamaEl.textContent = `Ollama: ✓ ${ollama.model || 'OK'}`;
+      ollamaEl.className = "health-badge health-ok";
+    } else {
+      ollamaEl.textContent = "Ollama: ✗ Down";
+      ollamaEl.className = "health-badge health-down";
+    }
+    // Update Groq badge
+    const groqEl = document.getElementById("groqHealth");
+    const g = engines?.groq;
+    if (g?.status === "ok") {
+      groqEl.textContent = "Groq: ✓ OK";
+      groqEl.className = "health-badge health-ok";
+    } else {
+      groqEl.textContent = `Groq: ✗ ${g?.detail || "Down"}`;
+      groqEl.className = "health-badge health-down";
+    }
+  } catch (e) {
+    console.error("Health check failed:", e);
+    document.getElementById("ollamaHealth").textContent = "Ollama: ? Error";
+    document.getElementById("groqHealth").textContent = "Groq: ? Error";
+  }
+}
+
+// Enhanced judge visibility
+function showJudgeResults(judgeData) {
+  const judgePanel = document.getElementById("judgeResults");
+  const judgeContent = document.getElementById("judgeContent");
+  
+  if (judgeData && judgeData.mode) {
+    let content = `<strong>Mode:</strong> ${judgeData.mode}<br>`;
+    
+    if (judgeData.verdict) {
+      content += `<strong>Verdict:</strong> ${judgeData.verdict}<br>`;
+    }
+    
+    if (judgeData.challenger_model) {
+      content += `<strong>Challenger Model:</strong> ${judgeData.challenger_model}<br>`;
+    }
+    
+    if (judgeData.error) {
+      content += `<strong>Error:</strong> <span style="color:#d73527;">${judgeData.error}</span>`;
+    }
+    
+    judgeContent.innerHTML = content;
+    judgePanel.style.display = "block";
+  } else {
+    judgePanel.style.display = "none";
+  }
+}
+
+// Enhanced runMetaEvolution with judge results display
+async function runMetaEvolution() {
+  try {
+    const taskClass = document.getElementById("metaTaskClass").value.trim();
+    const task = document.getElementById("metaTask").value.trim();
+    const n = parseInt(document.getElementById("metaIterations").value);
+    const useBandit = document.getElementById("metaBandit").checked;
+    const eps = parseFloat(document.getElementById("metaEps").value);
+    const memoryK = parseInt(document.getElementById("metaMemoryK").value);
+    const ragK = parseInt(document.getElementById("metaRagK").value);
+    
+    const forceEngine = document.getElementById("mrForceEngine").value;
+    const compareGroq = document.getElementById("mrCompareGroq").checked;
+    const useJudge = document.getElementById("mrJudge").checked;
+    
+    // Get selected framework mask
+    const frameworkSelect = document.getElementById("metaFramework");
+    const frameworkMask = Array.from(frameworkSelect.selectedOptions).map(opt => opt.value);
+    
+    if (!taskClass || !task) {
+      alert("Please provide both task class and task description");
+      return;
+    }
+    
+    const payload = {
+      task_class: taskClass,
+      task,
+      n,
+      eps,
+      use_bandit: useBandit,
+      memory_k: memoryK,
+      rag_k: ragK,
+      framework_mask: frameworkMask,
+      force_engine: forceEngine || null,
+      compare_with_groq: compareGroq,
+      judge_mode: useJudge ? "pairwise_groq" : "off"
+    };
+    
+    document.getElementById("btnRunMeta").disabled = true;
+    document.getElementById("btnRunMeta").textContent = "🔄 Running...";
+    
+    const result = await post("/api/meta/run", payload);
+    
+    document.getElementById("metaOutput").textContent = JSON.stringify(result, null, 2);
+    
+    // Show judge results if available
+    if (result.judge) {
+      showJudgeResults(result.judge);
+    }
+    // Populate latest run table
+    if (result.run_id) {
+      await showLatestRun(result.run_id);
+    }
+    
+    // Refresh dashboard to show new data
+    refreshDashboard();
+    
+  } catch (e) {
+    alert("Meta-evolution failed: " + e.message);
+  } finally {
+    document.getElementById("btnRunMeta").disabled = false;
+    document.getElementById("btnRunMeta").textContent = "🚀 Run Meta-Evolution";
+  }
+}
+
+// Load sessions and check health on page load
+window.addEventListener('load', () => { 
+  loadMetaState(); 
+  loadSessions(); 
+  checkHealth(); 
+  // Restore tab
+  const t = (localStorage.getItem('tab')||'chat');
+  setTab(t);
+  // Keyboard shortcuts
+  window.addEventListener('keydown', onKeyShortcuts);
+});
+
+function setTab(tab){
+  const show = cls => document.querySelectorAll('.pane-'+cls).forEach(el=> el.style.display='');
+  const hide = cls => document.querySelectorAll('.pane-'+cls).forEach(el=> el.style.display='none');
+  ['chat','meta','dash'].forEach(c=> hide(c));
+  if(tab==='meta') show('meta');
+  else if(tab==='dash') show('dash');
+  else show('chat');
+  try{ localStorage.setItem('tab', tab); }catch(_e){}
+  // Activate tab button style
+  const map = {chat:'btnTabChat', meta:'btnTabMeta', dash:'btnTabDash'};
+  ['btnTabChat','btnTabMeta','btnTabDash'].forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('active'); });
+  const active=document.getElementById(map[tab]); if(active) active.classList.add('active');
+}
+
+function onKeyShortcuts(e){
+  const mod = e.ctrlKey || e.metaKey;
+  if(mod && e.key === '1'){ setTab('chat'); e.preventDefault(); }
+  if(mod && e.key === '2'){ setTab('meta'); e.preventDefault(); }
+  if(mod && e.key === '3'){ setTab('dash'); e.preventDefault(); }
+  if(mod && e.key === 'Enter'){ const btn=document.getElementById('btnRunMeta'); if(btn && !btn.disabled){ runMetaEvolution(); e.preventDefault(); } }
+  if(e.key.toLowerCase() === 'j'){ const el=document.getElementById('mrJudge'); if(el){ el.checked=!el.checked; saveMetaState(); } }
+  if(e.key.toLowerCase() === 'c'){ const el=document.getElementById('mrCompareGroq'); if(el){ el.checked=!el.checked; saveMetaState(); } }
+}
+
+async function showLatestRun(runId) {
+  try {
+    const data = await get(`/api/meta/runs/${runId}`);
+    const tbody = document.querySelector('#latestRunTable tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    data.variants.forEach((v, idx) => {
+      const tr = document.createElement('tr');
+      const modelId = v.model_id || '';
+      const isGroq = modelId.startsWith('groq:');
+      const engine = isGroq ? 'groq' : 'ollama';
+      const model = isGroq ? modelId.replace(/^groq:/,'') : modelId;
+      const ts = v.timestamp ? new Date(v.timestamp*1000).toLocaleString() : '';
+      tr.innerHTML = `
+        <td style="padding:6px;border-bottom:1px solid #eee;">${idx+1}</td>
+        <td style="padding:6px;border-bottom:1px solid #eee;">${v.operator||''}</td>
+        <td style="padding:6px;border-bottom:1px solid #eee;">${engine}</td>
+        <td style="padding:6px;border-bottom:1px solid #eee;">${model}</td>
+        <td style="padding:6px;border-bottom:1px solid #eee;">${(v.score??0).toFixed(3)}</td>
+        <td style="padding:6px;border-bottom:1px solid #eee;">${v.duration_ms??''}</td>
+        <td style="padding:6px;border-bottom:1px solid #eee;">${ts}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    console.error('Failed to load latest run:', e);
+  }
+}

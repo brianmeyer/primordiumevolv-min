@@ -2,19 +2,26 @@ import os
 import sqlite3
 import time
 import pickle
-from typing import List, Dict
-from sentence_transformers import SentenceTransformer
+from typing import List, Dict, Optional
+from app.embeddings import get_model as _get_model
 import faiss
 import numpy as np
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "storage", "primordium.db")
-CHAT_INDEX_BIN = ".chat.faiss"
-CHAT_INDEX_META = ".chat.faiss.pkl"
+CHAT_INDEX_BIN = os.path.join(os.path.dirname(__file__), "..", "storage", ".chat.faiss")
+CHAT_INDEX_META = os.path.join(os.path.dirname(__file__), "..", "storage", ".chat.faiss.pkl")
 EMB_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 def _conn():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     c = sqlite3.connect(DB_PATH)
+    # Pragmas for better concurrency/perf on SQLite
+    try:
+        c.execute("PRAGMA journal_mode=WAL;")
+        c.execute("PRAGMA synchronous=NORMAL;")
+        c.execute("PRAGMA temp_store=MEMORY;")
+    except Exception:
+        pass
     c.execute("""
         CREATE TABLE IF NOT EXISTS sessions(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -77,6 +84,14 @@ def append_message(session_id: int, role: str, content: str) -> int:
     message_id = cursor.lastrowid
     c.commit()
     c.close()
+    
+    # Auto-rebuild index if it exists (incremental would be better long-term)
+    if os.path.exists(CHAT_INDEX_BIN) and os.path.exists(CHAT_INDEX_META):
+        try:
+            build_index()  # Rebuild with new message
+        except Exception as e:
+            print(f"[warn] Auto index rebuild failed: {e}")
+    
     return message_id
 
 def build_index():
@@ -86,9 +101,12 @@ def build_index():
     messages = cursor.fetchall()
     c.close()
     
+    # Ensure storage directory exists
+    os.makedirs(os.path.dirname(CHAT_INDEX_BIN), exist_ok=True)
+    
     if not messages:
         # Create empty index
-        model = SentenceTransformer(EMB_MODEL)
+        model = _get_model()
         dim = model.get_sentence_embedding_dimension()
         index = faiss.IndexFlatIP(dim)
         faiss.write_index(index, CHAT_INDEX_BIN)
@@ -101,8 +119,10 @@ def build_index():
     meta_data = []
     
     for msg_id, session_id, role, content in messages:
+        if not content or not content.strip():  # Skip empty messages
+            continue
         # Combine role and content for better semantic search
-        combined_text = f"{role}: {content}"
+        combined_text = f"{role}: {content.strip()}"
         contents.append(combined_text)
         meta_data.append({
             "id": msg_id,
@@ -111,8 +131,18 @@ def build_index():
             "content": content
         })
     
+    if not contents:
+        # No valid content to index
+        model = _get_model()
+        dim = model.get_sentence_embedding_dimension()
+        index = faiss.IndexFlatIP(dim)
+        faiss.write_index(index, CHAT_INDEX_BIN)
+        with open(CHAT_INDEX_META, "wb") as f:
+            pickle.dump({"messages": []}, f)
+        return
+    
     # Generate embeddings
-    model = SentenceTransformer(EMB_MODEL)
+    model = _get_model()
     embeddings = model.encode(contents, convert_to_numpy=True, normalize_embeddings=True)
     
     # Build and save index
@@ -125,36 +155,49 @@ def build_index():
 
 def query_memory(query: str, k: int = 5) -> List[Dict]:
     """Query vector memory for relevant past messages"""
+    if not query or not query.strip():
+        return []
+        
     if not (os.path.exists(CHAT_INDEX_BIN) and os.path.exists(CHAT_INDEX_META)):
         return []
     
-    # Load index and metadata
-    index = faiss.read_index(CHAT_INDEX_BIN)
-    with open(CHAT_INDEX_META, "rb") as f:
-        meta = pickle.load(f)
-    
-    messages = meta["messages"]
-    if not messages:
-        return []
-    
-    # Generate query embedding
-    model = SentenceTransformer(EMB_MODEL)
-    query_embedding = model.encode([query], convert_to_numpy=True, normalize_embeddings=True)
-    
-    # Search
-    scores, indices = index.search(query_embedding, min(k, len(messages)))
-    
-    results = []
-    for score, idx in zip(scores[0], indices[0]):
-        if idx == -1 or idx >= len(messages):
-            continue
+    try:
+        # Load index and metadata
+        index = faiss.read_index(CHAT_INDEX_BIN)
+        with open(CHAT_INDEX_META, "rb") as f:
+            meta = pickle.load(f)
         
-        msg = messages[idx]
-        results.append({
-            "session_id": msg["session_id"],
-            "role": msg["role"],
-            "content": msg["content"],
-            "score": float(score)
-        })
-    
-    return results
+        messages = meta.get("messages", [])
+        if not messages:
+            return []
+        
+        # Generate query embedding
+        model = _get_model()
+        query_embedding = model.encode([query.strip()], convert_to_numpy=True, normalize_embeddings=True)
+        
+        # Search
+        search_k = min(k, len(messages))
+        if search_k <= 0:
+            return []
+            
+        scores, indices = index.search(query_embedding, search_k)
+        
+        results = []
+        for score, idx in zip(scores[0], indices[0]):
+            if idx == -1 or idx >= len(messages) or score < 0.1:  # Filter low similarity
+                continue
+            
+            msg = messages[idx]
+            results.append({
+                "session_id": msg["session_id"],
+                "role": msg["role"],
+                "content": msg["content"],
+                "score": float(score)
+            })
+        
+        # Sort by score descending
+        return sorted(results, key=lambda x: x["score"], reverse=True)
+        
+    except Exception as e:
+        print(f"[warn] Memory query failed: {e}")
+        return []

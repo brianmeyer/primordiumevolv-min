@@ -1,0 +1,3 @@
+{"task_class":"code","task":"Write exactly one line: SUCCESS: brief generator ready.","assertions":["SUCCESS","one line only"],"test_cmd":"python tests/echo_test.py","test_weight":0.7}
+{"task_class":"code","task":"Output exactly 'SUCCESS: api spec v1'. Nothing else.","assertions":["SUCCESS: api spec v1"],"test_cmd":"python tests/echo_test.py","test_weight":0.7}
+{"task_class":"code","task":"Produce a single line: SUCCESS: analysis pass.","assertions":["SUCCESS: analysis pass"],"test_cmd":"python tests/echo_test.py","test_weight":0.7}

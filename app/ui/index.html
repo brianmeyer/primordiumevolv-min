@@ -4,12 +4,77 @@
   <meta charset="utf-8">
   <title>PrimordiumEvolv Minimal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>body{font-family:system-ui, sans-serif;max-width:1200px;margin:20px auto;padding:0 12px}textarea{width:100%;height:140px}.dashboard-section{margin-top:30px;padding:20px;border:1px solid #ddd;border-radius:8px;background:#f9f9f9}.charts-container{display:flex;gap:24px;flex-wrap:wrap;margin:20px 0}.chart-wrapper{flex:1;min-width:280px;background:white;padding:15px;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}</style>
+  <style>
+  :root{
+    --bg:#0b0f14;
+    --bg-grad-1:#0b0f14;
+    --bg-grad-2:#0a0f1a;
+    --panel:rgba(17,25,40,0.55);
+    --panel-2:rgba(11,17,26,0.55);
+    --border:rgba(255,255,255,0.08);
+    --text:#e5e7eb;
+    --muted:#a5b4fc;
+    --primary:#8b5cf6;
+    --primary-700:#7c3aed;
+    --accent:#22d3ee;
+    --success:#22c55e;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+    --surface:rgba(15,23,42,0.45);
+    --code:rgba(13,17,23,0.55);
+    --blur:12px;
+    --shadow:0 8px 30px rgba(0,0,0,0.45);
+  }
+  html,body{
+    background: radial-gradient(1200px 600px at 10% -10%, rgba(124,58,237,0.12), transparent 60%),
+                radial-gradient(1000px 500px at 110% 10%, rgba(34,211,238,0.10), transparent 50%),
+                linear-gradient(180deg, var(--bg-grad-1), var(--bg-grad-2));
+    color:var(--text);
+    font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  }
+  body{max-width:1200px;margin:20px auto;padding:0 12px}
+  a{color:var(--accent)}
+  .tabbar{display:flex;gap:8px;border-bottom:1px solid var(--border);margin:10px 0 16px 0}
+  .tabbar button{background:var(--panel);color:var(--text);border:1px solid var(--border);border-bottom:none;padding:8px 14px;border-top-left-radius:10px;border-top-right-radius:10px;cursor:pointer;backdrop-filter:saturate(140%) blur(var(--blur));-webkit-backdrop-filter:saturate(140%) blur(var(--blur));box-shadow:var(--shadow)}
+  .tabbar button.active{background:var(--panel-2);}
+  .dashboard-section{margin-top:20px;padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--panel);backdrop-filter:saturate(140%) blur(var(--blur));-webkit-backdrop-filter:saturate(140%) blur(var(--blur));box-shadow:var(--shadow)}
+  .charts-container{display:flex;gap:24px;flex-wrap:wrap;margin:20px 0}
+  .chart-wrapper{flex:1;min-width:280px;background:var(--panel-2);padding:15px;border-radius:12px;box-shadow:var(--shadow);backdrop-filter:saturate(140%) blur(var(--blur));-webkit-backdrop-filter:saturate(140%) blur(var(--blur));}
+  label{color:var(--muted)}
+  input, select, textarea{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px;backdrop-filter:blur(calc(var(--blur) - 4px));-webkit-backdrop-filter:blur(calc(var(--blur) - 4px))}
+  textarea{width:100%;height:140px}
+  button{background:linear-gradient(180deg, var(--primary), var(--primary-700));color:white;border:1px solid var(--border);padding:10px 14px;border-radius:10px;cursor:pointer;box-shadow:var(--shadow)}
+  button:hover{filter:brightness(1.05)}
+  pre{background:var(--panel-2);color:var(--text);padding:12px;border-radius:12px;border:1px solid var(--border);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur))}
+  table{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--panel);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));}
+  th{background:var(--panel-2);color:var(--muted)}
+  td,th{border-bottom:1px solid var(--border)}
+  .health-badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;margin:0 6px;background:var(--panel-2);border:1px solid var(--border);color:var(--muted);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur))}
+  .health-ok{background:rgba(34,197,94,0.18);color:#a7f3d0;border-color:rgba(34,197,94,0.35)}
+  .health-down{background:rgba(239,68,68,0.18);color:#fecaca;border-color:rgba(239,68,68,0.35)}
+  .judge-panel{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);padding:12px;border-radius:12px;margin:10px 0;font-size:13px;color:#fde68a;backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur))}
+  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))){
+    .dashboard-section,.chart-wrapper,.tabbar button,pre,table,input,select,textarea{background:#0f172a!important}
+  }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <h2>PrimordiumEvolv Minimal</h2>
-  <div>
+  <div class="tabbar" style="margin:10px 0; border-bottom:1px solid #ddd; display:flex; gap:12px;">
+    <button id="btnTabChat" onclick="setTab('chat')">Chat & Tools</button>
+    <button id="btnTabMeta" onclick="setTab('meta')">Meta</button>
+    <button id="btnTabDash" onclick="setTab('dash')">Dashboard</button>
+  </div>
+  
+  <div style="margin-bottom:16px;padding:8px;background:#f8f9fa;border-radius:6px;border:1px solid #dee2e6;">
+    <strong>System Health:</strong>
+    <span id="ollamaHealth" class="health-badge">Ollama: checking...</span>
+    <span id="groqHealth" class="health-badge">Groq: checking...</span>
+    <button onclick="checkHealth()" style="margin-left:10px;padding:2px 8px;font-size:12px;">🔄 Refresh</button>
+  </div>
+  
+  <div class="pane-chat">
     <label for="sessionSelect">Session:</label>
     <select id="sessionSelect"></select>
     <button onclick="newSession()">New Session</button>
@@ -28,12 +93,131 @@
   <h3>TODO</h3>
   <input id="todoText" placeholder="Add todo"/><button onclick="addTodo()">Add</button>
   <pre id="out"></pre>
+
+  <div class="pane-chat" style="margin-top:16px;padding:12px;border:1px solid #ddd;border-radius:8px">
+    <h3>Meta Run</h3>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <label>Task class <input id="mrTaskClass" placeholder="brief"></label>
+      <label>N <input id="mrN" type="number" value="12" min="1" max="24" style="width:80px"></label>
+      <label>Mem k <input id="mrMemK" type="number" value="3" min="0" max="10" style="width:80px"></label>
+      <label>RAG k <input id="mrRagK" type="number" value="3" min="0" max="10" style="width:80px"></label>
+      <label><input id="mrUseBandit" type="checkbox" checked> Use bandit</label>
+      <label><input id="mrMaskSEAL" type="checkbox" checked> SEAL</label>
+      <label><input id="mrMaskWEB" type="checkbox" checked> WEB</label>
+      <label><input id="mrMaskALPHA" type="checkbox"> ALPHA</label>
+    </div>
+    <label>Assertions (one per line)</label>
+    <textarea id="mrAssertions" placeholder="on-device or edge&#10;low latency or real-time&#10;3-item checklist" style="width:100%;height:80px"></textarea>
+    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+      <button onclick="uiNewSession()">New Session</button>
+      <button onclick="uiMemoryBuild()">Memory Build</button>
+      <button onclick="uiRagBuild()">RAG Build</button>
+      <button onclick="uiMetaRun()">Meta Run</button>
+      <button onclick="refreshDashboard()">Refresh Dashboard</button>
+    </div>
+  </div>
+
+  <div class="pane-chat" style="margin-top:16px;padding:12px;border:1px solid #ddd;border-radius:8px">
+    <h3>Eval Runner</h3>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <label>Eval file <input id="evalPath" placeholder="eval/brief.jsonl" style="min-width:240px"></label>
+      <label>Use bandit <input id="evalUseBandit" type="checkbox" checked></label>
+      <label>N <input id="evalN" type="number" value="12" min="1" max="24" style="width:80px"></label>
+      <label>Mem k <input id="evalMemK" type="number" value="3" min="0" max="10" style="width:80px"></label>
+      <label>RAG k <input id="evalRagK" type="number" value="3" min="0" max="10" style="width:80px"></label>
+    </div>
+    <div>
+      <label><input id="evalMaskSEAL" type="checkbox" checked> SEAL</label>
+      <label><input id="evalMaskWEB" type="checkbox" checked> WEB</label>
+      <label><input id="evalMaskALPHA" type="checkbox"> ALPHA</label>
+    </div>
+    <button onclick="uiRunEval()">Run Eval</button>
+    <pre id="evalOut" style="max-height:220px; overflow:auto"></pre>
+  </div>
   
-  <div class="dashboard-section">
+  <div class="dashboard-section pane-dash">
     <h3>🧠 Improvement Dashboard</h3>
     <label>Task class: <input id="dashTaskClass" placeholder="code, analysis, etc. (optional)" style="width:200px;"></label>
     <button onclick="refreshDashboard()" style="margin-left:10px;">Refresh Dashboard</button>
+  </div>
+  
+  <div class="dashboard-section pane-meta">
+    <h3>🚀 Meta-Evolution Control</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;">
+      <div>
+        <label>Task Class: <input id="metaTaskClass" placeholder="e.g., code, analysis" style="width:100%;"></label>
+      </div>
+      <div>
+        <label>Iterations: <input id="metaIterations" type="number" value="5" min="1" max="24" style="width:100%;"></label>
+      </div>
+    </div>
+    <div>
+      <label>Task/Prompt:</label>
+      <textarea id="metaTask" placeholder="Describe the task to optimize..." style="width:100%;height:80px;"></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0;">
+      <div>
+        <label><input type="checkbox" id="metaBandit" checked> Use Bandit</label><br>
+        <label>ε: <input id="metaEps" type="number" value="0.1" step="0.1" min="0" max="1" style="width:60px;"></label>
+      </div>
+      <div>
+        <label>Memory K: <input id="metaMemoryK" type="number" value="3" min="0" max="10" style="width:60px;"></label><br>
+        <label>RAG K: <input id="metaRagK" type="number" value="3" min="0" max="10" style="width:60px;"></label>
+      </div>
+      <div>
+        <label>Framework Mask:</label>
+        <select id="metaFramework" multiple size="3" style="width:100%;">
+          <option value="SEAL">SEAL (mutations)</option>
+          <option value="WEB">WEB (web search)</option>
+          <option value="SAMPLING">SAMPLING (params)</option>
+          <option value="ENGINE">ENGINE</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; align-items:center; margin:6px 0 12px 0;">
+      <label>Force engine
+        <select id="mrForceEngine">
+          <option value="">auto</option>
+          <option value="ollama">ollama</option>
+          <option value="groq">groq</option>
+        </select>
+      </label>
+      <label><input id="mrCompareGroq" type="checkbox"> Compare with Groq (single-shot)</label>
+      <label><input id="mrJudge" type="checkbox"> Judge with Groq</label>
+      <button onclick="uiListGroq()">List Groq Models</button>
+    </div>
+    <pre id="groqModels" style="background:white;padding:10px;border-radius:4px;max-height:120px;overflow:auto;font-size:12px;"></pre>
+    <div style="margin:10px 0;">
+      <button id="btnRunMeta" onclick="runMetaEvolution()" style="background:#28a745;color:white;padding:10px 20px;border:none;border-radius:4px;">🚀 Run Meta-Evolution</button>
+      <button onclick="viewMetaLogs()" style="margin-left:10px;padding:10px 15px;">📊 View Logs</button>
+    </div>
+    <div id="metaOutput" style="background:white;padding:10px;border-radius:4px;min-height:100px;margin-top:10px;font-family:monospace;font-size:12px;white-space:pre-wrap;"></div>
     
+    <div id="judgeResults" class="judge-panel" style="display:none;">
+      <h4>🧑‍⚖️ Judge Results</h4>
+      <div id="judgeContent"></div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <h3>Latest Run</h3>
+      <table id="latestRunTable" style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr>
+            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">#</th>
+            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Operator</th>
+            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Engine</th>
+            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Model</th>
+            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Score</th>
+            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Duration (ms)</th>
+            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Time</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="dashboard-section pane-dash" style="margin-top:10px;">
     <div style="margin:15px 0;">
       <h4>Performance Trend</h4>
       <canvas id="trendChart" height="100"></canvas>

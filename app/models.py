@@ -37,7 +37,7 @@ class MemoryQueryRequest(BaseModel):
     k: conint(ge=1, le=20) = 5
 
 class MetaRunRequest(BaseModel):
-    session_id: conint(ge=1)
+    session_id: Optional[conint(ge=1)] = None
     task_class: constr(strip_whitespace=True, min_length=2)
     task: constr(strip_whitespace=True, min_length=2)
     assertions: Optional[List[constr(strip_whitespace=True, min_length=1)]] = None
@@ -45,3 +45,10 @@ class MetaRunRequest(BaseModel):
     memory_k: conint(ge=0, le=10) = 3
     rag_k: conint(ge=0, le=10) = 3
     operators: Optional[List[constr(strip_whitespace=True, min_length=2)]] = None
+    use_bandit: bool = True
+    framework_mask: Optional[List[constr(strip_whitespace=True, min_length=2)]] = None
+    eps: float = Field(default=0.1, ge=0.0, le=1.0)
+    force_engine: Optional[constr(strip_whitespace=True, min_length=3)] = None  # "ollama" or "groq"
+    compare_with_groq: Optional[bool] = False
+    judge_mode: Optional[constr(strip_whitespace=True, min_length=2)] = "off"   # "off" | "pairwise_groq"
+    judge_include_rationale: bool = True
