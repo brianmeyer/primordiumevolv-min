@@ -64,7 +64,10 @@ async function runMetaEvolution() {
     const metaOutput = document.getElementById("metaOutput");
     metaOutput.textContent = "🚀 Starting meta-evolution...\n";
     
+    const sessionId = getSelectedSession();
+    if(!sessionId){ show('Please select or create a session first'); return; }
     const payload = {
+      session_id: sessionId,
       task_class: taskClass,
       task: task,
       n: n,
