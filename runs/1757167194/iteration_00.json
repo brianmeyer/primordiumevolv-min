@@ -1,0 +1,21 @@
+{
+  "iteration": 0,
+  "operator": "toggle_web",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "score": 0.3448441025146529,
+  "reward": 19.922344102514653,
+  "output_preview": "<think>\nOkay, the user is asking about useful peptides like tesamorelin, ipamorelin, cjc, bpc157, etc. They want concise, direct output as a senior engineer would provide. \n\nFirst, I recall the web co..."
+}

@@ -1,0 +1,41 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-06T18:10:56.501746+00:00",
+  "unix_timestamp": 1757182256.50175,
+  "data": {
+    "run_id": 19,
+    "task_class": "research",
+    "task": "I need to know what peptides are useful, tesamorelin, ipamorelin, cjc, bpc157, etc",
+    "config": {
+      "n": 12,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web",
+        "use_groq",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.3,
+      "use_bandit": true,
+      "framework_mask": [
+        "SEAL",
+        "SAMPLING",
+        "ENGINE",
+        "WEB"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

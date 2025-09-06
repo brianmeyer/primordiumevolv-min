@@ -40,6 +40,17 @@ make run      # http://localhost:8000
 - Live updates: `GET /api/meta/stream?run_id=<id>` streams Server-Sent Events with iteration, judge, and completion events.
 - UI shows a live "Latest Run" table with operator, engine, model, score, and latency per iteration.
 
+## M1 Upgrades (Enabled by Default)
+- Trajectory Logging: Writes `runs/{timestamp}/trajectory.json` with per‑iteration operator, engine, time, score, and reward.
+- Process + Cost Rewards: Optional blended reward for bandit updates (base + process delta − time cost). Tunable via `REWARD_ALPHA`, `REWARD_BETA_PROCESS`, `REWARD_GAMMA_COST`.
+- Operator Masks per Task: Optional masks from `storage/operator_masks.json` (keys are task_class), supporting `framework_mask` (e.g., `["SEAL","ENGINE"]`) and `operators` allowlists.
+- Eval Suite + Gating: Safety probes run at end of run and write `runs/{timestamp}/eval.json`. Results include `eval` in API response.
+- Defaults: Meta `n=12` and `ε=0.3` (override via `META_DEFAULT_N`, `META_DEFAULT_EPS`).
+
+Feature Flags (in `.env`)
+- `FF_TRAJECTORY_LOG=1`, `FF_PROCESS_COST_REWARD=1`, `FF_OPERATOR_MASKS=1`, `FF_EVAL_GATE=1` (all ON by default).
+- Reward weights: `REWARD_ALPHA`, `REWARD_BETA_PROCESS`, `REWARD_GAMMA_COST`.
+
 ## Judge Mode
 - Enable "Judge with Groq" in the Meta panel to pairwise-judge the best local variant against a Groq challenger.
 - Responses include a `judge` block; the UI also displays a subtle toast and a verdict panel.
@@ -190,6 +201,8 @@ curl -X POST http://localhost:8000/api/meta/run \
 Each run creates `runs/{timestamp}/`:
 - `results.json` - Final metrics and best recipe
 - `iteration_XX.json` - Per-iteration operator selection and scoring
+- `trajectory.json` - Per‑iteration trajectory (if `FF_TRAJECTORY_LOG=1`)
+- `eval.json` - Safety gating results (if `FF_EVAL_GATE=1`)
 - Recipes automatically saved to database for future use
 
 ### Recipe Evolution
@@ -205,3 +218,13 @@ Each run creates `runs/{timestamp}/`:
 Observations:
 - With small N and ε=0.1, the bandit exploited `toggle_web`. To diversify, raise N (8–12), increase ε (0.3–0.5), add domain assertions, and optionally mask out WEB for a run to encourage memory/RAG/system exploration.
 - Groq compare showed slight gains on the same prompt/system; enabling the ENGINE mask lets the operator explore engine switches.
+
+## UI Usage (New Evolution Panel)
+- Describe task, select Task Type, and click “Start Evolution”. The run starts via `/api/meta/run_async` and streams progress via SSE.
+- “Quick Test” sends a one‑off Chat (with memory); “Stream Test” streams the response live.
+- Results card shows best score, delta vs baseline, Groq compare, and safety gate status when enabled.
+
+## Troubleshooting
+- 500 on `/api/meta/stats`: fixed — the endpoint now initializes the meta DB if needed. If you still see errors, ensure the app has write access to `storage/`.
+- Empty trajectory/eval: ensure flags are ON in `.env`; artifacts are written only when enabled.
+- Long generation: there is no app‑side token cap; generation length is controlled by the model. Consider force‑engine=groq or using a smaller local model for faster iteration.

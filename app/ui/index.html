@@ -85,6 +85,11 @@
   .result-score{font-size:2em;font-weight:bold;color:var(--accent);text-align:center;margin:8px 0}
   .result-improvement{text-align:center;color:var(--success);font-size:1.1em;margin:8px 0}
   
+  /* Rating Panel */
+  .rating-panel{animation:slideIn 0.3s ease}
+  .rating-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+  @keyframes slideIn{0%{opacity:0;transform:translateY(-10px)}100%{opacity:1;transform:translateY(0)}}
+  
   /* Utility */
   .hidden{display:none}
   .text-center{text-align:center}
@@ -158,6 +163,23 @@
     </div>
     <div id="evolutionSteps"></div>
     <div id="currentOutput" class="evolution-step" style="margin-top:16px;font-family:monospace;font-size:0.9em;background:var(--code);min-height:100px;padding:16px;white-space:pre-wrap;overflow:auto"></div>
+    
+    <!-- Human Rating Panel -->
+    <div id="ratingPanel" class="rating-panel hidden" style="margin-top:16px;padding:16px;background:var(--panel);border-radius:10px;border:1px solid var(--accent)">
+      <h4 style="margin:0 0 12px 0;color:var(--accent)">🧑‍⚖️ Rate This Response</h4>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
+        <button id="rateGood" class="rating-btn" style="background:var(--success);color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer">👍 Good</button>
+        <button id="ratePoor" class="rating-btn" style="background:var(--danger);color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer">👎 Poor</button>
+        <span class="text-muted">or</span>
+        <input id="detailedRating" type="range" min="1" max="10" value="5" style="flex:1">
+        <span id="ratingValue" class="text-muted">5/10</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="ratingFeedback" type="text" placeholder="Optional feedback..." style="flex:1;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
+        <button id="submitRating" class="secondary-btn" style="padding:8px 16px">Submit Rating</button>
+      </div>
+      <div id="ratingStatus" class="text-muted" style="margin-top:8px;font-size:0.85em"></div>
+    </div>
   </div>
   
   <!-- Results -->
@@ -237,6 +259,6 @@
     <div id="groqModels"></div>
   </div>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=20250906"></script>
 </body>
 </html>

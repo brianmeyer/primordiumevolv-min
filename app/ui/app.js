@@ -6,10 +6,15 @@ let evolutionEventSource = null;
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     checkHealth();
+    setupRatingSystem();
     
     // Auto-check health every 30 seconds
     setInterval(checkHealth, 30000);
 });
+
+// Global variables for rating system
+let currentVariantId = null;
+let currentIterationOutput = null;
 
 // Health Check
 async function checkHealth() {
@@ -78,19 +83,35 @@ async function startEvolution() {
     
     try {
         console.log('Sending evolution request...');
-        const response = await fetch('/api/meta/run', {
+        // Ensure a session exists
+        let sid = null;
+        try {
+            const sess = await fetch('/api/session/list').then(r=>r.json());
+            sid = (sess.sessions&&sess.sessions[0]&&sess.sessions[0].id) || null;
+            if(!sid){
+                const created = await fetch('/api/session/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:'Auto Session'})}).then(r=>r.json());
+                sid = created.id;
+            }
+        } catch(_e) {}
+
+        // Build framework mask
+        const frameworkMask = ['SEAL','SAMPLING','ENGINE'].concat(useWeb? ['WEB']: []);
+
+        const response = await fetch('/api/meta/run_async', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                session_id: sid,
                 task_class: taskType,
                 task: task,
                 n: iterations,
                 use_bandit: true,
-                epsilon: epsilon,
+                eps: epsilon,
                 memory_k: memoryK,
-                use_web: useWeb
+                rag_k: 3,
+                framework_mask: frameworkMask
             }),
         });
         
@@ -103,11 +124,13 @@ async function startEvolution() {
         }
         
         const data = await response.json();
-        console.log('Evolution started with run_id:', data.run_id);
-        currentRunId = data.run_id;
-        
-        // Start streaming progress
-        startEvolutionStream(data.run_id);
+        if(data.run_id){
+            console.log('Evolution started with run_id:', data.run_id);
+            currentRunId = data.run_id;
+            startEvolutionStream(data.run_id, iterations);
+        } else {
+            throw new Error('No run_id returned');
+        }
         
     } catch (error) {
         console.error('Evolution failed:', error);
@@ -126,7 +149,7 @@ function showEvolutionProgress() {
     document.getElementById('currentOutput').textContent = 'Starting evolution...';
 }
 
-function startEvolutionStream(runId) {
+function startEvolutionStream(runId, totalIterations) {
     console.log('Starting evolution stream for run_id:', runId);
     
     if (evolutionEventSource) {
@@ -138,7 +161,7 @@ function startEvolutionStream(runId) {
     evolutionEventSource.onmessage = function(event) {
         console.log('Evolution stream event:', event.data);
         const data = JSON.parse(event.data);
-        handleEvolutionEvent(data);
+        handleEvolutionEvent(data, totalIterations);
     };
     
     evolutionEventSource.onopen = function(event) {
@@ -156,26 +179,38 @@ function startEvolutionStream(runId) {
     };
 }
 
-function handleEvolutionEvent(data) {
-    switch (data.type) {
-        case 'iteration_start':
-            addEvolutionStep(`🔄 Iteration ${data.iteration + 1}: Trying ${data.operator}`, 'running');
-            updateProgress((data.iteration / data.total_iterations) * 100);
-            break;
-            
-        case 'iteration_complete':
-            updateLastStep(`✅ Iteration ${data.iteration + 1}: Score ${data.score.toFixed(3)} (${data.operator})`, 'completed');
-            document.getElementById('currentOutput').textContent = data.output || 'No output';
-            break;
-            
-        case 'done':
-            handleEvolutionComplete(data.result);
-            break;
-            
-        case 'error':
-            showError('Evolution error: ' + data.message);
-            resetEvolutionButton();
-            break;
+function handleEvolutionEvent(data, totalIterations) {
+    if (data.type === 'iter'){
+        addEvolutionStep(`🔄 Iteration ${data.i + 1}: ${data.operator} | score ${(data.score||0).toFixed(3)}`, 'running');
+        updateLastStep(`✅ Iteration ${data.i + 1}: ${data.operator} | score ${(data.score||0).toFixed(3)}`, 'completed');
+        if (typeof totalIterations === 'number'){ 
+            updateProgress(Math.min(100, Math.round(100*(data.i+1)/Math.max(1,totalIterations))));
+        }
+        
+        // Enable rating for this iteration
+        currentVariantId = data.variant_id || null;
+        if (data.output) {
+            currentIterationOutput = data.output;
+            document.getElementById('currentOutput').textContent = data.output;
+            showRatingPanel();
+        }
+        
+        return;
+    }
+    if (data.type === 'judge'){
+        addEvolutionStep(`🧑‍⚖️ Judge: ${JSON.stringify(data.judge.verdict||data.judge)}`, 'completed');
+        return;
+    }
+    if (data.type === 'done'){
+        handleEvolutionComplete(data.result);
+        hideRatingPanel();
+        return;
+    }
+    if (data.type === 'error'){
+        showError('Evolution error: ' + data.message);
+        resetEvolutionButton();
+        hideRatingPanel();
+        return;
     }
 }
 
@@ -388,12 +423,117 @@ function showError(message) {
 }
 
 // Explicitly attach functions to window object for global access
+// Rating System Functions
+function setupRatingSystem() {
+    const detailedRating = document.getElementById('detailedRating');
+    const ratingValue = document.getElementById('ratingValue');
+    const rateGood = document.getElementById('rateGood');
+    const ratePoor = document.getElementById('ratePoor');
+    const submitRating = document.getElementById('submitRating');
+    
+    if (!detailedRating) return; // Elements not ready yet
+    
+    // Update rating display
+    detailedRating.addEventListener('input', function() {
+        ratingValue.textContent = `${this.value}/10`;
+    });
+    
+    // Quick rating buttons
+    rateGood.addEventListener('click', function() {
+        detailedRating.value = 8;
+        ratingValue.textContent = '8/10';
+        submitRating.style.background = 'var(--success)';
+    });
+    
+    ratePoor.addEventListener('click', function() {
+        detailedRating.value = 3;
+        ratingValue.textContent = '3/10';
+        submitRating.style.background = 'var(--danger)';
+    });
+    
+    // Submit rating
+    submitRating.addEventListener('click', submitHumanRating);
+}
+
+function showRatingPanel() {
+    const panel = document.getElementById('ratingPanel');
+    if (panel) {
+        panel.classList.remove('hidden');
+        
+        // Reset rating form
+        document.getElementById('detailedRating').value = 5;
+        document.getElementById('ratingValue').textContent = '5/10';
+        document.getElementById('ratingFeedback').value = '';
+        document.getElementById('submitRating').style.background = '';
+        document.getElementById('ratingStatus').textContent = '';
+    }
+}
+
+function hideRatingPanel() {
+    const panel = document.getElementById('ratingPanel');
+    if (panel) {
+        panel.classList.add('hidden');
+    }
+}
+
+async function submitHumanRating() {
+    if (!currentVariantId) {
+        showRatingStatus('❌ No response to rate', 'var(--danger)');
+        return;
+    }
+    
+    const rating = parseInt(document.getElementById('detailedRating').value);
+    const feedback = document.getElementById('ratingFeedback').value.trim();
+    const humanScore = rating / 10.0; // Convert to 0-1 scale
+    
+    try {
+        showRatingStatus('⏳ Submitting rating...', 'var(--muted)');
+        
+        const response = await fetch('/api/meta/rate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                variant_id: currentVariantId,
+                human_score: humanScore,
+                feedback: feedback
+            }),
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const result = await response.json();
+        showRatingStatus(`✅ Rating submitted (${rating}/10)`, 'var(--success)');
+        
+        // Hide panel after successful submission
+        setTimeout(() => {
+            hideRatingPanel();
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Rating submission failed:', error);
+        showRatingStatus(`❌ Failed to submit rating: ${error.message}`, 'var(--danger)');
+    }
+}
+
+function showRatingStatus(message, color) {
+    const status = document.getElementById('ratingStatus');
+    if (status) {
+        status.textContent = message;
+        status.style.color = color;
+    }
+}
+
 window.checkHealth = checkHealth;
 window.startEvolution = startEvolution;
 window.quickTest = quickTest;
 window.streamTest = streamTest;
 window.loadEvolutionHistory = loadEvolutionHistory;
 window.startNewEvolution = startNewEvolution;
+window.submitHumanRating = submitHumanRating;
 
 // Legacy compatibility functions (for existing backend calls)
 function doChat() { quickTest(); }

@@ -1,0 +1,11 @@
+{
+  "artifact_type": "operator_selection",
+  "timestamp": "2025-09-06T13:56:57.720736+00:00",
+  "unix_timestamp": 1757167017.72076,
+  "data": {
+    "run_id": 17,
+    "iteration": 5,
+    "operator": "toggle_web",
+    "selection_method": "epsilon_greedy"
+  }
+}

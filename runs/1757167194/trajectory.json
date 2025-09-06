@@ -1,0 +1,104 @@
+{
+  "run_id": 18,
+  "trajectory": [
+    {
+      "i": 0,
+      "op": "toggle_web",
+      "groups": [
+        "WEB"
+      ],
+      "engine": "ollama",
+      "time_ms": 39155,
+      "score": 0.3448441025146529,
+      "reward": 19.922344102514653
+    },
+    {
+      "i": 1,
+      "op": "toggle_web",
+      "groups": [
+        "WEB"
+      ],
+      "engine": "ollama",
+      "time_ms": 38075,
+      "score": 0.29767811268602545,
+      "reward": 19.3257449147203
+    },
+    {
+      "i": 2,
+      "op": "lower_top_k",
+      "groups": [
+        "SAMPLING"
+      ],
+      "engine": "ollama",
+      "time_ms": 46242,
+      "score": 0.37614259086187923,
+      "reward": 23.49714259086188
+    },
+    {
+      "i": 3,
+      "op": "lower_top_k",
+      "groups": [
+        "SAMPLING"
+      ],
+      "engine": "ollama",
+      "time_ms": 45812,
+      "score": 0.3766779001760717,
+      "reward": 23.282677900176072
+    },
+    {
+      "i": 4,
+      "op": "lower_top_k",
+      "groups": [
+        "SAMPLING"
+      ],
+      "engine": "ollama",
+      "time_ms": 36754,
+      "score": 0.3893926437775537,
+      "reward": 18.766392643777554
+    },
+    {
+      "i": 6,
+      "op": "lower_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 40885,
+      "score": 0.3716253038504816,
+      "reward": 20.810571835865066
+    },
+    {
+      "i": 9,
+      "op": "lower_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 56300,
+      "score": 0.37439831305247256,
+      "reward": 28.52139944690746
+    },
+    {
+      "i": 10,
+      "op": "lower_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 35548,
+      "score": 0.3477599319318268,
+      "reward": 18.113433389562683
+    },
+    {
+      "i": 11,
+      "op": "lower_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 70962,
+      "score": 0.35793608391254117,
+      "reward": 35.83264477193954
+    }
+  ]
+}

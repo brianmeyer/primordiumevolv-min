@@ -386,6 +386,8 @@ async def meta_run_async_ep(body: MetaRunRequest):
 @app.get("/api/meta/stats")
 async def meta_stats():
     try:
+        # Ensure meta DB schema exists even before first run
+        store.init_db()
         import time
         operator_stats_dict = store.list_operator_stats()
         # Convert dict to list for easier frontend consumption
