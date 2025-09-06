@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.5.0] - 2025-09-06 - Human-in-the-Loop Rating Enablement
+
+### ✅ What’s New
+- SSE iteration events now include `variant_id` and `output` preview to power the rating panel.
+- Added endpoint `GET /api/meta/variants/{variant_id}` to fetch full model outputs for review.
+- Rating API stabilized: `POST /api/meta/rate` accepts `{ variant_id, human_score (0–1), feedback }` and stores 1–10 scores.
+- UI Quick Test fixes: reads `response` field for chat; session auto‑creation ensures valid `session_id`.
+- Advanced settings wired: strategy selector (UCB1 vs epsilon‑greedy), RAG‑K control; iteration max aligned to 24.
+
+### Impact
+- Human rating is functional during evolution; submissions are persisted and associated to exact variants.
+- Users can inspect the actual outputs generated via the new variant endpoint.
+- Advanced settings are now effective and reflected in backend behavior.
+
+### Notes
+- Stream chat in the UI parses `{ "token": "..." }` chunks; optional to stop on `{ "done": true }`.
+- ε slider is meaningful when `epsilon_greedy` is selected; UCB1 remains the default.
+
 ## [2.4.0] - 2025-09-06 - Enhanced Operator Exploration
 
 ### 🎯 Improved Operator Selection & Diversity

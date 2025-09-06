@@ -20,8 +20,8 @@ make run      # http://localhost:8000
 ## Features
 - Chat + Stream Chat: With session memory; optional live token streaming.
 - Memory: FAISS vector search over conversations (cached in‑process for speed).
-- Meta‑Evolution: Epsilon‑greedy bandit over operators (system, nudge, temp, memory, RAG, web, engine).
-- Recipes + Analytics: Persists best recipes; operator stats tracked over time.
+- Meta‑Evolution: UCB1 bandit with total_reward system (outcome + process - cost) over operators (system, nudge, temp, memory, RAG, web, engine).
+- Recipes + Analytics: Persists best recipes; operator stats tracked over time with reward breakdown.
 - RAG: Local vector search (FAISS + sentence‑transformers) over files in `data/`.
 - Web Search: Tavily (if key) with DDG fallback.
 - Groq: Dynamic model pick; health/models inventory; engine switching + judge/compare.
@@ -41,17 +41,19 @@ make run      # http://localhost:8000
 - UI shows a live "Latest Run" table with operator, engine, model, score, and latency per iteration.
 
 ## M1 Upgrades (Enabled by Default)
-- Trajectory Logging: Writes `runs/{timestamp}/trajectory.json` with per‑iteration operator, engine, time, score, and reward.
-- Process + Cost Rewards: Optional blended reward for bandit updates (base + process delta − time cost). Tunable via `REWARD_ALPHA`, `REWARD_BETA_PROCESS`, `REWARD_GAMMA_COST`.
+- **UCB1 Bandit Algorithm**: Default strategy with warm start and stratified exploration for optimal operator diversity.
+- **Total Reward System**: Three-component reward (outcome + process - cost) with intelligent promotion policy (Δ ≥ 0.05, cost ≤ 0.9×baseline).
+- **Enhanced Artifacts**: Each run generates `reward_breakdown` and `bandit_state` snapshots for full transparency.
+- Trajectory Logging: Writes `runs/{timestamp}/trajectory.json` with per‑iteration operator, engine, time, score, and total_reward.
 - Operator Masks per Task: Optional masks from `storage/operator_masks.json` (keys are task_class), supporting `framework_mask` (e.g., `["SEAL","ENGINE"]`) and `operators` allowlists.
-- Eval Suite + Gating: Safety probes run at end of run and write `runs/{timestamp}/eval.json`. Results include `eval` in API response.
-- **Enhanced Operator Exploration**: Increased epsilon to `0.6` with forced initial exploration ensuring all 11 operators get tried.
-- **UCB Algorithm**: Upper Confidence Bound available as alternative to epsilon-greedy via `bandit_algorithm` parameter.
-- Defaults: Meta `n=12` and `ε=0.6` (override via `META_DEFAULT_N`, `META_DEFAULT_EPS`).
+- Eval Suite + Gating: Safety probes run at end of run and write `runs/{timestamp}/eval_report.json`. Results include promotion criteria analysis.
+- **Bandit Configuration**: UCB exploration constant `c=2.0`, warm start `min_pulls=1`, stratified exploration enabled.
+- Defaults: Meta `n=16` with UCB strategy (override via `BANDIT_STRATEGY`, `UCB_C`, `WARM_START_MIN_PULLS`).
 
 Feature Flags (in `.env`)
 - `FF_TRAJECTORY_LOG=1`, `FF_PROCESS_COST_REWARD=1`, `FF_OPERATOR_MASKS=1`, `FF_EVAL_GATE=1` (all ON by default).
-- Reward weights: `REWARD_ALPHA`, `REWARD_BETA_PROCESS`, `REWARD_GAMMA_COST`.
+- UCB Configuration: `BANDIT_STRATEGY=ucb`, `UCB_C=2.0`, `WARM_START_MIN_PULLS=1`, `STRATIFIED_EXPLORE=true`.
+- Reward weights: `REWARD_ALPHA=1.0`, `REWARD_BETA_PROCESS=0.2`, `REWARD_GAMMA_COST=-0.0005`.
 
 ## Judge Mode
 - Enable "Judge with Groq" in the Meta panel to pairwise-judge the best local variant against a Groq challenger.
@@ -131,6 +133,14 @@ The interface has been completely redesigned with human-centered design principl
 - `GET /api/meta/runs/{run_id}` - Run details + variants
 - `GET /api/meta/variants/{variant_id}` - Full output for a specific variant
 
+### Human-in-the-Loop Rating
+- UI shows a rating panel during iterations when a response is received.
+- SSE `iter` events now include `variant_id` and `output` (preview) to enable rating.
+- API: `POST /api/meta/rate`
+  - Request: `{ "variant_id": number, "human_score": number (0.0–1.0), "feedback": string? }`
+  - Behavior: server converts `human_score` 0–1 to 1–10 and stores in `human_ratings` linked to the variant.
+  - Use `GET /api/meta/variants/{variant_id}` to fetch the full response text for review.
+
 ### Tools
 - `POST /api/web/search` - Web search
 - `POST /api/rag/build` - Build vector index
@@ -168,11 +178,14 @@ curl -X POST http://localhost:8000/api/memory/query \
 curl -X POST http://localhost:8000/api/chat \
   -H "Content-Type: application/json" \
   -d '{"prompt": "What did we discuss about Python?", "session_id": 1}'
+
+# Stream chat tokens (SSE)
+# Frontend parses `data: {"token": "..."}` chunks and stops on `{ "done": true }`
 ```
 
 ## Meta-Evolution System
 
-The self-evolving engine uses epsilon-greedy bandit selection to choose optimal prompt mutations:
+The self-evolving engine uses UCB1 bandit algorithm with total_reward system to choose optimal prompt mutations:
 
 ```bash
 # Trigger meta-evolution for code generation
@@ -190,7 +203,7 @@ curl -X POST http://localhost:8000/api/meta/run \
 ```
 
 ### Available Operators
-All 11 operators now systematically explored via enhanced epsilon-greedy (ε=0.6) and UCB algorithms:
+All 11 operators systematically explored via UCB1 algorithm with warm start and stratified exploration:
 
 **SEAL Framework (7 operators):**
 - `change_system` - Switch system prompt (engineer, analyst, optimizer) 
@@ -209,23 +222,23 @@ All 11 operators now systematically explored via enhanced epsilon-greedy (ε=0.6
 **SAMPLING Framework (2 operators):**
 - `raise_top_k/lower_top_k` - Modify token sampling parameters
 
-**Selection Algorithm Options:**
-- `bandit_algorithm="epsilon_greedy"` (default) - 60% exploration, 40% exploitation
-- `bandit_algorithm="ucb"` - Upper Confidence Bound with intelligent exploration
+**Selection Algorithm (Default: UCB1):**
+- `strategy="ucb"` (default) - Upper Confidence Bound with warm start and stratified exploration
+- `strategy="epsilon_greedy"` (legacy) - 60% exploration, 40% exploitation
 
 ### Generated Artifacts
 Each run creates `runs/{timestamp}/`:
-- `results.json` - Final metrics and best recipe
-- `iteration_XX.json` - Per-iteration operator selection and scoring
-- `trajectory.json` - Per‑iteration trajectory (if `FF_TRAJECTORY_LOG=1`)
-- `eval.json` - Safety gating results (if `FF_EVAL_GATE=1`)
-- Recipes automatically saved to database for future use
+- `results.json` - Final metrics with `reward_breakdown` and `bandit_state` snapshots
+- `iteration_XX.json` - Per-iteration operator selection with `total_reward` tracking
+- `trajectory.json` - Per‑iteration trajectory with reward components (if `FF_TRAJECTORY_LOG=1`)
+- `eval_report.json` - Promotion criteria analysis and safety gating (if `FF_EVAL_GATE=1`)
+- Recipes automatically saved to database with total_reward-based promotion
 
 ### Recipe Evolution
-- Successful recipes (score > baseline + 0.1) saved to `recipes` table
-- High-performing recipes (score > baseline + 0.2) auto-approved
+- Successful recipes (Δ(total_reward) ≥ 0.05 AND cost_penalty ≤ 0.9×baseline) saved to `recipes` table
+- High-performing recipes (Δ(total_reward) ≥ 0.2 AND cost_penalty ≤ 0.8×baseline) auto-approved
 - Best recipes reused as base for future mutations
-- Operator statistics tracked for bandit optimization
+- UCB bandit statistics tracked with mean_payoff for optimal operator selection
 
 ## Current Results (examples)
 - Run 7 (briefing): best_score ≈ 0.406 on Ollama; Groq compare ≈ 0.408 (Δ ≈ +0.002). Operator stats favored `toggle_web` (n≈11, avg_reward≈0.451), with `change_nudge` runner‑up.
