@@ -387,6 +387,14 @@ function showError(message) {
     document.getElementById('resultsContent').appendChild(errorDiv);
 }
 
+// Explicitly attach functions to window object for global access
+window.checkHealth = checkHealth;
+window.startEvolution = startEvolution;
+window.quickTest = quickTest;
+window.streamTest = streamTest;
+window.loadEvolutionHistory = loadEvolutionHistory;
+window.startNewEvolution = startNewEvolution;
+
 // Legacy compatibility functions (for existing backend calls)
 function doChat() { quickTest(); }
 function streamChat() { streamTest(); }

@@ -44,6 +44,7 @@
 - Fixed health badges stuck on "checking..." status
 - Resolved JavaScript loading issues (404 errors)
 - Fixed meta-evolution runs not completing (`finished_at` null bug)
+- **Fixed JavaScript function scope issue**: Resolved "startEvolution is not a function" error by explicitly attaching functions to window object
 - Improved streaming connection handling with timeout management
 - Enhanced error reporting with detailed stack traces
 
