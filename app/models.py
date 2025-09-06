@@ -52,3 +52,8 @@ class MetaRunRequest(BaseModel):
     compare_with_groq: Optional[bool] = False
     judge_mode: Optional[constr(strip_whitespace=True, min_length=2)] = "off"   # "off" | "pairwise_groq"
     judge_include_rationale: bool = True
+
+class HumanRatingRequest(BaseModel):
+    variant_id: conint(ge=1)
+    human_score: conint(ge=1, le=10)
+    feedback: Optional[constr(strip_whitespace=True)] = None

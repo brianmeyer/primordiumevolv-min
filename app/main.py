@@ -15,7 +15,7 @@ from app.models import (
     ChatRequest, EvolveRequest, WebSearchRequest,
     RagQueryRequest, TodoAddRequest, TodoIdRequest,
     SessionCreateRequest, MessageAppendRequest, MemoryQueryRequest,
-    MetaRunRequest
+    MetaRunRequest, HumanRatingRequest
 )
 from app import memory
 from app.middleware import RateLimiter
@@ -586,3 +586,20 @@ async def meta_eval(
         return JSONResponse({"summary": summary, "results": results})
     except Exception as e:
         return handle_exception(e, "meta_eval_failed")
+
+@app.post("/api/meta/rate")
+async def human_rate_variant(body: HumanRatingRequest):
+    """Submit human feedback rating for a variant response."""
+    try:
+        rating_id = store.save_human_rating(
+            variant_id=body.variant_id,
+            human_score=body.human_score,
+            feedback=body.feedback
+        )
+        return JSONResponse({
+            "status": "success",
+            "rating_id": rating_id,
+            "message": "Rating saved successfully"
+        })
+    except Exception as e:
+        return handle_exception(e, "human_rating_failed")

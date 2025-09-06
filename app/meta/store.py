@@ -109,6 +109,18 @@ def init_db():
         )
     """)
     
+    # Human ratings table - stores user feedback on variant responses
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS human_ratings(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            variant_id INTEGER,
+            human_score INTEGER,
+            feedback TEXT,
+            created_at REAL,
+            FOREIGN KEY (variant_id) REFERENCES variants(id)
+        )
+    """)
+    
     # Migration-safe column additions
     migrations = [
         ("runs", "operator_names_json", "TEXT"),
@@ -141,7 +153,8 @@ def init_db():
         "CREATE INDEX IF NOT EXISTS idx_variants_score ON variants(score)",
         "CREATE INDEX IF NOT EXISTS idx_recipes_task_class ON recipes(task_class)",
         "CREATE INDEX IF NOT EXISTS idx_recipes_score ON recipes(avg_score)",
-        "CREATE INDEX IF NOT EXISTS idx_operator_stats_name ON operator_stats(name)"
+        "CREATE INDEX IF NOT EXISTS idx_operator_stats_name ON operator_stats(name)",
+        "CREATE INDEX IF NOT EXISTS idx_human_ratings_variant ON human_ratings(variant_id)"
     ]
     
     for idx_sql in indexes:
@@ -408,3 +421,17 @@ def recipes_by_class(task_class: str, limit: int = 10) -> List[Dict]:
         })
     c.close()
     return recipes
+
+def save_human_rating(variant_id: int, human_score: int, feedback: str = None) -> int:
+    """Save a human rating for a variant response."""
+    c = _conn()
+    try:
+        cursor = c.execute(
+            "INSERT INTO human_ratings (variant_id, human_score, feedback, created_at) VALUES (?, ?, ?, ?)",
+            (variant_id, human_score, feedback, time.time())
+        )
+        rating_id = cursor.lastrowid
+        c.commit()
+        return rating_id
+    finally:
+        c.close()

@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.1.0] - 2025-09-06 - Human Rating System
+
+### 🧑‍⚖️ Human-in-the-Loop Feedback
+- **Interactive Rating Panel**: Rate AI responses during evolution with 1-10 scale or thumbs up/down
+- **Real-time Rating Interface**: Shows after each iteration response for immediate feedback
+- **Feedback Collection**: Optional text feedback alongside numerical ratings
+- **Database Integration**: All ratings stored in `human_ratings` table with variant linkage
+- **API Endpoint**: `/api/meta/rate` for programmatic rating submission
+- **Validation**: Proper input validation (1-10 scores, valid variant IDs)
+
+### 🔧 Technical Implementation
+- **New Database Table**: `human_ratings(id, variant_id, human_score, feedback, created_at)`
+- **Request Model**: `HumanRatingRequest` with validation constraints
+- **Store Function**: `save_human_rating()` for persistent storage
+- **UI Integration**: Rating panel appears automatically during evolution
+- **Error Handling**: Graceful validation and user feedback
+
+### 📱 User Experience
+- **Seamless Workflow**: Rating panel appears after each AI response
+- **Multiple Rating Methods**: Quick thumbs up/down or detailed 1-10 scale
+- **Visual Feedback**: Real-time rating submission status
+- **Non-intrusive Design**: Collapsible panel maintains clean interface
+
+---
+
 ## [2.0.0] - 2025-09-06 - Human-Centered UI Redesign
 
 ### 🎯 Major UI Overhaul
