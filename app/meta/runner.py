@@ -185,10 +185,11 @@ def meta_run(
             # Apply plan to build final prompt
             execution = ops.apply(plan, context)
             
-            # Generate output via selected engine with timing
+            # Generate output via selected engine with timing (no local token cap)
             start_time = time.time()
+            engine = plan.get("engine", "ollama")
             output, model_used = call_engine(
-                plan.get("engine", "ollama"),
+                engine,
                 execution["prompt"],
                 system=execution["system"],
                 options=execution.get("options", {}),
@@ -282,32 +283,28 @@ def meta_run(
             print(f"Error in iteration {i}: {e}")
             continue
     
-    # Finish run tracking and logging
-    if best_variant_id:
-        store.save_run_finish(run_id, best_variant_id, best_score, operator_sequence)
+    # Finish run tracking and logging - ALWAYS mark run as finished
+    store.save_run_finish(run_id, best_variant_id or -1, best_score, operator_sequence)
+    
+    # Log run completion
+    log_meta_run_finish(run_id, best_score, n, logs_dir)
+    
+    # Save best as new recipe if it's significantly better (only if we had success)
+    if best_variant_id and best_score > baseline + 0.1:
+        # Calculate engine confidence based on performance
+        engine_confidence = min(1.0, 0.5 + (best_score - baseline) * 2)
+        best_engine = best_recipe.get("engine", "ollama")
         
-        # Log run completion
-        log_meta_run_finish(run_id, best_score, n, logs_dir)
-        
-        # Save best as new recipe if it's significantly better
-        if best_score > baseline + 0.1:  # Threshold for improvement
-            # Calculate engine confidence based on performance
-            engine_confidence = min(1.0, 0.5 + (best_score - baseline) * 2)
-            best_engine = best_recipe.get("engine", "ollama")
-            
-            recipe_id = store.save_recipe(task_class, 
-                                        best_recipe["system"],
-                                        best_recipe["nudge"], 
-                                        best_recipe["params"],
-                                        best_score,
-                                        engine=best_engine,
-                                        engine_confidence=engine_confidence)
-            # Auto-approve if significantly better
-            if best_score > baseline + 0.2:
-                store.approve_recipe(recipe_id, 1)
-    else:
-        # Log run completion even if no variants succeeded
-        log_meta_run_finish(run_id, 0.0, n, logs_dir)
+        recipe_id = store.save_recipe(task_class, 
+                                    best_recipe["system"],
+                                    best_recipe["nudge"], 
+                                    best_recipe["params"],
+                                    best_score,
+                                    engine=best_engine,
+                                    engine_confidence=engine_confidence)
+        # Auto-approve if significantly better
+        if best_score > baseline + 0.2:
+            store.approve_recipe(recipe_id, 1)
     
     # Optional single-shot Groq cross-check
     compare = None

@@ -1,375 +1,434 @@
-async function post(path, body){const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body||{})}); if(!r.ok){const e=await r.json().catch(()=>({})); throw new Error(e.detail||JSON.stringify(e));} return r.json();}
-async function get(path){const r=await fetch(path); if(!r.ok){const e=await r.json().catch(()=>({})); throw new Error(e.detail||JSON.stringify(e));} return r.json();}
-const out = document.getElementById("out");
-function show(x){ out.textContent = typeof x==="string"? x : JSON.stringify(x,null,2); }
+// Streamlined Evolution UI - Human-centered design focused on self-evolution
 
-async function doChat(){ try{ const prompt=document.getElementById("prompt").value; const sessionId=getSelectedSession(); if(!sessionId){show("Please select a session first"); return;} show(await post("/api/chat",{prompt, session_id:sessionId})); }catch(e){show(String(e));}}
-async function doEvolve(){ try{ const task=document.getElementById("prompt").value; show(await post("/api/evolve",{task, assertions: [], n:5})); }catch(e){show(String(e));}}
-async function doSearch(){ try{ const q=document.getElementById("prompt").value; show(await post("/api/web/search",{query:q})); }catch(e){show(String(e));}}
-async function doRagBuild(){ try{ show(await post("/api/rag/build",{})); }catch(e){show(String(e));}}
-async function doRagQuery(){ try{ const q=document.getElementById("prompt").value; show(await post("/api/rag/query",{q})); }catch(e){show(String(e));}}
-async function addTodo(){ try{ const t=document.getElementById("todoText").value; await post("/api/todo/add",{text:t}); show(await get("/api/todo/list")); }catch(e){show(String(e));}}
+let currentRunId = null;
+let evolutionEventSource = null;
 
-// Session management
-function getSelectedSession(){ const select=document.getElementById("sessionSelect"); return select.value ? parseInt(select.value) : null; }
-
-async function loadSessions(){ 
-  try{ 
-    const data=await get("/api/session/list"); 
-    const select=document.getElementById("sessionSelect"); 
-    select.innerHTML="<option value=''>Select session...</option>";
-    data.sessions.forEach(s=>{ 
-      const opt=document.createElement("option"); opt.value=s.id; opt.textContent=`${s.title} (${new Date(s.created_at*1000).toLocaleDateString()})`; select.appendChild(opt); 
-    }); 
-  }catch(e){show(String(e));} 
-}
-
-async function newSession(){ 
-  try{ 
-    const title=prompt("Session title:", "New session"); 
-    if(title!==null){ 
-      const data=await post("/api/session/create",{title}); 
-      await loadSessions(); 
-      document.getElementById("sessionSelect").value=data.id; 
-      show(`Created session ${data.id}`); 
-    } 
-  }catch(e){show(String(e));} 
-}
-
-async function doMemoryQuery(){ try{ const q=document.getElementById("prompt").value; show(await post("/api/memory/query",{q})); }catch(e){show(String(e));}}
-
-async function buildMemory(){ try{ show(await post("/api/memory/build",{})); }catch(e){show(String(e));}}
-
-// Meta-evolution functions
-async function runMetaEvolution() {
-  try {
-    const taskClass = document.getElementById("metaTaskClass").value.trim();
-    const task = document.getElementById("prompt").value.trim();
-    const n = parseInt(document.getElementById("metaIterations").value);
-    const useBandit = document.getElementById("metaBandit").checked;
-    const eps = parseFloat(document.getElementById("metaEps").value);
-    const memoryK = parseInt(document.getElementById("metaMemoryK").value);
-    const ragK = parseInt(document.getElementById("metaRagK").value);
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkHealth();
     
-    // Get selected framework mask
-    const frameworkSelect = document.getElementById("metaFramework");
-    const frameworkMask = Array.from(frameworkSelect.selectedOptions).map(opt => opt.value);
-    
-    if (!taskClass || !task) {
-      show("Please fill in Task Class and enter a prompt above");
-      return;
-    }
-    
-    // Show progress
-    const metaOutput = document.getElementById("metaOutput");
-    metaOutput.textContent = "🚀 Starting meta-evolution...\n";
-    
-    const sessionId = getSelectedSession();
-    if(!sessionId){ show('Please select or create a session first'); return; }
-    const payload = {
-      session_id: sessionId,
-      task_class: taskClass,
-      task: task,
-      n: n,
-      use_bandit: useBandit,
-      eps: eps,
-      memory_k: memoryK,
-      rag_k: ragK,
-      framework_mask: frameworkMask.length > 0 ? frameworkMask : null
-    };
-    // Force engine and Groq compare options
-    const forceEngine = document.getElementById("mrForceEngine").value;
-    const compareGroq = document.getElementById("mrCompareGroq").checked;
-    const judgeMode = document.getElementById("mrJudge").checked ? "pairwise_groq" : "off";
-    if (forceEngine) payload.force_engine = forceEngine;
-    if (compareGroq) payload.compare_with_groq = true;
-    payload.judge_mode = judgeMode;
-    payload.judge_include_rationale = true;
-    
-    // Disable controls and show progress
-    const btn = document.getElementById('btnRunMeta');
-    const controls = [
-      'metaTaskClass','metaIterations','metaBandit','metaEps','metaMemoryK','metaRagK','metaFramework','mrForceEngine','mrCompareGroq','mrJudge'
-    ];
-    btn.disabled = true; btn.textContent = 'Running...';
-    controls.forEach(id=>{ const el=document.getElementById(id); if(el) el.disabled = true; });
-    saveMetaState();
-
-    const started = await post("/api/meta/run_async", payload);
-    metaOutput.textContent = `Run ${started.run_id} started...`;
-    try { openRunStream(started.run_id, n); } catch(_e) { /* fallback continues */ }
-    // Fallback polling only if no SSE updates within 3s
-    setTimeout(()=>{ try{ if(!_evtSource){ pollRunProgress(started.run_id, n); } }catch(_e){} }, 3000);
-
-  } catch(e) {
-    document.getElementById("metaOutput").textContent = `❌ Error: ${String(e)}`;
-  } finally {
-    const btn = document.getElementById('btnRunMeta');
-    const controls = [
-      'metaTaskClass','metaIterations','metaBandit','metaEps','metaMemoryK','metaRagK','metaFramework','mrForceEngine','mrCompareGroq','mrJudge'
-    ];
-    btn.disabled = false; btn.textContent = '🚀 Run Meta-Evolution';
-    controls.forEach(id=>{ const el=document.getElementById(id); if(el) el.disabled = false; });
-  }
-}
-
-async function uiListGroq(){
-  try{
-    const j = await get("/api/health/groq_models");
-    document.getElementById("groqModels").textContent = JSON.stringify(j, null, 2);
-  }catch(e){ alert("Groq models query failed: " + e); }
-}
-
-async function viewMetaLogs() {
-  try {
-    const logs = await get("/api/meta/logs?limit=20");
-    const metaOutput = document.getElementById("metaOutput");
-    
-    metaOutput.textContent = `📊 Recent Meta-Evolution Logs:
-${logs.logs.map(log => 
-  `[${log.timestamp}] ${log.artifact_type}: ${JSON.stringify(log.data, null, 2)}`
-).join('\n\n')}`;
-  } catch(e) {
-    document.getElementById("metaOutput").textContent = `❌ Error fetching logs: ${String(e)}`;
-  }
-}
-
-// Dashboard removed: simplified UI
-
-async function pollRunProgress(runId, expectedN){
-  const metaOutput = document.getElementById("metaOutput");
-  let done = false;
-  while(!done){
-    try{
-      const data = await get(`/api/meta/runs/${runId}`);
-      const count = (data.variants||[]).length;
-      const best = (typeof data.best_score === 'number') ? data.best_score.toFixed(3) : data.best_score;
-      metaOutput.textContent = `Run ${runId}: ${count}/${expectedN} iterations completed.\nBest: ${best}`;
-      await showLatestRun(runId);
-      if (data.finished_at) {
-        metaOutput.textContent = JSON.stringify(data, null, 2);
-        done = true;
-        refreshDashboard();
-        break;
-      }
-    }catch(e){ console.warn('poll error', e); }
-    await new Promise(r=> setTimeout(r, 1200));
-  }
-}
-
-let _evtSource = null;
-function openRunStream(runId, expectedN){
-  try { if (_evtSource) { _evtSource.close(); _evtSource = null; } } catch(_e) {}
-  const es = new EventSource(`/api/meta/stream?run_id=${runId}`);
-  _evtSource = es;
-  const metaOutput = document.getElementById("metaOutput");
-  let count = 0;
-  let gotFirstEvent = false;
-  setTimeout(()=>{
-    if(!gotFirstEvent){
-      showToast('Still preparing... If this is your first run, models may be downloading or the model server may be starting.');
-    }
-  }, 10000);
-  es.onmessage = (e)=>{
-    try{
-      const data = JSON.parse(e.data);
-      if (data.type === 'iter'){
-        gotFirstEvent = true;
-        count = data.i + 1;
-        const bestLine = metaOutput.textContent.split('\n')[1]||'';
-        metaOutput.textContent = `Run ${runId}: ${count}/${expectedN} iterations completed.\n${bestLine}`;
-        appendVariantRow(data);
-      } else if (data.type === 'judge'){
-        showJudgeResults(data.judge);
-        // Subtle toast
-        try{ showToast(`Judge verdict: ${JSON.stringify(data.judge.verdict||data.judge)}`); }catch(_e){}
-      } else if (data.type === 'done'){
-        metaOutput.textContent = JSON.stringify(data.result, null, 2);
-        try { _evtSource.close(); } catch(_e) {}
-        _evtSource = null;
-        refreshDashboard();
-      }
-    }catch(_e){ /* ignore parse errors */ }
-  };
-  es.onerror = ()=>{
-    // Keep polling fallback running
-  };
-}
-
-function appendVariantRow(v){
-  const tbody = document.querySelector('#latestRunTable tbody');
-  if(!tbody) return;
-  const tr = document.createElement('tr');
-  const modelId = v.model_id || '';
-  const isGroq = (modelId||'').startsWith('groq:');
-  const engine = v.engine || (isGroq ? 'groq' : 'ollama');
-  const model = isGroq ? modelId.replace(/^groq:/,'') : modelId;
-  const ts = v.timestamp ? new Date(v.timestamp*1000).toLocaleString() : '';
-  tr.innerHTML = `
-    <td style="padding:6px;border-bottom:1px solid #eee;">${(v.i??0)+1}</td>
-    <td style="padding:6px;border-bottom:1px solid #eee;">${v.operator||''}</td>
-    <td style="padding:6px;border-bottom:1px solid #eee;">${engine}</td>
-    <td style="padding:6px;border-bottom:1px solid #eee;">${model}</td>
-    <td style="padding:6px;border-bottom:1px solid #eee;">${(v.score??0).toFixed(3)}</td>
-    <td style="padding:6px;border-bottom:1px solid #eee;">${v.duration_ms??''}</td>
-    <td style="padding:6px;border-bottom:1px solid #eee;">${ts}</td>
-  `;
-  tbody.appendChild(tr);
-}
-
-function showToast(text){
-  const div = document.createElement('div');
-  div.textContent = text;
-  div.style.position='fixed'; div.style.bottom='16px'; div.style.right='16px';
-  div.style.background='var(--panel-2)'; div.style.color='var(--text)'; div.style.padding='10px 14px'; div.style.border='1px solid var(--border)'; div.style.borderRadius='8px';
-  div.style.boxShadow='0 4px 10px rgba(0,0,0,0.35)'; div.style.fontSize='12px';
-  document.body.appendChild(div);
-  setTimeout(()=>{ try{ document.body.removeChild(div);}catch(_e){} }, 2500);
-}
-
-// No-op dashboard refresher retained for compatibility
-function refreshDashboard(){}
-
-function saveMetaState(){
-  const state = {
-    tc: document.getElementById('metaTaskClass').value,
-    n: document.getElementById('metaIterations').value,
-    bandit: document.getElementById('metaBandit').checked,
-    eps: document.getElementById('metaEps').value,
-    mk: document.getElementById('metaMemoryK').value,
-    rk: document.getElementById('metaRagK').value,
-    fm: Array.from(document.getElementById('metaFramework').selectedOptions).map(o=>o.value),
-    fe: document.getElementById('mrForceEngine').value,
-    cmp: document.getElementById('mrCompareGroq').checked,
-    judge: document.getElementById('mrJudge').checked
-  };
-  try { localStorage.setItem('metaState', JSON.stringify(state)); } catch(_e){}
-}
-
-function loadMetaState(){
-  try{
-    const s = JSON.parse(localStorage.getItem('metaState')||'null');
-    if(!s) return;
-    const set = (id, fn) => { const el=document.getElementById(id); if(el) fn(el); };
-    set('metaTaskClass', el=> el.value = s.tc||'');
-    set('metaIterations', el=> el.value = s.n||'5');
-    set('metaBandit', el=> el.checked = !!s.bandit);
-    set('metaEps', el=> el.value = s.eps||'0.1');
-    set('metaMemoryK', el=> el.value = s.mk||'3');
-    set('metaRagK', el=> el.value = s.rk||'3');
-    set('mrForceEngine', el=> el.value = s.fe||'');
-    set('mrCompareGroq', el=> el.checked = !!s.cmp);
-    set('mrJudge', el=> el.checked = !!s.judge);
-    const fm = document.getElementById('metaFramework');
-    if (fm && Array.isArray(s.fm)) {
-      Array.from(fm.options).forEach(opt => { opt.selected = s.fm.includes(opt.value); });
-    }
-  }catch(_e){}
-}
-
-// removed legacy UI helpers (Meta Run/Eval)
-
-// Health check functionality
-async function checkHealth() {
-  try {
-    const [ollama, engines] = await Promise.all([
-      get("/api/health").catch(()=>({status:'down'})),
-      get("/api/health/groq").catch(()=>({groq:{status:'down'}}))
-    ]);
-    // Update Ollama badge
-    const ollamaEl = document.getElementById("ollamaHealth");
-    if (ollama?.status === "ok") {
-      ollamaEl.textContent = `Ollama: ✓ ${ollama.model || 'OK'}`;
-      ollamaEl.className = "health-badge health-ok";
-    } else {
-      ollamaEl.textContent = "Ollama: ✗ Down";
-      ollamaEl.className = "health-badge health-down";
-    }
-    // Update Groq badge
-    const groqEl = document.getElementById("groqHealth");
-    const g = engines?.groq;
-    if (g?.status === "ok") {
-      groqEl.textContent = "Groq: ✓ OK";
-      groqEl.className = "health-badge health-ok";
-    } else {
-      groqEl.textContent = `Groq: ✗ ${g?.detail || "Down"}`;
-      groqEl.className = "health-badge health-down";
-    }
-  } catch (e) {
-    console.error("Health check failed:", e);
-    document.getElementById("ollamaHealth").textContent = "Ollama: ? Error";
-    document.getElementById("groqHealth").textContent = "Groq: ? Error";
-  }
-}
-
-// Enhanced judge visibility
-function showJudgeResults(judgeData) {
-  const judgePanel = document.getElementById("judgeResults");
-  const judgeContent = document.getElementById("judgeContent");
-  
-  if (judgeData && judgeData.mode) {
-    let content = `<strong>Mode:</strong> ${judgeData.mode}<br>`;
-    
-    if (judgeData.verdict) {
-      content += `<strong>Verdict:</strong> ${judgeData.verdict}<br>`;
-    }
-    
-    if (judgeData.challenger_model) {
-      content += `<strong>Challenger Model:</strong> ${judgeData.challenger_model}<br>`;
-    }
-    
-    if (judgeData.error) {
-      content += `<strong>Error:</strong> <span style="color:#d73527;">${judgeData.error}</span>`;
-    }
-    
-    judgeContent.innerHTML = content;
-    judgePanel.style.display = "block";
-  } else {
-    judgePanel.style.display = "none";
-  }
-}
-
-// (duplicate runMetaEvolution removed)
-
-// Load sessions and check health on page load
-window.addEventListener('load', () => { 
-  loadMetaState(); 
-  loadSessions(); 
-  checkHealth(); 
-  // Keyboard shortcut: run meta (Ctrl/Cmd+Enter)
-  window.addEventListener('keydown', (e)=>{
-    const mod = e.ctrlKey || e.metaKey;
-    if(mod && e.key === 'Enter'){
-      const btn=document.getElementById('btnRunMeta'); if(btn && !btn.disabled){ runMetaEvolution(); e.preventDefault(); }
-    }
-  });
+    // Auto-check health every 30 seconds
+    setInterval(checkHealth, 30000);
 });
 
-async function showLatestRun(runId) {
-  try {
-    const data = await get(`/api/meta/runs/${runId}`);
-    const tbody = document.querySelector('#latestRunTable tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    data.variants.forEach((v, idx) => {
-      const tr = document.createElement('tr');
-      const modelId = v.model_id || '';
-      const isGroq = modelId.startsWith('groq:');
-      const engine = isGroq ? 'groq' : 'ollama';
-      const model = isGroq ? modelId.replace(/^groq:/,'') : modelId;
-      const ts = v.timestamp ? new Date(v.timestamp*1000).toLocaleString() : '';
-      tr.innerHTML = `
-        <td style="padding:6px;border-bottom:1px solid #eee;">${idx+1}</td>
-        <td style="padding:6px;border-bottom:1px solid #eee;">${v.operator||''}</td>
-        <td style="padding:6px;border-bottom:1px solid #eee;">${engine}</td>
-        <td style="padding:6px;border-bottom:1px solid #eee;">${model}</td>
-        <td style="padding:6px;border-bottom:1px solid #eee;">${(v.score??0).toFixed(3)}</td>
-        <td style="padding:6px;border-bottom:1px solid #eee;">${v.duration_ms??''}</td>
-        <td style="padding:6px;border-bottom:1px solid #eee;">${ts}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  } catch (e) {
-    console.error('Failed to load latest run:', e);
-  }
+// Health Check
+async function checkHealth() {
+    console.log('Checking health...');
+    try {
+        // Check Ollama
+        console.log('Checking Ollama health...');
+        const ollamaResponse = await fetch('/api/health/ollama');
+        const ollamaData = await ollamaResponse.json();
+        console.log('Ollama health:', ollamaData);
+        const ollamaHealth = document.getElementById('ollamaHealth');
+        ollamaHealth.textContent = `Ollama: ${ollamaData.status}`;
+        ollamaHealth.className = ollamaData.status === 'ok' ? 'status-badge status-ok' : 'status-badge status-error';
+        
+        // Check Groq  
+        console.log('Checking Groq health...');
+        const groqResponse = await fetch('/api/health/groq');
+        const groqData = await groqResponse.json();
+        console.log('Groq health:', groqData);
+        const groqHealth = document.getElementById('groqHealth');
+        // Extract just groq status from the response
+        const groqStatus = groqData.groq ? groqData.groq.status : groqData.status;
+        groqHealth.textContent = `Groq: ${groqStatus}`;
+        groqHealth.className = groqStatus === 'ok' ? 'status-badge status-ok' : 'status-badge status-error';
+    } catch (error) {
+        console.error('Health check failed:', error);
+        // Show error state
+        const ollamaHealth = document.getElementById('ollamaHealth');
+        const groqHealth = document.getElementById('groqHealth');
+        if (ollamaHealth) {
+            ollamaHealth.textContent = 'Ollama: error';
+            ollamaHealth.className = 'status-badge status-error';
+        }
+        if (groqHealth) {
+            groqHealth.textContent = 'Groq: error';
+            groqHealth.className = 'status-badge status-error';
+        }
+    }
 }
+
+// Main Evolution Function
+async function startEvolution() {
+    const task = document.getElementById('evolutionTask').value.trim();
+    if (!task) {
+        alert('Please describe a task for the AI to get better at!');
+        return;
+    }
+    
+    console.log('Starting evolution for task:', task);
+    
+    const taskType = document.getElementById('taskType').value;
+    const iterations = parseInt(document.getElementById('evolutionIterations').value);
+    const epsilon = parseFloat(document.getElementById('advEpsilon').value);
+    const memoryK = parseInt(document.getElementById('advMemoryK').value);
+    const useWeb = document.getElementById('advUseWeb').checked;
+    
+    console.log('Evolution config:', { taskType, iterations, epsilon, memoryK, useWeb });
+    
+    // Show progress UI
+    showEvolutionProgress();
+    
+    // Disable start button
+    const startBtn = document.getElementById('startEvolution');
+    startBtn.disabled = true;
+    startBtn.textContent = '🧬 Evolving...';
+    
+    try {
+        console.log('Sending evolution request...');
+        const response = await fetch('/api/meta/run', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                task_class: taskType,
+                task: task,
+                n: iterations,
+                use_bandit: true,
+                epsilon: epsilon,
+                memory_k: memoryK,
+                use_web: useWeb
+            }),
+        });
+        
+        console.log('Evolution response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Evolution request failed:', errorText);
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Evolution started with run_id:', data.run_id);
+        currentRunId = data.run_id;
+        
+        // Start streaming progress
+        startEvolutionStream(data.run_id);
+        
+    } catch (error) {
+        console.error('Evolution failed:', error);
+        showError('Evolution failed: ' + error.message);
+        resetEvolutionButton();
+    }
+}
+
+function showEvolutionProgress() {
+    document.getElementById('evolutionProgress').classList.remove('hidden');
+    document.getElementById('evolutionResults').classList.add('hidden');
+    
+    // Reset progress
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('evolutionSteps').innerHTML = '';
+    document.getElementById('currentOutput').textContent = 'Starting evolution...';
+}
+
+function startEvolutionStream(runId) {
+    console.log('Starting evolution stream for run_id:', runId);
+    
+    if (evolutionEventSource) {
+        evolutionEventSource.close();
+    }
+    
+    evolutionEventSource = new EventSource(`/api/meta/stream?run_id=${runId}`);
+    
+    evolutionEventSource.onmessage = function(event) {
+        console.log('Evolution stream event:', event.data);
+        const data = JSON.parse(event.data);
+        handleEvolutionEvent(data);
+    };
+    
+    evolutionEventSource.onopen = function(event) {
+        console.log('Evolution stream connected');
+        addEvolutionStep('📡 Connected to evolution stream', 'running');
+    };
+    
+    evolutionEventSource.onerror = function(error) {
+        console.error('Evolution stream error:', error);
+        addEvolutionStep('❌ Stream connection error', 'error');
+        evolutionEventSource.close();
+        setTimeout(() => {
+            resetEvolutionButton();
+        }, 2000);
+    };
+}
+
+function handleEvolutionEvent(data) {
+    switch (data.type) {
+        case 'iteration_start':
+            addEvolutionStep(`🔄 Iteration ${data.iteration + 1}: Trying ${data.operator}`, 'running');
+            updateProgress((data.iteration / data.total_iterations) * 100);
+            break;
+            
+        case 'iteration_complete':
+            updateLastStep(`✅ Iteration ${data.iteration + 1}: Score ${data.score.toFixed(3)} (${data.operator})`, 'completed');
+            document.getElementById('currentOutput').textContent = data.output || 'No output';
+            break;
+            
+        case 'done':
+            handleEvolutionComplete(data.result);
+            break;
+            
+        case 'error':
+            showError('Evolution error: ' + data.message);
+            resetEvolutionButton();
+            break;
+    }
+}
+
+function addEvolutionStep(text, className = '') {
+    const stepsContainer = document.getElementById('evolutionSteps');
+    const step = document.createElement('div');
+    step.className = `evolution-step ${className}`;
+    step.innerHTML = `
+        <span>${text}</span>
+        <span class="text-muted">Running...</span>
+    `;
+    stepsContainer.appendChild(step);
+    step.scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateLastStep(text, className = '') {
+    const stepsContainer = document.getElementById('evolutionSteps');
+    const lastStep = stepsContainer.lastElementChild;
+    if (lastStep) {
+        lastStep.className = `evolution-step ${className}`;
+        lastStep.innerHTML = `<span>${text}</span>`;
+    }
+}
+
+function updateProgress(percentage) {
+    document.getElementById('progressBar').style.width = `${percentage}%`;
+}
+
+function handleEvolutionComplete(result) {
+    if (evolutionEventSource) {
+        evolutionEventSource.close();
+        evolutionEventSource = null;
+    }
+    
+    // Complete progress
+    updateProgress(100);
+    
+    // Show results
+    setTimeout(() => {
+        showEvolutionResults(result);
+        resetEvolutionButton();
+    }, 1000);
+}
+
+function showEvolutionResults(result) {
+    document.getElementById('evolutionProgress').classList.add('hidden');
+    document.getElementById('evolutionResults').classList.remove('hidden');
+    
+    const improvement = ((result.improvement / Math.max(result.baseline, 0.1)) * 100).toFixed(1);
+    
+    const resultsHTML = `
+        <div class="result-card">
+            <div class="result-score">${result.best_score.toFixed(3)}</div>
+            <div class="result-improvement">+${improvement}% improvement</div>
+            <div class="text-center text-muted">
+                Best strategy: ${result.best_recipe.system || 'Default system'} 
+                ${result.best_recipe.use_web ? '+ Web Research' : ''}
+                ${result.best_recipe.use_memory ? '+ Memory' : ''}
+            </div>
+        </div>
+        
+        <details style="margin-top:16px">
+            <summary style="cursor:pointer;color:var(--muted)">📊 View Detailed Results</summary>
+            <div style="margin-top:12px;padding:12px;background:var(--code);border-radius:8px;font-family:monospace;font-size:0.9em">
+                ${JSON.stringify(result, null, 2)}
+            </div>
+        </details>
+        
+        <div style="margin-top:16px;text-center">
+            <button onclick="startNewEvolution()" class="primary-btn">
+                🚀 Start New Evolution
+            </button>
+        </div>
+    `;
+    
+    document.getElementById('resultsContent').innerHTML = resultsHTML;
+}
+
+function resetEvolutionButton() {
+    const startBtn = document.getElementById('startEvolution');
+    startBtn.disabled = false;
+    startBtn.textContent = '🚀 Start Evolution';
+}
+
+function startNewEvolution() {
+    document.getElementById('evolutionResults').classList.add('hidden');
+    document.getElementById('evolutionTask').focus();
+}
+
+// Quick Test Functions
+async function quickTest() {
+    const prompt = document.getElementById('testPrompt').value.trim();
+    if (!prompt) {
+        alert('Please enter a test prompt!');
+        return;
+    }
+    
+    const output = document.getElementById('testOutput');
+    output.style.display = 'block';
+    output.textContent = 'Testing...';
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                session_id: 1
+            }),
+        });
+        
+        const data = await response.json();
+        output.textContent = data.output || 'No response';
+    } catch (error) {
+        output.textContent = 'Error: ' + error.message;
+    }
+}
+
+async function streamTest() {
+    const prompt = document.getElementById('testPrompt').value.trim();
+    if (!prompt) {
+        alert('Please enter a test prompt!');
+        return;
+    }
+    
+    const output = document.getElementById('testOutput');
+    output.style.display = 'block';
+    output.textContent = 'Streaming...';
+    
+    try {
+        const response = await fetch(`/api/chat/stream?prompt=${encodeURIComponent(prompt)}&session_id=1`);
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        output.textContent = '';
+        
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.slice(6);
+                    if (data === '[DONE]') return;
+                    try {
+                        const parsed = JSON.parse(data);
+                        output.textContent += parsed.chunk || '';
+                    } catch (e) {
+                        // Skip invalid JSON
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        output.textContent = 'Error: ' + error.message;
+    }
+}
+
+// Evolution History
+async function loadEvolutionHistory() {
+    try {
+        const response = await fetch('/api/meta/stats');
+        const data = await response.json();
+        
+        const historyDiv = document.getElementById('evolutionHistory');
+        
+        if (data.recent_runs.length === 0) {
+            historyDiv.innerHTML = '<p class="text-muted">No evolution runs yet.</p>';
+            return;
+        }
+        
+        const historyHTML = data.recent_runs.map(run => {
+            const status = run.finished_at ? '✅ Completed' : '⏳ Running';
+            const score = run.best_score ? run.best_score.toFixed(3) : 'N/A';
+            const date = new Date(run.started_at * 1000).toLocaleString();
+            
+            return `
+                <div class="evolution-step" style="margin:4px 0">
+                    <span>#${run.id} - ${run.task_class}</span>
+                    <span class="text-muted">${status} | Score: ${score} | ${date}</span>
+                </div>
+            `;
+        }).join('');
+        
+        historyDiv.innerHTML = historyHTML;
+    } catch (error) {
+        document.getElementById('evolutionHistory').innerHTML = '<p style="color:var(--danger)">Error loading history: ' + error.message + '</p>';
+    }
+}
+
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'result-card';
+    errorDiv.style.borderColor = 'var(--danger)';
+    errorDiv.innerHTML = `
+        <div style="color:var(--danger);text-align:center">
+            <h4>Error</h4>
+            <p>${message}</p>
+        </div>
+    `;
+    
+    document.getElementById('evolutionResults').classList.remove('hidden');
+    document.getElementById('resultsContent').innerHTML = '';
+    document.getElementById('resultsContent').appendChild(errorDiv);
+}
+
+// Legacy compatibility functions (for existing backend calls)
+function doChat() { quickTest(); }
+function streamChat() { streamTest(); }
+function doEvolve() { startEvolution(); }
+function runMetaEvolution() { startEvolution(); }
+function newSession() { /* No-op for compatibility */ }
+function loadSessions() { /* No-op for compatibility */ }
+function doSearch() { alert('Use evolution mode with web research enabled instead'); }
+function doRagBuild() { alert('RAG is automatically built during evolution'); }
+function doRagQuery() { alert('Use Quick Test instead'); }
+function doMemoryQuery() { alert('Use Quick Test instead'); }
+function buildMemory() { alert('Memory is automatically built during evolution'); }
+function thumbs() { /* No-op for compatibility */ }
+function uiListGroq() { /* No-op for compatibility */ }
+function viewMetaLogs() { loadEvolutionHistory(); }
+
+// Utility functions for legacy compatibility
+async function post(path, body){
+    const r=await fetch(path,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(body||{})
+    }); 
+    if(!r.ok){
+        const e=await r.json().catch(()=>({})); 
+        throw new Error(e.detail||JSON.stringify(e));
+    } 
+    return r.json();
+}
+
+async function get(path){
+    const r=await fetch(path); 
+    if(!r.ok){
+        const e=await r.json().catch(()=>({})); 
+        throw new Error(e.detail||JSON.stringify(e));
+    } 
+    return r.json();
+}
+
+const out = document.getElementById("out") || document.createElement('div');
+function show(x){ 
+    if(out) out.textContent = typeof x==="string"? x : JSON.stringify(x,null,2); 
+}
+
+function getSelectedSession(){ return 1; } // Default session for compatibility

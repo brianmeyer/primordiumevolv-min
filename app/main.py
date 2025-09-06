@@ -7,10 +7,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from app.ollama_client import generate, health, validate_model, MODEL_ID
+from app.ollama_client import generate, health, validate_model, MODEL_ID, stream_generate
 from app.tools.web_search import search as web_search
 from app.tools.rag import build_or_update_index, query as rag_query
-from app.tools import todo as todo
 from app.evolve.loop import evolve
 from app.models import (
     ChatRequest, EvolveRequest, WebSearchRequest,
@@ -32,6 +31,7 @@ import time
 
 load_dotenv()
 PORT = int(os.getenv("PORT", "8000"))
+CHAT_MAX_TOKENS = int(os.getenv("CHAT_MAX_TOKENS", "1024"))
 RATE = int(os.getenv("RATE_LIMIT_PER_MIN", "30"))
 CORS_ALLOW = [x for x in os.getenv("CORS_ALLOW", "http://localhost:3000,http://localhost:8000").split(",") if x]
 
@@ -67,6 +67,10 @@ async def root():
 # Health
 @app.get("/api/health")
 async def health_ep():
+    return JSONResponse(health())
+
+@app.get("/api/health/ollama")
+async def ollama_health_ep():
     return JSONResponse(health())
 
 @app.get("/api/health/groq")
@@ -162,7 +166,7 @@ async def chat_ep(body: ChatRequest):
             # Continue without context but log memory failure
             print(f"[warn] Memory query failed in chat: {mem_e}")
         
-        # Generate response
+        # Generate response (no local token cap; rely on model defaults)
         enriched_prompt = body.prompt + context
         try:
             out = generate(enriched_prompt, system=body.system)
@@ -175,6 +179,64 @@ async def chat_ep(body: ChatRequest):
         return JSONResponse({"response": out})
     except Exception as e:
         return handle_exception(e, "chat_failed")
+
+# Streaming chat (SSE)
+@app.get("/api/chat/stream")
+async def chat_stream(prompt: str, session_id: int, system: Optional[str] = None):
+    try:
+        # Save user message
+        memory.append_message(session_id, "user", prompt)
+
+        # Optional memory context
+        context = ""
+        try:
+            relevant = memory.query_memory(prompt, k=3)
+            if relevant:
+                context = "\n\nRelevant context from past conversations:\n" + "\n".join(
+                    [f"- {m['role']}: {m['content'][:100]}..." for m in relevant[:2]]
+                )
+        except Exception:
+            pass
+
+        enriched = prompt + context
+        max_tokens = None
+
+        # Adaptive temperature for stream
+        try:
+            from app.meta import store as meta_store
+            stats = meta_store.get_chat_temp_stats()
+        except Exception:
+            stats = {}
+        import random
+        candidates = [0.3, 0.7, 1.0]
+        eps = 0.2
+        if stats:
+            if random.random() < eps:
+                chosen_temp = random.choice(candidates)
+            else:
+                by_avg = sorted(candidates, key=lambda t: stats.get(t, {}).get("avg_reward", 0.0), reverse=True)
+                chosen_temp = by_avg[0]
+        else:
+            chosen_temp = 0.7
+
+        async def _gen():
+            full = []
+            try:
+                for token in stream_generate(enriched, system=system, options={"temperature": chosen_temp}):
+                    full.append(token)
+                    yield f"data: {{\"token\": {json.dumps(token)} }}\n\n"
+                # Save assistant message
+                try:
+                    mid = memory.append_message_meta(session_id, "assistant", "".join(full), param_temp=chosen_temp)
+                except Exception:
+                    mid = None
+                yield f"data: {{\"done\": true, \"message_id\": {json.dumps(mid)}, \"params\": {{\"temperature\": {chosen_temp} }} }}\n\n"
+            except Exception as e:
+                yield f"data: {{\"error\": {json.dumps(str(e))} }}\n\n"
+
+        return StreamingResponse(_gen(), media_type="text/event-stream")
+    except Exception as e:
+        return handle_exception(e, "chat_stream_failed")
 
 # Evolve
 @app.post("/api/evolve")
@@ -209,37 +271,6 @@ async def rag_query_ep(body: RagQueryRequest):
     except Exception as e:
         return handle_exception(e, "rag_query_failed")
 
-# TODO
-@app.post("/api/todo/add")
-async def todo_add(body: TodoAddRequest):
-    try:
-        todo.add(body.text)
-        return JSONResponse({"status": "ok"})
-    except Exception as e:
-        return handle_exception(e, "todo_add_failed")
-
-@app.get("/api/todo/list")
-async def todo_list():
-    try:
-        return JSONResponse({"todos": todo.list_all()})
-    except Exception as e:
-        return handle_exception(e, "todo_list_failed")
-
-@app.post("/api/todo/complete")
-async def todo_complete(body: TodoIdRequest):
-    try:
-        todo.complete(int(body.id))
-        return JSONResponse({"status": "ok"})
-    except Exception as e:
-        return handle_exception(e, "todo_complete_failed")
-
-@app.post("/api/todo/delete")
-async def todo_delete(body: TodoIdRequest):
-    try:
-        todo.delete(int(body.id))
-        return JSONResponse({"status": "ok"})
-    except Exception as e:
-        return handle_exception(e, "todo_delete_failed")
 
 # Session management
 @app.post("/api/session/create")

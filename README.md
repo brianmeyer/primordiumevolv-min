@@ -18,18 +18,16 @@ make run      # http://localhost:8000
 ```
 
 ## Features
-- **Chat**: Direct Ollama model interaction with persistent session memory
-- **Memory**: Vector-based semantic search across conversation history
-- **Meta-Evolution**: Self-evolving prompt optimization with epsilon-greedy bandit
-- **Recipe Storage**: Persist and reuse successful prompt recipes per task class
-- **Operator System**: 10+ mutation operators (temperature, systems, RAG injection, etc.)
-- **Artifact Generation**: Detailed run logs and iteration data under `runs/`
-- **Evolve**: Evolutionary optimization with semantic scoring
-- **Web Search**: Tavily API (if key provided) with DDG fallback
-- **RAG**: Local vector search with FAISS and sentence-transformers
-- **TODO**: Simple task management with SQLite
-- **Rate Limiting**: Token bucket per IP (configurable)
-- **Error Handling**: Structured JSON error responses
+- Chat + Stream Chat: With session memory; optional live token streaming.
+- Memory: FAISS vector search over conversations (cached in‑process for speed).
+- Meta‑Evolution: Epsilon‑greedy bandit over operators (system, nudge, temp, memory, RAG, web, engine).
+- Recipes + Analytics: Persists best recipes; operator stats tracked over time.
+- RAG: Local vector search (FAISS + sentence‑transformers) over files in `data/`.
+- Web Search: Tavily (if key) with DDG fallback.
+- Groq: Dynamic model pick; health/models inventory; engine switching + judge/compare.
+- Realtime: Async runs + SSE live updates; inspect full variant output.
+- Adaptive Chat: Simple thumbs‑based learning for temperature (opt‑in via buttons).
+- Hardened: GZip, structured errors, rate‑limit exemptions for streams.
 
 ## Groq Integration
 - Set `GROQ_API_KEY` and optional `GROQ_MODEL_ID` in `.env`.
@@ -46,10 +44,45 @@ make run      # http://localhost:8000
 - Enable "Judge with Groq" in the Meta panel to pairwise-judge the best local variant against a Groq challenger.
 - Responses include a `judge` block; the UI also displays a subtle toast and a verdict panel.
 
-## UI Tips
-- Tabs: switch between Chat & Tools, Meta, and Dashboard.
-- Shortcuts: Ctrl/Cmd+1/2/3 to switch tabs; Ctrl/Cmd+Enter to run Meta; J toggles Judge; C toggles Compare.
-- Health badges indicate Ollama and Groq status; use "List Groq Models" to verify Groq access.
+## New Human-Centered UI (v2.0)
+
+The interface has been completely redesigned with human-centered design principles:
+
+### 🎯 **Main Evolution Interface**
+- **Primary Focus**: Single "🚀 Start Evolution" button with clear call-to-action
+- **Natural Language**: "What should the AI get better at?" instead of technical jargon
+- **Task-Oriented**: Dropdown for task types (Code, Analysis, Writing, Business, etc.)
+- **Progressive Disclosure**: Advanced settings collapsed by default
+
+### 📊 **Real-time Progress**
+- **Visual Progress Bar**: Shows evolution completion percentage
+- **Live Step Tracking**: "🔄 Iteration 2: Trying toggle_web" with status updates
+- **Streaming Output**: Real-time display of current AI output
+- **Results Display**: Clear score improvements and strategy summaries
+
+### 🎨 **Collapsible Sections**
+- **💬 Quick Test**: Test current AI with immediate responses
+- **⚙️ Advanced Settings**: Learning rate, memory context, web research controls
+- **📊 Evolution History**: View past runs and performance metrics
+
+### 🔧 **Technical Improvements**
+- **Health Monitoring**: Auto-updating Ollama/Groq status badges
+- **Debug Logging**: Comprehensive console logging for troubleshooting
+- **Error Handling**: Clear error messages with recovery suggestions
+- **Mobile-Friendly**: Responsive design for all screen sizes
+
+### 🚀 **Usage Flow**
+1. Enter task description (e.g., "Write Python functions with error handling")
+2. Select task type and iterations (2-15)
+3. Click "🚀 Start Evolution" 
+4. Watch real-time progress with step-by-step updates
+5. View results with improvement metrics and best strategies
+
+## UI Tips (Legacy)
+- Health badges show Ollama and Groq status in real-time
+- Open browser dev tools (F12) to see detailed console logs
+- All complex controls are hidden in collapsible sections
+- Evolution progress shows live streaming updates
 
 ## Judge Mode + Groq
 - Set `GROQ_API_KEY` in `.env` (leave `GROQ_MODEL_ID` blank to auto-select from `/models`).
@@ -64,6 +97,8 @@ make run      # http://localhost:8000
 - `GET /` - UI interface
 - `GET /api/health` - Health check
 - `POST /api/chat` - Chat with model (requires session_id)
+- `GET /api/chat/stream` - Stream Chat (SSE)
+- `POST /api/chat/feedback` - Thumbs feedback to adapt chat temperature
 - `POST /api/evolve` - Run evolution loop
 
 ### Session Management
@@ -78,15 +113,15 @@ make run      # http://localhost:8000
 
 ### Meta-Evolution System
 - `POST /api/meta/run` - Trigger self-evolution cycle with bandit optimization
+- `POST /api/meta/run_async` - Start run in background (returns `run_id`)
+- `GET /api/meta/stream?run_id=ID` - Live SSE updates (iter/judge/done)
+- `GET /api/meta/runs/{run_id}` - Run details + variants
+- `GET /api/meta/variants/{variant_id}` - Full output for a specific variant
 
 ### Tools
 - `POST /api/web/search` - Web search
 - `POST /api/rag/build` - Build vector index
 - `POST /api/rag/query` - Query vector index
-- `POST /api/todo/add` - Add todo
-- `GET /api/todo/list` - List todos
-- `POST /api/todo/complete` - Complete todo
-- `POST /api/todo/delete` - Delete todo
 
 ## Quick Test
 
@@ -162,3 +197,11 @@ Each run creates `runs/{timestamp}/`:
 - High-performing recipes (score > baseline + 0.2) auto-approved
 - Best recipes reused as base for future mutations
 - Operator statistics tracked for bandit optimization
+
+## Current Results (examples)
+- Run 7 (briefing): best_score ≈ 0.406 on Ollama; Groq compare ≈ 0.408 (Δ ≈ +0.002). Operator stats favored `toggle_web` (n≈11, avg_reward≈0.451), with `change_nudge` runner‑up.
+- Run 9 (briefing): baseline ≈ 0.406 → best_score ≈ 0.413 (Δ ≈ +0.007). Operator stats: `toggle_web` (n≈13, avg_reward≈0.371), `change_nudge` (n≈4, avg_reward≈0.064).
+
+Observations:
+- With small N and ε=0.1, the bandit exploited `toggle_web`. To diversify, raise N (8–12), increase ε (0.3–0.5), add domain assertions, and optionally mask out WEB for a run to encourage memory/RAG/system exploration.
+- Groq compare showed slight gains on the same prompt/system; enabling the ENGINE mask lets the operator explore engine switches.

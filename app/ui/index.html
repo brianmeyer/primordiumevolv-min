@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>PrimordiumEvolv Minimal</title>
+  <title>PrimordiumEvolv</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
   :root{
@@ -31,162 +31,212 @@
                 linear-gradient(180deg, var(--bg-grad-1), var(--bg-grad-2));
     color:var(--text);
     font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    margin:0;
+    padding:0;
+    min-height:100vh;
   }
-  body{max-width:1200px;margin:20px auto;padding:0 12px}
-  a{color:var(--accent)}
-  .tabbar{display:flex;gap:8px;border-bottom:1px solid var(--border);margin:10px 0 16px 0}
-  .tabbar button{background:var(--panel);color:var(--text);border:1px solid var(--border);border-bottom:none;padding:8px 14px;border-top-left-radius:10px;border-top-right-radius:10px;cursor:pointer;backdrop-filter:saturate(140%) blur(var(--blur));-webkit-backdrop-filter:saturate(140%) blur(var(--blur));box-shadow:var(--shadow)}
-  .tabbar button.active{background:var(--panel-2);}
-  .dashboard-section{margin-top:20px;padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--panel);backdrop-filter:saturate(140%) blur(var(--blur));-webkit-backdrop-filter:saturate(140%) blur(var(--blur));box-shadow:var(--shadow)}
-  .charts-container{display:flex;gap:24px;flex-wrap:wrap;margin:20px 0}
-  .chart-wrapper{flex:1;min-width:280px;background:var(--panel-2);padding:15px;border-radius:12px;box-shadow:var(--shadow);backdrop-filter:saturate(140%) blur(var(--blur));-webkit-backdrop-filter:saturate(140%) blur(var(--blur));}
-  label{color:var(--muted)}
-  /* High-contrast controls */
+  body{max-width:1000px;margin:0 auto;padding:20px}
+  
+  /* Evolution UI Styles */
+  .main-container{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:32px;backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));box-shadow:var(--shadow);margin-bottom:24px}
+  .section{background:var(--panel-2);border:1px solid var(--border);border-radius:16px;padding:24px;margin:16px 0;backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur))}
+  .collapsed-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0;backdrop-filter:blur(calc(var(--blur) - 4px));-webkit-backdrop-filter:blur(calc(var(--blur) - 4px))}
+  
+  /* Form Controls */
   input, select, textarea{
     background-color: var(--surface) !important;
     color: var(--text) !important;
     border: 1px solid var(--border) !important;
     border-radius: 10px;
-    padding: 10px;
+    padding: 12px;
     backdrop-filter: blur(calc(var(--blur) - 4px));
     -webkit-backdrop-filter: blur(calc(var(--blur) - 4px));
+    font-size: 1em;
   }
   input::placeholder, textarea::placeholder{ color: #9ca3af; opacity: 1; }
   input:focus, select:focus, textarea:focus{ outline: none; border-color: var(--accent) !important; box-shadow: 0 0 0 2px rgba(34,211,238,0.25); }
-  /* Safari autofill contrast fix */
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus{
-    -webkit-text-fill-color: var(--text);
-    -webkit-box-shadow: 0 0 0px 1000px var(--surface) inset;
-    box-shadow: 0 0 0px 1000px var(--surface) inset;
-  }
-  textarea{width:100%;height:140px}
-  button{background:linear-gradient(180deg, var(--primary), var(--primary-700));color:white;border:1px solid var(--border);padding:10px 14px;border-radius:10px;cursor:pointer;box-shadow:var(--shadow)}
-  button:hover{filter:brightness(1.05)}
-  pre{background:var(--panel-2);color:var(--text);padding:12px;border-radius:12px;border:1px solid var(--border);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur))}
-  table{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--panel);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));}
-  th{background:var(--panel-2);color:var(--muted)}
-  td,th{border-bottom:1px solid var(--border)}
-  .health-badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;margin:0 6px;background:var(--panel-2);border:1px solid var(--border);color:var(--text);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur))}
-  .health-ok{border-left:4px solid var(--success);}
-  .health-down{border-left:4px solid var(--danger);}  
-  .judge-panel{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);padding:12px;border-radius:12px;margin:10px 0;font-size:13px;color:#fde68a;backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur))}
-  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))){
-    .dashboard-section,.chart-wrapper,.tabbar button,pre,table,input,select,textarea{background:#0f172a!important}
-  }
-  </style>
   
+  /* Buttons */
+  .primary-btn{background:linear-gradient(135deg,var(--primary),var(--primary-700));color:white;border:none;padding:16px 32px;font-size:1.2em;font-weight:600;border-radius:12px;cursor:pointer;box-shadow:var(--shadow);transition:all 0.3s}
+  .primary-btn:hover{transform:translateY(-1px);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+  .secondary-btn{background:var(--surface);color:var(--text);border:1px solid var(--border);padding:10px 18px;border-radius:8px;cursor:pointer;font-size:0.9em}
+  .secondary-btn:hover{background:var(--panel);border-color:var(--accent)}
+  
+  /* Progress & Status */
+  .progress-container{background:var(--surface);height:12px;border-radius:6px;overflow:hidden;margin:16px 0}
+  .progress-bar{background:linear-gradient(90deg,var(--primary),var(--accent));height:100%;width:0%;transition:width 0.5s ease;border-radius:6px}
+  .status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:0.85em;font-weight:500;margin:0 4px;background:var(--panel-2);border:1px solid var(--border);color:var(--text)}
+  .status-ok{border-left:4px solid var(--success)}
+  .status-error{border-left:4px solid var(--danger)}
+  
+  /* Evolution Steps */
+  .evolution-step{padding:12px 16px;margin:8px 0;background:var(--surface);border-radius:10px;display:flex;justify-content:space-between;align-items:center;font-size:0.95em}
+  .evolution-step.running{background:linear-gradient(90deg, var(--surface), rgba(139,92,246,0.15));animation:pulse 2s infinite}
+  .evolution-step.completed{background:linear-gradient(90deg, var(--surface), rgba(34,197,94,0.15))}
+  @keyframes pulse{0%{opacity:1}50%{opacity:0.7}100%{opacity:1}}
+  
+  /* Collapsible sections */
+  details summary{cursor:pointer;user-select:none;color:var(--muted);padding:8px 0}
+  details[open] summary{color:var(--primary)}
+  details > div{margin-top:12px}
+  
+  /* Results */
+  .result-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin:12px 0}
+  .result-score{font-size:2em;font-weight:bold;color:var(--accent);text-align:center;margin:8px 0}
+  .result-improvement{text-align:center;color:var(--success);font-size:1.1em;margin:8px 0}
+  
+  /* Utility */
+  .hidden{display:none}
+  .text-center{text-align:center}
+  .text-muted{color:var(--muted)}
+  .mt-1{margin-top:8px}
+  .mt-2{margin-top:16px}
+  .mb-2{margin-bottom:16px}
+  .flex{display:flex}
+  .flex-between{justify-content:space-between}
+  .flex-center{justify-content:center}
+  .flex-align{align-items:center}
+  .gap-2{gap:16px}
+  .w-full{width:100%}
+  </style>
 </head>
 <body>
-  <h2>PrimordiumEvolv Minimal</h2>
-  
-  <div class="dashboard-section" style="display:flex;align-items:center;gap:8px;">
-    <div style="font-weight:700;color:var(--muted);">System Health:</div>
-    <span id="ollamaHealth" class="health-badge">Ollama: checking...</span>
-    <span id="groqHealth" class="health-badge">Groq: checking...</span>
-    <button onclick="checkHealth()" style="margin-left:auto;padding:6px 10px;font-size:12px;">🔄 Refresh</button>
+  <div class="text-center mb-2">
+    <h1 style="margin:0;font-size:2.5em;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">PrimordiumEvolv</h1>
+    <p style="color:var(--muted);font-size:1.2em;margin:8px 0 0 0;">Self-Evolving AI System</p>
   </div>
-  
-  <div>
-    <label for="sessionSelect">Session:</label>
-    <select id="sessionSelect"></select>
-    <button onclick="newSession()">New Session</button>
-    <button onclick="loadSessions()">Refresh</button>
-  </div>
-  <textarea id="prompt" placeholder="Type a prompt or task..."></textarea>
-  <div>
-    <button onclick="doChat()">Chat</button>
-    <button onclick="doEvolve()">Evolve</button>
-    <button onclick="doSearch()">Web Search</button>
-    <button onclick="doRagBuild()">RAG Build</button>
-    <button onclick="doRagQuery()">RAG Query</button>
-    <button onclick="doMemoryQuery()">Memory Query</button>
-    <button onclick="buildMemory()">Build Memory</button>
-  </div>
-  <h3>TODO</h3>
-  <input id="todoText" placeholder="Add todo"/><button onclick="addTodo()">Add</button>
-  <pre id="out"></pre>
 
-  <!-- Simplified: removed legacy Meta Run and Eval Runner blocks -->
-  
-  
-  
-  <div class="dashboard-section">
-    <h3>🚀 Meta-Evolution Control</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;">
-      <div>
-        <label>Task Class: <input id="metaTaskClass" placeholder="e.g., code, analysis" style="width:100%;"></label>
-      </div>
-      <div>
-        <label>Iterations: <input id="metaIterations" type="number" value="5" min="1" max="24" style="width:100%;"></label>
-      </div>
+  <!-- System Health -->
+  <div class="flex flex-center flex-align gap-2 mb-2">
+    <span id="ollamaHealth" class="status-badge">Ollama: checking...</span>
+    <span id="groqHealth" class="status-badge">Groq: checking...</span>
+    <button onclick="checkHealth()" class="secondary-btn" style="padding:4px 8px;font-size:0.8em">🔄</button>
+  </div>
+
+  <!-- Main Evolution Interface -->
+  <div class="main-container">
+    <div class="text-center mb-2">
+      <h2 style="margin:0 0 8px 0;font-size:1.4em;color:var(--text)">🎯 What should the AI get better at?</h2>
+      <p class="text-muted" style="margin:0;font-size:0.95em">Describe a task and watch the AI evolve to become better at it</p>
     </div>
-    <div style="margin:6px 0 8px 0; color:var(--muted); font-size:12px;">Meta uses the main prompt above.</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0;">
-      <div>
-        <label><input type="checkbox" id="metaBandit" checked> Use Bandit</label><br>
-        <label>ε: <input id="metaEps" type="number" value="0.1" step="0.1" min="0" max="1" style="width:60px;"></label>
-      </div>
-      <div>
-        <label>Memory K: <input id="metaMemoryK" type="number" value="3" min="0" max="10" style="width:60px;"></label><br>
-        <label>RAG K: <input id="metaRagK" type="number" value="3" min="0" max="10" style="width:60px;"></label>
-      </div>
-      <div>
-        <label>Framework Mask:</label>
-        <select id="metaFramework" multiple size="3" style="width:100%;">
-          <option value="SEAL">SEAL (mutations)</option>
-          <option value="WEB">WEB (web search)</option>
-          <option value="SAMPLING">SAMPLING (params)</option>
-          <option value="ENGINE">ENGINE</option>
-        </select>
-      </div>
-    </div>
-    <div style="display:flex; gap:12px; align-items:center; margin:6px 0 12px 0;">
-      <label>Force engine
-        <select id="mrForceEngine">
-          <option value="">auto</option>
-          <option value="ollama">ollama</option>
-          <option value="groq">groq</option>
-        </select>
-      </label>
-      <label><input id="mrCompareGroq" type="checkbox"> Compare with Groq (single-shot)</label>
-      <label><input id="mrJudge" type="checkbox"> Judge with Groq</label>
-      <button onclick="uiListGroq()">List Groq Models</button>
-    </div>
-    <pre id="groqModels" style="background:white;padding:10px;border-radius:4px;max-height:120px;overflow:auto;font-size:12px;"></pre>
-    <div style="margin:10px 0;">
-      <button id="btnRunMeta" onclick="runMetaEvolution()" style="background:#28a745;color:white;padding:10px 20px;border:none;border-radius:4px;">🚀 Run Meta-Evolution</button>
-      <button onclick="viewMetaLogs()" style="margin-left:10px;padding:10px 15px;">📊 View Logs</button>
-    </div>
-    <div id="metaOutput" style="background:white;padding:10px;border-radius:4px;min-height:100px;margin-top:10px;font-family:monospace;font-size:12px;white-space:pre-wrap;"></div>
     
-    <div id="judgeResults" class="judge-panel" style="display:none;">
-      <h4>🧑‍⚖️ Judge Results</h4>
-      <div id="judgeContent"></div>
-    </div>
-
-    <div style="margin-top:16px;">
-      <h3>Latest Run</h3>
-      <table id="latestRunTable" style="width:100%; border-collapse:collapse; font-size:12px;">
-        <thead>
-          <tr>
-            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">#</th>
-            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Operator</th>
-            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Engine</th>
-            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Model</th>
-            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Score</th>
-            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Duration (ms)</th>
-            <th style="text-align:left; border-bottom:1px solid #ddd; padding:6px;">Time</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    <textarea id="evolutionTask" 
+              placeholder="e.g., 'Write Python functions with good error handling', 'Analyze business data and find insights', 'Create engaging marketing copy'..." 
+              style="width:100%;height:120px;margin:16px 0;font-size:1.1em;resize:vertical"></textarea>
+    
+    <div class="flex flex-between flex-align gap-2 mb-2">
+      <div class="flex flex-align gap-2">
+        <label class="flex flex-align gap-2">
+          <span class="text-muted">Task Type:</span>
+          <select id="taskType" style="padding:8px">
+            <option value="code">Code & Programming</option>
+            <option value="analysis">Data Analysis</option>
+            <option value="writing">Creative Writing</option>
+            <option value="business">Business Strategy</option>
+            <option value="research">Research & Facts</option>
+            <option value="other">General Task</option>
+          </select>
+        </label>
+        
+        <label class="flex flex-align gap-2">
+          <span class="text-muted">Iterations:</span>
+          <input id="evolutionIterations" type="number" value="5" min="2" max="15" style="width:80px;padding:8px">
+        </label>
+      </div>
+      
+      <button id="startEvolution" onclick="startEvolution()" class="primary-btn">
+        🚀 Start Evolution
+      </button>
     </div>
   </div>
   
+  <!-- Evolution Progress -->
+  <div id="evolutionProgress" class="section hidden">
+    <h3 style="margin:0 0 16px 0">🧬 Evolution in Progress</h3>
+    <div class="progress-container">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <div id="evolutionSteps"></div>
+    <div id="currentOutput" class="evolution-step" style="margin-top:16px;font-family:monospace;font-size:0.9em;background:var(--code);min-height:100px;padding:16px;white-space:pre-wrap;overflow:auto"></div>
+  </div>
   
-  
+  <!-- Results -->
+  <div id="evolutionResults" class="section hidden">
+    <h3 style="margin:0 0 16px 0">🏆 Evolution Complete!</h3>
+    <div id="resultsContent"></div>
+  </div>
+
+  <!-- Quick Test -->
+  <div class="collapsed-section">
+    <details>
+      <summary>💬 Quick Test Current AI</summary>
+      <div>
+        <textarea id="testPrompt" placeholder="Test the current AI with a quick prompt..." style="width:100%;height:80px;margin-bottom:8px"></textarea>
+        <div class="flex gap-2">
+          <button onclick="quickTest()" class="secondary-btn">Test</button>
+          <button onclick="streamTest()" class="secondary-btn">Stream Test</button>
+        </div>
+        <div id="testOutput" style="margin-top:12px;padding:12px;background:var(--code);border-radius:8px;font-family:monospace;font-size:0.9em;white-space:pre-wrap;min-height:60px;display:none"></div>
+      </div>
+    </details>
+  </div>
+
+  <!-- Advanced Settings -->
+  <div class="collapsed-section">
+    <details>
+      <summary>⚙️ Advanced Evolution Settings</summary>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+        <label style="display:flex;flex-direction:column;gap:4px">
+          <span class="text-muted">Learning Rate (ε)</span>
+          <input id="advEpsilon" type="number" value="0.1" step="0.05" min="0" max="1" style="width:100%">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px">
+          <span class="text-muted">Memory Context</span>
+          <input id="advMemoryK" type="number" value="3" min="0" max="10" style="width:100%">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px">
+          <span class="text-muted">Web Research</span>
+          <input type="checkbox" id="advUseWeb" checked style="transform:scale(1.5);margin:8px">
+        </label>
+      </div>
+    </details>
+  </div>
+
+  <!-- Evolution History -->
+  <div class="collapsed-section">
+    <details>
+      <summary>📊 View Evolution History</summary>
+      <div>
+        <div id="evolutionHistory" style="max-height:300px;overflow:auto"></div>
+        <button onclick="loadEvolutionHistory()" class="secondary-btn mt-1">Refresh History</button>
+      </div>
+    </details>
+  </div>
+
+  <!-- Hidden compatibility elements -->
+  <div class="hidden">
+    <input id="sessionSelect">
+    <input id="prompt">
+    <div id="chatOut"></div>
+    <div id="messagesList"></div>
+    <div id="out"></div>
+    <input id="metaTaskClass">
+    <input id="metaIterations">
+    <input id="metaBandit">
+    <input id="metaEps">
+    <input id="metaMemoryK">
+    <input id="metaRagK">
+    <select id="metaFramework"></select>
+    <select id="mrForceEngine"></select>
+    <input id="mrCompareGroq">
+    <input id="mrJudge">
+    <div id="metaOutput"></div>
+    <div id="judgeResults"><div id="judgeContent"></div></div>
+    <table id="latestRunTable"><tbody></tbody></table>
+    <div id="variantOut"></div>
+    <div id="groqModels"></div>
+  </div>
+
   <script src="/static/app.js"></script>
 </body>
 </html>
