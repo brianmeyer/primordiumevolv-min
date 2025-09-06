@@ -45,6 +45,7 @@
 - Resolved JavaScript loading issues (404 errors)
 - Fixed meta-evolution runs not completing (`finished_at` null bug)
 - **Fixed JavaScript function scope issue**: Resolved "startEvolution is not a function" error by explicitly attaching functions to window object
+- **Complete JavaScript functionality restoration**: Added missing `quickTest`, `streamTest`, `loadEvolutionHistory` functions with proper global scope
 - Improved streaming connection handling with timeout management
 - Enhanced error reporting with detailed stack traces
 
