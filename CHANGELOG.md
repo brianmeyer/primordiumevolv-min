@@ -20,6 +20,18 @@
 - **Solution Impact**: Now guarantees all operators (change_system, raise_temp, add_fewshot, use_groq, etc.) get tried
 - **Verification**: Testing confirms 100% operator coverage with both improved algorithms
 
+### 🎯 **Current Results - Improved Diversity Evidence**
+**Recent Runs (Post-Implementation)** show previously unused operators now active:
+- **✅ use_groq** - Successfully tried in run #20 (previously never used)
+- **✅ add_fewshot** - Now appearing in run #22 (previously rare)
+- **✅ raise_temp** - Multiple uses in run #22 (previously avoided)
+- **✅ change_system** - Successfully tried in run #22 (previously never used)
+- **✅ inject_memory** - Active usage in recent runs
+
+**Before vs After Comparison:**
+- **Old Behavior**: Converged quickly on ~3 operators (toggle_web, lower_temp, lower_top_k)
+- **New Behavior**: Systematic exploration of all 11 operators with forced initial trials
+
 ### ⚙️ Configuration Changes
 - **Default Epsilon**: Increased from 0.3 to 0.6 in `.env` and `config.py`
 - **New Parameter**: `bandit_algorithm` in `meta_run()` function
