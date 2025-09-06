@@ -1,0 +1,46 @@
+{
+  "run_id": 14,
+  "task_class": "test",
+  "task": "Write a hello world function",
+  "assertions": null,
+  "best_score": 0.29537296265628715,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 14,
+      "avg_reward": 0.3659824742903606
+    },
+    "change_nudge": {
+      "n": 8,
+      "avg_reward": 0.21234157995127945
+    },
+    "raise_top_k": {
+      "n": 3,
+      "avg_reward": 0.34072124923966207
+    },
+    "inject_memory": {
+      "n": 3,
+      "avg_reward": 0.34829364557468034
+    },
+    "inject_rag": {
+      "n": 1,
+      "avg_reward": 0.31299453942470684
+    }
+  },
+  "baseline": 0.0,
+  "improvement": 0.29537296265628715,
+  "timestamp": 1757162914
+}

@@ -1,0 +1,39 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-05T23:44:14.150152+00:00",
+  "unix_timestamp": 1757115854.1501582,
+  "data": {
+    "run_id": 10,
+    "task_class": "business",
+    "task": "Revenue is going down but sales are the same, what are the possible causes?",
+    "config": {
+      "n": 15,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "use_groq",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.4,
+      "use_bandit": true,
+      "framework_mask": [
+        "SEAL",
+        "SAMPLING",
+        "ENGINE"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": true,
+      "judge_mode": "off"
+    }
+  }
+}

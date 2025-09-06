@@ -1,0 +1,21 @@
+{
+  "iteration": 1,
+  "operator": "change_nudge",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Prioritize correctness and include one test example.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.413262307230628,
+  "reward": 0.007342761394814379,
+  "output_preview": "<think>\nOkay, the user is asking for research on AI use cases for a defense startup with technical founders who need back office support. They want it concise, precise, and with one test example. \n\nFi..."
+}

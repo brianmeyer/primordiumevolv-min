@@ -1,0 +1,34 @@
+{
+  "run_id": 9,
+  "task_class": "briefing",
+  "task": "Give me research into possible AI use for a defense startup with technical founders that need back office support.",
+  "assertions": [],
+  "best_score": 0.413262307230628,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Prioritize correctness and include one test example.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 13,
+      "avg_reward": 0.37141397518528935
+    },
+    "change_nudge": {
+      "n": 4,
+      "avg_reward": 0.06433852237412632
+    }
+  },
+  "baseline": 0.40591954583581363,
+  "improvement": 0.007342761394814379,
+  "timestamp": 1757100259
+}

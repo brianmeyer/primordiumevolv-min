@@ -1,0 +1,21 @@
+{
+  "iteration": 1,
+  "operator": "toggle_web",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "score": 0.3197858330389788,
+  "reward": -0.08613371279683485,
+  "output_preview": "<think>\nWe are given a context about AI medical documentation tools and the goal is to help medics with documentation and handoff.\n The user wants the device (which we can assume is an AI-powered devi..."
+}

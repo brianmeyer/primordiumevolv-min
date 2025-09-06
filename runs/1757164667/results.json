@@ -1,0 +1,33 @@
+{
+  "run_id": 16,
+  "task_class": "code",
+  "task": "Write a simple hello function",
+  "assertions": null,
+  "best_score": -Infinity,
+  "best_recipe": null,
+  "operator_stats": {
+    "toggle_web": {
+      "n": 14,
+      "avg_reward": 0.3659824742903606
+    },
+    "change_nudge": {
+      "n": 8,
+      "avg_reward": 0.21234157995127945
+    },
+    "raise_top_k": {
+      "n": 3,
+      "avg_reward": 0.34072124923966207
+    },
+    "inject_memory": {
+      "n": 3,
+      "avg_reward": 0.34829364557468034
+    },
+    "inject_rag": {
+      "n": 1,
+      "avg_reward": 0.31299453942470684
+    }
+  },
+  "baseline": 0.44252098618857283,
+  "improvement": 0,
+  "timestamp": 1757164667
+}

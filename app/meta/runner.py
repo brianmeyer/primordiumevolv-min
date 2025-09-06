@@ -257,7 +257,22 @@ def meta_run(
                 best_output = output
             
             # Calculate reward and update operator stats
-            reward = score - baseline
+            reward_base = score - baseline
+            # Optional process+cost reward blending
+            try:
+                from app.config import FF_PROCESS_COST_REWARD, REWARD_ALPHA, REWARD_BETA_PROCESS, REWARD_GAMMA_COST
+            except Exception:
+                FF_PROCESS_COST_REWARD = False
+            if FF_PROCESS_COST_REWARD:
+                process_reward = 0.0 if best_score in (None, float('-inf')) else (score - (best_score if best_score != float('-inf') else score))
+                cost_reward = -float(generation_time_ms)
+                reward = (
+                    REWARD_ALPHA * reward_base +
+                    REWARD_BETA_PROCESS * process_reward +
+                    REWARD_GAMMA_COST * cost_reward
+                )
+            else:
+                reward = reward_base
             if use_bandit and bandit_agent:
                 operator_stats = bandit_agent.update(selected_op, reward, operator_stats)
             store.upsert_operator_stat(selected_op, reward, generation_time_ms)
@@ -278,6 +293,30 @@ def meta_run(
             
             with open(f"{artifacts_dir}/iteration_{i:02d}.json", "w") as f:
                 json.dump(iteration_data, f, indent=2)
+            # Append trajectory entry (optional)
+            try:
+                from app.config import FF_TRAJECTORY_LOG
+                if FF_TRAJECTORY_LOG:
+                    from pathlib import Path
+                    traj_path = Path(artifacts_dir) / "trajectory.json"
+                    if traj_path.exists():
+                        with open(traj_path, "r") as tf:
+                            traj = json.load(tf).get("trajectory", [])
+                    else:
+                        traj = []
+                    traj.append({
+                        "i": i,
+                        "op": selected_op,
+                        "groups": groups,
+                        "engine": plan.get("engine", "ollama"),
+                        "time_ms": generation_time_ms,
+                        "score": score,
+                        "reward": reward,
+                    })
+                    with open(traj_path, "w") as tf:
+                        json.dump({"run_id": run_id, "trajectory": traj}, tf, indent=2)
+            except Exception:
+                pass
                 
         except Exception as e:
             print(f"Error in iteration {i}: {e}")
@@ -355,6 +394,18 @@ def meta_run(
         except Exception:
             pass
 
+    # Eval suite & promotion gating (safety probes)
+    eval_report = None
+    try:
+        from app.config import FF_EVAL_GATE
+        if FF_EVAL_GATE and best_output:
+            from app.eval.suite import promotion_gate, write_eval_artifact
+            gate = promotion_gate(best_output)
+            eval_report = gate
+            write_eval_artifact(artifacts_dir, gate)
+    except Exception:
+        eval_report = {"eligible": False, "error": "eval_failed"}
+
     # Save final artifacts
     final_results = {
         "run_id": run_id,
@@ -369,6 +420,7 @@ def meta_run(
         "timestamp": timestamp,
         **({"compare": compare} if compare else {}),
         **({"judge": judge_report} if judge_report else {}),
+        **({"eval": eval_report} if eval_report else {}),
     }
     
     with open(f"{artifacts_dir}/results.json", "w") as f:

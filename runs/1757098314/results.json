@@ -1,0 +1,34 @@
+{
+  "run_id": 8,
+  "task_class": "briefing",
+  "task": "I want the device to be able to help medics with documentation and handoff",
+  "assertions": [],
+  "best_score": 0.3544624444277946,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 13,
+      "avg_reward": 0.37141397518528935
+    },
+    "change_nudge": {
+      "n": 1,
+      "avg_reward": 0.37004252456630715
+    }
+  },
+  "baseline": 0.40591954583581363,
+  "improvement": -0.05145710140801901,
+  "timestamp": 1757098314
+}
