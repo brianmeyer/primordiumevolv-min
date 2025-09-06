@@ -406,6 +406,143 @@ async function loadEvolutionHistory() {
     }
 }
 
+// Analytics Dashboard
+async function loadAnalytics() {
+    try {
+        const response = await fetch('/api/meta/analytics');
+        const data = await response.json();
+        
+        const overviewDiv = document.getElementById('analyticsOverview');
+        const chartsDiv = document.getElementById('analyticsCharts');
+        const errorDiv = document.getElementById('analyticsError');
+        
+        // Hide error, show content
+        errorDiv.classList.add('hidden');
+        overviewDiv.classList.remove('hidden');
+        chartsDiv.classList.remove('hidden');
+        
+        // Update overview stats
+        document.getElementById('totalRuns').textContent = data.basic_stats.total_runs || 0;
+        document.getElementById('timespanDays').textContent = `Over ${Math.round(data.basic_stats.timespan_days)} days`;
+        document.getElementById('improvementPercent').textContent = data.improvement_trend.improvement ? 
+            `${data.improvement_trend.improvement.toFixed(1)}%` : 'N/A';
+        document.getElementById('overallAvgScore').textContent = data.basic_stats.overall_avg_score ? 
+            data.basic_stats.overall_avg_score.toFixed(3) : 'N/A';
+        
+        // Color improvement based on positive/negative
+        const improvementEl = document.getElementById('improvementPercent');
+        if (data.improvement_trend.improvement > 0) {
+            improvementEl.style.color = 'var(--success)';
+        } else if (data.improvement_trend.improvement < 0) {
+            improvementEl.style.color = 'var(--danger)';
+        }
+        
+        // Render score progression chart
+        renderScoreChart(data.score_progression);
+        
+        // Render operators chart
+        renderOperatorsChart(data.top_operators);
+        
+        // Render task performance chart
+        renderTaskChart(data.task_performance);
+        
+    } catch (error) {
+        console.error('Failed to load analytics:', error);
+        document.getElementById('analyticsError').classList.remove('hidden');
+        document.getElementById('analyticsOverview').classList.add('hidden');
+        document.getElementById('analyticsCharts').classList.add('hidden');
+    }
+}
+
+function renderScoreChart(scoreProgression) {
+    const chartContent = document.getElementById('scoreChartContent');
+    if (!scoreProgression || scoreProgression.length === 0) {
+        chartContent.innerHTML = '<p class="text-muted" style="text-align:center;padding:40px">No score data available</p>';
+        return;
+    }
+    
+    // Simple text-based chart showing score progression
+    let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+    
+    scoreProgression.forEach((run, index) => {
+        const score = run.score !== null ? run.score.toFixed(3) : 'N/A';
+        const rollingAvg = run.rolling_avg ? run.rolling_avg.toFixed(3) : 'N/A';
+        const date = new Date(run.timestamp * 1000).toLocaleDateString();
+        
+        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:${index % 2 === 0 ? 'var(--panel)' : 'var(--surface)'};border-radius:4px">
+            <span class="text-muted">${date} (${run.task_class})</span>
+            <div style="display:flex;gap:16px;align-items:center">
+                <span>Score: <strong>${score}</strong></span>
+                <span class="text-muted">Rolling Avg: ${rollingAvg}</span>
+            </div>
+        </div>`;
+    });
+    
+    html += '</div>';
+    chartContent.innerHTML = html;
+}
+
+function renderOperatorsChart(operators) {
+    const chartContent = document.getElementById('operatorsChart');
+    if (!operators || operators.length === 0) {
+        chartContent.innerHTML = '<p class="text-muted">No operator data available</p>';
+        return;
+    }
+    
+    let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+    
+    operators.forEach((op, index) => {
+        const rewardBar = Math.max(0, Math.min(100, (op.avg_reward / 30) * 100)); // Scale to 100px max
+        const avgTimeMs = op.avg_time_per_use / 1000; // Convert to seconds
+        
+        html += `<div style="padding:8px;background:var(--surface);border-radius:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                <strong>${op.name}</strong>
+                <span class="text-muted">${op.uses} uses</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="flex:1">
+                    <div style="background:var(--panel);border-radius:4px;height:8px;overflow:hidden">
+                        <div style="background:linear-gradient(90deg,var(--primary),var(--accent));height:100%;width:${rewardBar}%;transition:width 0.5s ease"></div>
+                    </div>
+                </div>
+                <div style="min-width:80px;text-align:right">
+                    <div style="font-size:0.9em"><strong>${op.avg_reward.toFixed(2)}</strong> reward</div>
+                    <div style="font-size:0.8em;color:var(--muted)">${avgTimeMs.toFixed(1)}s avg</div>
+                </div>
+            </div>
+        </div>`;
+    });
+    
+    html += '</div>';
+    chartContent.innerHTML = html;
+}
+
+function renderTaskChart(taskPerformance) {
+    const chartContent = document.getElementById('taskChart');
+    if (!taskPerformance || taskPerformance.length === 0) {
+        chartContent.innerHTML = '<p class="text-muted">No task performance data available</p>';
+        return;
+    }
+    
+    let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+    
+    taskPerformance.forEach(task => {
+        const avgScore = task.avg_score ? task.avg_score.toFixed(3) : 'N/A';
+        const bestScore = task.best_score ? task.best_score.toFixed(3) : 'N/A';
+        
+        html += `<div style="padding:12px;background:var(--surface);border-radius:6px;text-align:center">
+            <div style="font-weight:bold;color:var(--primary);margin-bottom:4px">${task.task_class}</div>
+            <div style="font-size:0.9em;margin-bottom:2px">Avg: <strong>${avgScore}</strong></div>
+            <div style="font-size:0.9em;margin-bottom:2px">Best: <strong>${bestScore}</strong></div>
+            <div style="font-size:0.8em;color:var(--muted)">${task.runs} runs</div>
+        </div>`;
+    });
+    
+    html += '</div>';
+    chartContent.innerHTML = html;
+}
+
 function showError(message) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'result-card';
@@ -532,6 +669,7 @@ window.startEvolution = startEvolution;
 window.quickTest = quickTest;
 window.streamTest = streamTest;
 window.loadEvolutionHistory = loadEvolutionHistory;
+window.loadAnalytics = loadAnalytics;
 window.startNewEvolution = startNewEvolution;
 window.submitHumanRating = submitHumanRating;
 

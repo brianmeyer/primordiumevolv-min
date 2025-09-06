@@ -435,3 +435,142 @@ def save_human_rating(variant_id: int, human_score: int, feedback: str = None) -
         return rating_id
     finally:
         c.close()
+
+def get_analytics_overview() -> Dict:
+    """Get comprehensive analytics overview showing system improvement over time."""
+    c = _conn()
+    try:
+        # Basic stats
+        cursor = c.execute("""
+            SELECT 
+                COUNT(*) as total_runs,
+                MIN(started_at) as first_run,
+                MAX(started_at) as latest_run,
+                AVG(CASE WHEN best_score != '-Inf' AND best_score IS NOT NULL THEN best_score END) as avg_score
+            FROM runs WHERE finished_at IS NOT NULL
+        """)
+        basic_stats = cursor.fetchone()
+        
+        # Score progression over time (rolling average)
+        cursor = c.execute("""
+            SELECT 
+                id,
+                started_at,
+                best_score,
+                task_class,
+                AVG(CASE WHEN best_score != '-Inf' AND best_score IS NOT NULL THEN best_score END) 
+                OVER (ORDER BY started_at ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as rolling_avg
+            FROM runs 
+            WHERE finished_at IS NOT NULL 
+            ORDER BY started_at
+        """)
+        score_progression = []
+        for row in cursor.fetchall():
+            # Clean up score values - filter out infinite values
+            score = None
+            if row[2] is not None and str(row[2]) != '-Inf' and str(row[2]) != 'inf':
+                try:
+                    score = float(row[2])
+                    if score == float('inf') or score == float('-inf'):
+                        score = None
+                except (ValueError, TypeError):
+                    score = None
+            
+            rolling_avg = None
+            if row[4] is not None:
+                try:
+                    rolling_avg = float(row[4])
+                    if rolling_avg == float('inf') or rolling_avg == float('-inf'):
+                        rolling_avg = None
+                except (ValueError, TypeError):
+                    rolling_avg = None
+            
+            score_progression.append({
+                "run_id": row[0],
+                "timestamp": row[1],
+                "score": score,
+                "task_class": row[3],
+                "rolling_avg": rolling_avg
+            })
+        
+        # Top performing operators
+        cursor = c.execute("""
+            SELECT name, n, avg_reward, total_time_ms, last_used_at
+            FROM operator_stats 
+            ORDER BY avg_reward DESC 
+            LIMIT 10
+        """)
+        top_operators = []
+        for row in cursor.fetchall():
+            top_operators.append({
+                "name": row[0],
+                "uses": row[1],
+                "avg_reward": row[2],
+                "total_time_ms": row[3],
+                "last_used": row[4],
+                "avg_time_per_use": row[3] / row[1] if row[1] > 0 else 0
+            })
+        
+        # Task class performance
+        cursor = c.execute("""
+            SELECT 
+                task_class,
+                COUNT(*) as runs,
+                AVG(CASE WHEN best_score != '-Inf' AND best_score IS NOT NULL THEN best_score END) as avg_score,
+                MAX(CASE WHEN best_score != '-Inf' AND best_score IS NOT NULL THEN best_score END) as best_score
+            FROM runs 
+            WHERE finished_at IS NOT NULL 
+            GROUP BY task_class
+            ORDER BY avg_score DESC
+        """)
+        task_performance = []
+        for row in cursor.fetchall():
+            task_performance.append({
+                "task_class": row[0],
+                "runs": row[1],
+                "avg_score": row[2],
+                "best_score": row[3]
+            })
+        
+        # Recent performance (last 5 runs vs first 5 runs)
+        cursor = c.execute("""
+            SELECT AVG(CASE WHEN best_score != '-Inf' AND best_score IS NOT NULL AND best_score != 'inf' AND best_score > -999999 THEN best_score END) as avg_score
+            FROM (
+                SELECT best_score FROM runs 
+                WHERE finished_at IS NOT NULL 
+                ORDER BY started_at 
+                LIMIT 5
+            )
+        """)
+        early_avg = cursor.fetchone()[0]
+        
+        cursor = c.execute("""
+            SELECT AVG(CASE WHEN best_score != '-Inf' AND best_score IS NOT NULL AND best_score != 'inf' AND best_score > -999999 THEN best_score END) as avg_score
+            FROM (
+                SELECT best_score FROM runs 
+                WHERE finished_at IS NOT NULL 
+                ORDER BY started_at DESC 
+                LIMIT 5
+            )
+        """)
+        recent_avg = cursor.fetchone()[0]
+        
+        return {
+            "basic_stats": {
+                "total_runs": basic_stats[0],
+                "first_run": basic_stats[1],
+                "latest_run": basic_stats[2],
+                "overall_avg_score": basic_stats[3],
+                "timespan_days": (basic_stats[2] - basic_stats[1]) / 86400 if basic_stats[1] and basic_stats[2] else 0
+            },
+            "improvement_trend": {
+                "early_avg_score": early_avg,
+                "recent_avg_score": recent_avg,
+                "improvement": ((recent_avg - early_avg) / abs(early_avg)) * 100 if early_avg and recent_avg and early_avg != 0 else 0
+            },
+            "score_progression": score_progression,
+            "top_operators": top_operators,
+            "task_performance": task_performance
+        }
+    finally:
+        c.close()

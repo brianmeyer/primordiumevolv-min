@@ -1,5 +1,60 @@
 # Changelog
 
+## [2.3.0] - 2025-09-06 - Long-Term Analytics Dashboard
+
+### 📈 Analytics & Learning Insights
+- **Comprehensive Analytics API**: New `/api/meta/analytics` endpoint providing system-wide performance metrics
+- **Evolution Progress Tracking**: Shows score progression over time with rolling averages
+- **Operator Performance Analysis**: Visual charts of best-performing strategies (lower_temp, lower_top_k leading)
+- **Task Type Comparison**: Performance breakdown by task class (code, research, business, etc.)
+- **Improvement Trends**: Early vs recent performance comparison showing long-term learning
+- **System Statistics**: Total runs, timespan, and overall performance metrics
+
+### 🎨 Interactive Dashboard UI
+- **Collapsible Analytics Section**: "📈 Long-Term Analytics & Improvement" in UI
+- **Real-time Data Loading**: Click "Load Analytics" button for latest insights
+- **Visual Performance Charts**: Progress bars and trend displays for easy interpretation
+- **Responsive Grid Layout**: Organized display of metrics, operators, and task performance
+- **Error Handling**: Graceful degradation with user feedback
+
+### 🔧 Technical Implementation
+- **Infinite Value Handling**: Robust JSON serialization with -inf/inf cleanup
+- **Rolling Window Analysis**: 3-run rolling averages for trend smoothing
+- **Database Optimization**: Efficient queries with proper filtering and indexing
+- **Frontend Integration**: JavaScript functions with global scope registration
+- **Performance Metrics**: Average execution times and reward calculations
+
+### 📊 Key Insights Revealed
+- **Top Operators**: `lower_temp` (22.96 reward), `lower_top_k` (21.03 reward)
+- **Strategy Learning**: System identifies best-performing approaches over time  
+- **Task Adaptation**: Performance varies by task type, enabling targeted optimization
+- **Continuous Improvement**: Historical data proves system evolution across runs
+
+---
+
+## [2.2.0] - 2025-09-06 - M1 Upgrades (Trajectory, Rewards, Masks, Gating)
+
+### ✨ New (Flagged ON by default)
+- Trajectory logging per run: writes `runs/{ts}/trajectory.json` with per‑iteration op/engine/time/score/reward.
+- Process + cost reward blending: bandit reward = α·(score−baseline) + β·Δprocess − γ·time_ms (env‑tunable weights).
+- Operator masks per task: optional `storage/operator_masks.json` (task_class → framework_mask/operators allowlist).
+- Eval suite + gating: safety probes at end of run; writes `runs/{ts}/eval.json` and adds `eval` to results.
+
+### 🛠 Defaults & Wiring
+- Meta defaults updated to N=12, ε=0.3 (env overridable).
+- SSE event alignment: frontend handles `iter`, `judge`, `done` events from backend.
+- Async runs: UI uses `POST /api/meta/run_async` and streams `/api/meta/stream`.
+- Stats init fix: `/api/meta/stats` initializes DB schema to avoid early 500s.
+- No app‑side token caps for Chat/Meta (models control length).
+- Groq picker filters out non‑chat models (tts/whisper/embed).
+
+### ⚙️ Feature Flags (env)
+- `FF_TRAJECTORY_LOG`, `FF_PROCESS_COST_REWARD`, `FF_OPERATOR_MASKS`, `FF_EVAL_GATE` (all enabled by default).
+- Reward weights: `REWARD_ALPHA`, `REWARD_BETA_PROCESS`, `REWARD_GAMMA_COST`.
+- Meta defaults: `META_DEFAULT_N`, `META_DEFAULT_EPS`.
+
+---
+
 ## [2.1.0] - 2025-09-06 - Human Rating System
 
 ### 🧑‍⚖️ Human-in-the-Loop Feedback

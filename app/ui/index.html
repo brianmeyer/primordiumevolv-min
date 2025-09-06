@@ -235,6 +235,64 @@
     </details>
   </div>
 
+  <!-- Analytics Dashboard -->
+  <div class="collapsed-section">
+    <details>
+      <summary>📈 Long-Term Analytics & Improvement</summary>
+      <div>
+        <button onclick="loadAnalytics()" class="secondary-btn mb-2">🔄 Load Analytics</button>
+        
+        <!-- Overview Stats -->
+        <div id="analyticsOverview" class="hidden">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+            <div class="result-card" style="text-align:center;padding:16px">
+              <h4 style="margin:0;color:var(--accent)">Total Runs</h4>
+              <div id="totalRuns" class="result-score" style="font-size:1.8em">-</div>
+              <div id="timespanDays" class="text-muted" style="font-size:0.9em">-</div>
+            </div>
+            <div class="result-card" style="text-align:center;padding:16px">
+              <h4 style="margin:0;color:var(--accent)">Improvement</h4>
+              <div id="improvementPercent" class="result-score" style="font-size:1.8em">-</div>
+              <div class="text-muted" style="font-size:0.9em">Recent vs Early</div>
+            </div>
+            <div class="result-card" style="text-align:center;padding:16px">
+              <h4 style="margin:0;color:var(--accent)">Avg Score</h4>
+              <div id="overallAvgScore" class="result-score" style="font-size:1.8em">-</div>
+              <div class="text-muted" style="font-size:0.9em">All Time</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Charts -->
+        <div id="analyticsCharts" class="hidden">
+          <!-- Score Progression -->
+          <div class="result-card" style="margin-bottom:16px">
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">🎯 Score Progression Over Time</h4>
+            <div id="scoreChart" style="height:200px;background:var(--surface);border-radius:8px;padding:16px;position:relative;overflow:hidden">
+              <div id="scoreChartContent"></div>
+            </div>
+          </div>
+
+          <!-- Top Operators -->
+          <div class="result-card" style="margin-bottom:16px">
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">🚀 Best Performing Strategies</h4>
+            <div id="operatorsChart" style="max-height:300px;overflow:auto"></div>
+          </div>
+
+          <!-- Task Performance -->
+          <div class="result-card">
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">📋 Performance by Task Type</h4>
+            <div id="taskChart" style="max-height:200px;overflow:auto"></div>
+          </div>
+        </div>
+
+        <div id="analyticsError" class="hidden" style="color:var(--danger);text-align:center;padding:20px">
+          Failed to load analytics data
+        </div>
+      </div>
+    </details>
+  </div>
+
   <!-- Hidden compatibility elements -->
   <div class="hidden">
     <input id="sessionSelect">

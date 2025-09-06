@@ -603,3 +603,30 @@ async def human_rate_variant(body: HumanRatingRequest):
         })
     except Exception as e:
         return handle_exception(e, "human_rating_failed")
+
+@app.get("/api/meta/analytics")
+async def get_analytics():
+    """Get comprehensive analytics showing system improvement over time."""
+    try:
+        analytics = store.get_analytics_overview()
+        
+        # Clean up any remaining infinite values before JSON serialization
+        import json
+        import math
+        
+        def clean_value(obj):
+            if isinstance(obj, dict):
+                return {k: clean_value(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [clean_value(item) for item in obj]
+            elif isinstance(obj, float):
+                if math.isinf(obj) or math.isnan(obj):
+                    return None
+                return obj
+            else:
+                return obj
+        
+        cleaned_analytics = clean_value(analytics)
+        return JSONResponse(cleaned_analytics)
+    except Exception as e:
+        return handle_exception(e, "analytics_failed")
