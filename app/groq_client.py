@@ -59,6 +59,12 @@ def pick_model(task_tokens: int = 512, prefer: Optional[List[str]] = None) -> st
     """
     models = list_models()
     names = [m.get("id") or m.get("name") for m in models if isinstance(m, dict)]
+    # Filter out non-chat models (heuristic)
+    def _is_chat(name: str) -> bool:
+        low = (name or '').lower()
+        blocked = ["whisper", "distil", "tts", "audio", "embed", "embedder"]
+        return not any(b in low for b in blocked)
+    names = [n for n in names if _is_chat(n)]
     # 1) env override
     if GROQ_MODEL_ID_ENV and GROQ_MODEL_ID_ENV in names:
         return GROQ_MODEL_ID_ENV
@@ -74,6 +80,8 @@ def pick_model(task_tokens: int = 512, prefer: Optional[List[str]] = None) -> st
     best_ctx = -1
     for m in models:
         mid = m.get("id") or m.get("name")
+        if not _is_chat(mid):
+            continue
         ctx = m.get("context_length") or m.get("context") or 0
         if isinstance(ctx, str) and ctx.isdigit():
             ctx = int(ctx)

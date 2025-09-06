@@ -1,0 +1,11 @@
+{
+  "artifact_type": "operator_selection",
+  "timestamp": "2025-09-06T00:22:12.734895+00:00",
+  "unix_timestamp": 1757118132.7348979,
+  "data": {
+    "run_id": 12,
+    "iteration": 7,
+    "operator": "use_groq",
+    "selection_method": "epsilon_greedy"
+  }
+}

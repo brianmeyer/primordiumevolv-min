@@ -1,0 +1,21 @@
+{
+  "iteration": 1,
+  "operator": "toggle_web",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "score": 0.29537296265628715,
+  "reward": 0.29537296265628715,
+  "output_preview": "<think>\nOkay, the user wants me to write a hello world function. Let me think about the context provided.\n\nFirst, looking at the web context sections. The LeetCode problem 2667 is about creating a fun..."
+}

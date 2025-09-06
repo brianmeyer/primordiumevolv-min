@@ -27,7 +27,17 @@ class RateLimiter:
 
     async def __call__(self, request: Request, call_next):
         # Skip rate limiting for static files
-        if request.url.path.startswith("/static"):
+        path = request.url.path
+        if path.startswith("/static"):
+            return await call_next(request)
+        # Exempt low-cost, high-frequency GETs (SSE/poll/health)
+        if request.method == "GET" and (
+            path.startswith("/api/meta/stream") or
+            path.startswith("/api/meta/runs") or
+            path.startswith("/api/meta/logs") or
+            path.startswith("/api/health") or
+            path.startswith("/api/chat/stream")
+        ):
             return await call_next(request)
             
         ip = request.client.host if request.client else "unknown"

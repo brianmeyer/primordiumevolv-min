@@ -1,0 +1,41 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-05T18:51:54.855036+00:00",
+  "unix_timestamp": 1757098314.855048,
+  "data": {
+    "run_id": 8,
+    "task_class": "briefing",
+    "task": "I want the device to be able to help medics with documentation and handoff",
+    "config": {
+      "n": 5,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web",
+        "use_groq",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.1,
+      "use_bandit": true,
+      "framework_mask": [
+        "SEAL",
+        "WEB",
+        "SAMPLING",
+        "ENGINE"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": true,
+      "judge_mode": "off"
+    }
+  }
+}

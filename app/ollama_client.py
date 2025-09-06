@@ -74,6 +74,31 @@ def generate(prompt: str, system: str | None = None, options: dict | None = None
     except Exception as e:
         raise OllamaError(f"Ollama generate failed: {e}")
 
+def stream_generate(prompt: str, system: str | None = None, options: dict | None = None):
+    payload = {"model": MODEL_ID, "prompt": prompt, "stream": True}
+    if system:
+        payload["system"] = system
+    if options:
+        payload["options"] = options
+    session = _get_session()
+    try:
+        with session.post(f"{OLLAMA_HOST}/api/generate", json=payload, stream=True, timeout=600) as r:
+            r.raise_for_status()
+            for line in r.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
+                try:
+                    data = requests.json.loads(line)  # type: ignore
+                except Exception:
+                    import json as _json
+                    data = _json.loads(line)
+                token = data.get("response")
+                if token:
+                    yield token
+            return
+    except Exception as e:
+        raise OllamaError(f"Ollama stream failed: {e}")
+
 def chat(messages: list[dict]) -> str:
     try:
         out = _post(f"{OLLAMA_HOST}/api/chat", {"model": MODEL_ID, "messages": messages, "stream": False})

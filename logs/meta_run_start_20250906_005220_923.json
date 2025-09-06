@@ -1,0 +1,41 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-06T00:52:20.923412+00:00",
+  "unix_timestamp": 1757119940.923421,
+  "data": {
+    "run_id": 13,
+    "task_class": "data",
+    "task": "Tell me how I can use Palantir foundry AIP for my freight trucking company",
+    "config": {
+      "n": 15,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web",
+        "use_groq",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.3,
+      "use_bandit": true,
+      "framework_mask": [
+        "SEAL",
+        "WEB",
+        "SAMPLING",
+        "ENGINE"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": true,
+      "judge_mode": "pairwise_groq"
+    }
+  }
+}

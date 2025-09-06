@@ -85,6 +85,16 @@ def init_db():
             last_used_at REAL DEFAULT 0
         )
     """)
+
+    # Chat temperature stats (adaptive chat parameter)
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS chat_temp_stats(
+            temp REAL PRIMARY KEY,
+            n INTEGER DEFAULT 0,
+            avg_reward REAL DEFAULT 0,
+            last_used_at REAL DEFAULT 0
+        )
+    """)
     
     # Engine-specific operator stats
     c.execute("""
@@ -112,7 +122,8 @@ def init_db():
         ("recipes", "engine", "TEXT DEFAULT 'ollama'"),
         ("recipes", "engine_confidence", "REAL DEFAULT 0.5"),
         ("operator_stats", "total_time_ms", "INTEGER DEFAULT 0"),
-        ("operator_stats", "last_used_at", "REAL DEFAULT 0")
+        ("operator_stats", "last_used_at", "REAL DEFAULT 0"),
+        ("chat_temp_stats", "last_used_at", "REAL DEFAULT 0")
     ]
     
     for table, column, column_type in migrations:
@@ -139,6 +150,30 @@ def init_db():
         except sqlite3.OperationalError:
             pass  # Index already exists
     
+    c.commit()
+    c.close()
+
+def get_chat_temp_stats() -> Dict[float, Dict]:
+    c = _conn()
+    cur = c.execute("SELECT temp, n, avg_reward, last_used_at FROM chat_temp_stats")
+    out = {}
+    for row in cur.fetchall():
+        out[float(row[0])] = {"n": row[1], "avg_reward": row[2], "last_used_at": row[3]}
+    c.close()
+    return out
+
+def update_chat_temp_stat(temp: float, reward: float):
+    c = _conn()
+    cur = c.execute("SELECT n, avg_reward FROM chat_temp_stats WHERE temp = ?", (float(temp),))
+    row = cur.fetchone()
+    now = time.time()
+    if row:
+        n, avg = row
+        new_n = n + 1
+        new_avg = ((avg * n) + reward) / new_n
+        c.execute("UPDATE chat_temp_stats SET n = ?, avg_reward = ?, last_used_at = ? WHERE temp = ?", (new_n, new_avg, now, float(temp)))
+    else:
+        c.execute("INSERT INTO chat_temp_stats(temp, n, avg_reward, last_used_at) VALUES(?, 1, ?, ?)", (float(temp), reward, now))
     c.commit()
     c.close()
 

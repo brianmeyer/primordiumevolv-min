@@ -36,9 +36,14 @@ def _conn():
             role TEXT,
             content TEXT,
             created_at REAL,
+            param_temp REAL,
             FOREIGN KEY (session_id) REFERENCES sessions(id)
         )
     """)
+    try:
+        c.execute("ALTER TABLE messages ADD COLUMN param_temp REAL")
+    except sqlite3.OperationalError:
+        pass
     return c
 
 def create_session(title: str = "New session") -> int:
@@ -93,6 +98,26 @@ def append_message(session_id: int, role: str, content: str) -> int:
             print(f"[warn] Auto index rebuild failed: {e}")
     
     return message_id
+
+def append_message_meta(session_id: int, role: str, content: str, param_temp: float | None = None) -> int:
+    c = _conn()
+    cursor = c.execute(
+        "INSERT INTO messages(session_id, role, content, created_at, param_temp) VALUES(?, ?, ?, ?, ?)",
+        (session_id, role, content, time.time(), param_temp)
+    )
+    message_id = cursor.lastrowid
+    c.commit()
+    c.close()
+    return message_id
+
+def get_message(message_id: int) -> Optional[Dict]:
+    c = _conn()
+    cur = c.execute("SELECT id, session_id, role, content, created_at, param_temp FROM messages WHERE id = ?", (message_id,))
+    row = cur.fetchone()
+    c.close()
+    if not row:
+        return None
+    return {"id": row[0], "session_id": row[1], "role": row[2], "content": row[3], "created_at": row[4], "param_temp": row[5]}
 
 def build_index():
     """Build vector index from all messages in database"""
@@ -152,6 +177,11 @@ def build_index():
     
     with open(CHAT_INDEX_META, "wb") as f:
         pickle.dump({"messages": meta_data}, f)
+    # Update in-memory cache
+    try:
+        _refresh_cache()
+    except Exception:
+        pass
 
 def query_memory(query: str, k: int = 5) -> List[Dict]:
     """Query vector memory for relevant past messages"""
@@ -162,10 +192,8 @@ def query_memory(query: str, k: int = 5) -> List[Dict]:
         return []
     
     try:
-        # Load index and metadata
-        index = faiss.read_index(CHAT_INDEX_BIN)
-        with open(CHAT_INDEX_META, "rb") as f:
-            meta = pickle.load(f)
+        # Load index and metadata (cached)
+        index, meta = _get_cached_index()
         
         messages = meta.get("messages", [])
         if not messages:
@@ -201,3 +229,27 @@ def query_memory(query: str, k: int = 5) -> List[Dict]:
     except Exception as e:
         print(f"[warn] Memory query failed: {e}")
         return []
+
+# ---- Simple in-process cache for chat index ----
+_cached_index = None
+_cached_meta = None
+_cached_mtime = (0.0, 0.0)
+
+def _get_mtimes():
+    try:
+        return (os.path.getmtime(CHAT_INDEX_BIN), os.path.getmtime(CHAT_INDEX_META))
+    except Exception:
+        return (0.0, 0.0)
+
+def _refresh_cache():
+    global _cached_index, _cached_meta, _cached_mtime
+    _cached_index = faiss.read_index(CHAT_INDEX_BIN)
+    with open(CHAT_INDEX_META, "rb") as f:
+        _cached_meta = pickle.load(f)
+    _cached_mtime = _get_mtimes()
+
+def _get_cached_index():
+    mt = _get_mtimes()
+    if _cached_index is None or _cached_meta is None or mt != _cached_mtime:
+        _refresh_cache()
+    return _cached_index, _cached_meta
