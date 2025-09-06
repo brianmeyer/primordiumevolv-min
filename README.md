@@ -45,7 +45,9 @@ make run      # http://localhost:8000
 - Process + Cost Rewards: Optional blended reward for bandit updates (base + process delta − time cost). Tunable via `REWARD_ALPHA`, `REWARD_BETA_PROCESS`, `REWARD_GAMMA_COST`.
 - Operator Masks per Task: Optional masks from `storage/operator_masks.json` (keys are task_class), supporting `framework_mask` (e.g., `["SEAL","ENGINE"]`) and `operators` allowlists.
 - Eval Suite + Gating: Safety probes run at end of run and write `runs/{timestamp}/eval.json`. Results include `eval` in API response.
-- Defaults: Meta `n=12` and `ε=0.3` (override via `META_DEFAULT_N`, `META_DEFAULT_EPS`).
+- **Enhanced Operator Exploration**: Increased epsilon to `0.6` with forced initial exploration ensuring all 11 operators get tried.
+- **UCB Algorithm**: Upper Confidence Bound available as alternative to epsilon-greedy via `bandit_algorithm` parameter.
+- Defaults: Meta `n=12` and `ε=0.6` (override via `META_DEFAULT_N`, `META_DEFAULT_EPS`).
 
 Feature Flags (in `.env`)
 - `FF_TRAJECTORY_LOG=1`, `FF_PROCESS_COST_REWARD=1`, `FF_OPERATOR_MASKS=1`, `FF_EVAL_GATE=1` (all ON by default).
@@ -188,14 +190,28 @@ curl -X POST http://localhost:8000/api/meta/run \
 ```
 
 ### Available Operators
-- `change_system` - Switch system prompt (engineer, analyst, optimizer)
+All 11 operators now systematically explored via enhanced epsilon-greedy (ε=0.6) and UCB algorithms:
+
+**SEAL Framework (7 operators):**
+- `change_system` - Switch system prompt (engineer, analyst, optimizer) 
 - `change_nudge` - Modify output format constraints
 - `raise_temp/lower_temp` - Adjust creativity vs consistency
-- `inject_rag` - Add document context from RAG
+- `inject_rag` - Add document context from RAG  
 - `inject_memory` - Include conversation history
 - `add_fewshot` - Inject domain examples
+
+**WEB Framework (1 operator):**
 - `toggle_web` - Enable/disable web search context
-- `raise_top_k/lower_top_k` - Modify token sampling
+
+**ENGINE Framework (1 operator):**
+- `use_groq` - Switch to Groq API for generation
+
+**SAMPLING Framework (2 operators):**
+- `raise_top_k/lower_top_k` - Modify token sampling parameters
+
+**Selection Algorithm Options:**
+- `bandit_algorithm="epsilon_greedy"` (default) - 60% exploration, 40% exploitation
+- `bandit_algorithm="ucb"` - Upper Confidence Bound with intelligent exploration
 
 ### Generated Artifacts
 Each run creates `runs/{timestamp}/`:
