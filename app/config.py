@@ -17,7 +17,7 @@ EVO_DEFAULTS = {
     "n": int(os.getenv("META_DEFAULT_N", "12")),           # Number of evolution iterations
     "memory_k": 3,                                           # Number of memory results to retrieve
     "rag_k": 3,                                              # Number of RAG results to retrieve
-    "eps": float(os.getenv("META_DEFAULT_EPS", "0.3")),     # Epsilon for epsilon-greedy bandit
+    "eps": float(os.getenv("META_DEFAULT_EPS", "0.6")),     # Epsilon for epsilon-greedy bandit
     "web_k": 3,                                              # Number of web search results
 }
 

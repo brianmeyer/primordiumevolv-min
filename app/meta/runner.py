@@ -31,6 +31,7 @@ def meta_run(
     operators: Optional[List[str]] = None,
     eps: float = EVO_DEFAULTS["eps"],
     use_bandit: bool = True,
+    bandit_algorithm: str = "epsilon_greedy",  # "epsilon_greedy" or "ucb"
     framework_mask: Optional[List[str]] = None,
     test_cmd: Optional[str] = None,
     test_weight: float = 0.0,
@@ -78,7 +79,13 @@ def meta_run(
     operator_stats = store.list_operator_stats()
     
     # Initialize bandit
-    bandit_agent = bandit.EpsilonGreedy(eps=eps) if use_bandit else None
+    if use_bandit:
+        if bandit_algorithm == "ucb":
+            bandit_agent = bandit.UCB()
+        else:  # default to epsilon_greedy
+            bandit_agent = bandit.EpsilonGreedy(eps=eps)
+    else:
+        bandit_agent = None
     
     # Get baseline from top recipe for this task class
     top_recipes = store.top_recipes(task_class, limit=1)
@@ -95,7 +102,8 @@ def meta_run(
     run_config = {
         "n": n, "memory_k": memory_k, "rag_k": rag_k,
         "operators": operators, "eps": eps,
-        "use_bandit": use_bandit, "framework_mask": framework_mask,
+        "use_bandit": use_bandit, "bandit_algorithm": bandit_algorithm,
+        "framework_mask": framework_mask,
         "test_cmd": test_cmd, "test_weight": test_weight,
         "force_engine": force_engine, "compare_with_groq": compare_with_groq,
         "judge_mode": judge_mode,
@@ -123,7 +131,7 @@ def meta_run(
             # Select operator using bandit or random choice
             if use_bandit and bandit_agent:
                 selected_op = bandit_agent.select(operators, operator_stats)
-                selection_method = "epsilon_greedy"
+                selection_method = bandit_algorithm
             else:
                 import random
                 selected_op = random.choice(operators)

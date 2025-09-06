@@ -1,0 +1,11 @@
+{
+  "artifact_type": "operator_selection",
+  "timestamp": "2025-09-06T18:40:42.385248+00:00",
+  "unix_timestamp": 1757184042.38526,
+  "data": {
+    "run_id": 20,
+    "iteration": 2,
+    "operator": "raise_temp",
+    "selection_method": "epsilon_greedy"
+  }
+}

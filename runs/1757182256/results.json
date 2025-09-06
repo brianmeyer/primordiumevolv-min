@@ -1,0 +1,61 @@
+{
+  "run_id": 19,
+  "task_class": "research",
+  "task": "I need to know what peptides are useful, tesamorelin, ipamorelin, cjc, bpc157, etc",
+  "assertions": [],
+  "best_score": 0.3917289074318337,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.413177503396292,
+      "top_k": 29,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 17,
+      "avg_reward": 3.92991694670889
+    },
+    "change_nudge": {
+      "n": 8,
+      "avg_reward": 0.21234157995127945
+    },
+    "raise_top_k": {
+      "n": 3,
+      "avg_reward": 0.34072124923966207
+    },
+    "inject_memory": {
+      "n": 3,
+      "avg_reward": 0.34829364557468034
+    },
+    "inject_rag": {
+      "n": 1,
+      "avg_reward": 0.31299453942470684
+    },
+    "lower_top_k": {
+      "n": 4,
+      "avg_reward": 21.033752094179736
+    },
+    "lower_temp": {
+      "n": 11,
+      "avg_reward": 22.95889410959349
+    }
+  },
+  "baseline": 0.3893926437775537,
+  "improvement": 0.0023362636542799686,
+  "timestamp": 1757182256,
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

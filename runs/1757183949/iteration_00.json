@@ -1,0 +1,21 @@
+{
+  "iteration": 0,
+  "operator": "use_groq",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.37827914915403893,
+  "reward": 0.3192581629654661,
+  "output_preview": "- **Function definition**  \n  ```python\n  def factorial(n: int) -> int:\n      \"\"\"Return n! (factorial of n). Assumes n >= 0.\"\"\"\n      result = 1\n      for i in range(2, n + 1):\n          result *= i\n ..."
+}

@@ -1,0 +1,16 @@
+{
+  "run_id": 20,
+  "trajectory": [
+    {
+      "i": 0,
+      "op": "use_groq",
+      "groups": [
+        "ENGINE"
+      ],
+      "engine": "groq",
+      "time_ms": 767,
+      "score": 0.37827914915403893,
+      "reward": 0.3192581629654661
+    }
+  ]
+}

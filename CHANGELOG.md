@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.4.0] - 2025-09-06 - Enhanced Operator Exploration
+
+### 🎯 Improved Operator Selection & Diversity
+- **Increased Exploration**: Raised epsilon from 0.3 to 0.6 for more operator experimentation
+- **Forced Initial Exploration**: Ensures every operator gets tried at least once before exploitation begins
+- **UCB Algorithm**: Added Upper Confidence Bound as alternative to epsilon-greedy selection
+- **Selection Algorithm Choice**: New `bandit_algorithm` parameter supports "epsilon_greedy" or "ucb"
+
+### 🔬 Technical Implementation
+- **Enhanced EpsilonGreedy**: Modified to prioritize untried operators first, then apply epsilon-greedy logic
+- **New UCB Class**: Implements Upper Confidence Bound with confidence interval calculation
+- **Algorithm Flexibility**: Runtime selection between exploration strategies via configuration
+- **Improved Coverage**: Systematic exploration ensures all 11 available operators get evaluated
+
+### 📊 Problem Solved
+- **Previous Issue**: Only 7 out of 11 operators were being used due to early exploitation
+- **Root Cause**: ε=0.3 (30% exploration) led to premature convergence on successful operators
+- **Solution Impact**: Now guarantees all operators (change_system, raise_temp, add_fewshot, use_groq, etc.) get tried
+- **Verification**: Testing confirms 100% operator coverage with both improved algorithms
+
+### ⚙️ Configuration Changes
+- **Default Epsilon**: Increased from 0.3 to 0.6 in `.env` and `config.py`
+- **New Parameter**: `bandit_algorithm` in `meta_run()` function
+- **Backward Compatibility**: Existing calls default to epsilon-greedy behavior
+- **Environment Override**: `META_DEFAULT_EPS=0.6` can be customized via environment
+
+---
+
 ## [2.3.0] - 2025-09-06 - Long-Term Analytics Dashboard
 
 ### 📈 Analytics & Learning Insights
