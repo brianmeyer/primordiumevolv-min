@@ -28,6 +28,16 @@ EVO_DEFAULTS = {
 # ---- Active Feature Flags ----
 FF_TRAJECTORY_LOG = os.getenv("FF_TRAJECTORY_LOG", "1") == "1"
 FF_EVAL_GATE = os.getenv("FF_EVAL_GATE", "1") == "1"
+# Auto-run Phase 4 code loop after a meta run finishes
+FF_CODE_LOOP = os.getenv("FF_CODE_LOOP", "0") == "1"
+CODE_LOOP_MODE = os.getenv("CODE_LOOP_MODE", "live")  # "live" | "dry_run"
+CODE_LOOP_TIMEOUT_SECONDS = int(os.getenv("CODE_LOOP_TIMEOUT_SECONDS", "600"))  # 10 minutes default
+CODE_LOOP_MAX_PER_HOUR = int(os.getenv("CODE_LOOP_MAX_PER_HOUR", "3"))
+
+# Phase 4 decision thresholds
+PHASE4_DELTA_REWARD_MIN = float(os.getenv("PHASE4_DELTA_REWARD_MIN", "0.05"))
+PHASE4_COST_RATIO_MAX = float(os.getenv("PHASE4_COST_RATIO_MAX", "0.9"))
+GOLDEN_PASS_RATE_TARGET = float(os.getenv("GOLDEN_PASS_RATE_TARGET", "0.8"))
 
 # Reward blending configuration (now standard)
 REWARD_ALPHA = float(os.getenv("REWARD_ALPHA", "1.0"))  # base score weight

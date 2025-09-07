@@ -271,6 +271,7 @@
       <summary>📈 Long-Term Analytics & Improvement</summary>
       <div>
         <button onclick="loadAnalytics()" class="secondary-btn mb-2">🔄 Load Analytics</button>
+        <button onclick="runGoldenSet()" class="secondary-btn mb-2" style="margin-left:8px">🏁 Run Golden Set</button>
         
         <!-- Overview Stats -->
         <div id="analyticsOverview" class="hidden">
@@ -307,12 +308,38 @@
           <div class="result-card" style="margin-bottom:16px">
             <h4 style="margin:0 0 12px 0;color:var(--primary)">🚀 Best Performing Strategies</h4>
             <div id="operatorsChart" style="max-height:300px;overflow:auto"></div>
+            <div class="text-muted" style="margin-top:8px">Coverage (first 5 iterations): <span id="operatorCoverageK">-</span></div>
           </div>
 
           <!-- Task Performance -->
           <div class="result-card">
             <h4 style="margin:0 0 12px 0;color:var(--primary)">📋 Performance by Task Type</h4>
             <div id="taskChart" style="max-height:200px;overflow:auto"></div>
+          </div>
+
+          <!-- Judges Panel -->
+          <div class="result-card" style="margin-top:16px">
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">🧑‍⚖️ Judges</h4>
+            <div style="display:flex;gap:16px;flex-wrap:wrap">
+              <div>Evaluated: <strong id="judgeEvaluated">-</strong></div>
+              <div>Tie-breaker rate: <strong id="tieBreakerRate">-</strong></div>
+              <div>Eval latency p50: <strong id="evalP50">-</strong> ms</div>
+              <div>Eval latency p90: <strong id="evalP90">-</strong> ms</div>
+            </div>
+          </div>
+
+          <!-- Golden Set Summary -->
+          <div class="result-card" style="margin-top:16px">
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">🏁 Golden Set Summary</h4>
+            <div id="goldenSummary" style="max-height:260px;overflow:auto"></div>
+            <div id="goldenRunResult" class="text-muted" style="margin-top:8px"></div>
+          </div>
+
+          <!-- Costs Panel -->
+          <div class="result-card" style="margin-top:16px">
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">💰 Costs & Latency</h4>
+            <div class="text-muted">Evaluation latency p50/p90: <span id="costEvalP50">-</span> / <span id="costEvalP90">-</span> ms</div>
+            <div class="text-muted">Golden avg cost penalty: <span id="goldenAvgCost">-</span></div>
           </div>
         </div>
 

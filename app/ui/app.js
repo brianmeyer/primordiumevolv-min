@@ -490,15 +490,79 @@ async function loadAnalytics() {
         
         // Render operators chart
         renderOperatorsChart(data.top_operators);
+        // Operator coverage (first K)
+        const coverage = (data.operators && typeof data.operators.coverage_first_k === 'number') ? data.operators.coverage_first_k : 'N/A';
+        const covEl = document.getElementById('operatorCoverageK');
+        if (covEl) covEl.textContent = coverage;
         
         // Render task performance chart
         renderTaskChart(data.task_performance);
+
+        // Judges panel
+        if (data.judges) {
+            document.getElementById('judgeEvaluated').textContent = data.judges.evaluated ?? '-';
+            const tbr = (data.judges.tie_breaker_rate != null) ? (data.judges.tie_breaker_rate * 100).toFixed(1) + '%' : '-';
+            document.getElementById('tieBreakerRate').textContent = tbr;
+            document.getElementById('evalP50').textContent = data.judges.eval_latency_ms?.p50 ?? '-';
+            document.getElementById('evalP90').textContent = data.judges.eval_latency_ms?.p90 ?? '-';
+            // Mirror in Costs panel
+            const p50 = data.judges.eval_latency_ms?.p50 ?? '-';
+            const p90 = data.judges.eval_latency_ms?.p90 ?? '-';
+            document.getElementById('costEvalP50').textContent = p50;
+            document.getElementById('costEvalP90').textContent = p90;
+        }
+
+        // Golden summary by task_type
+        if (data.golden) {
+            const el = document.getElementById('goldenSummary');
+            const entries = Object.entries(data.golden);
+            if (entries.length === 0) {
+                el.innerHTML = '<p class="text-muted">No Golden Set history yet.</p>';
+            } else {
+                let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+                for (const [tt, m] of entries) {
+                    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface);border-radius:4px">
+                        <strong>${tt}</strong>
+                        <div style="display:flex;gap:16px">
+                          <span>Pass: ${(m.pass_rate*100).toFixed(0)}%</span>
+                          <span>Reward: ${(m.avg_total_reward??0).toFixed(3)}</span>
+                          <span>Cost: ${(m.avg_cost_penalty??0).toFixed(3)}</span>
+                          <span>Steps: ${(m.avg_steps??0).toFixed(1)}</span>
+                        </div>
+                    </div>`;
+                }
+                html += '</div>';
+                el.innerHTML = html;
+                // Costs panel: show a weighted average if available
+                const avgCosts = entries.map(([_,m]) => m.avg_cost_penalty).filter(x => typeof x === 'number');
+                if (avgCosts.length) {
+                    const mean = avgCosts.reduce((a,b)=>a+b,0)/avgCosts.length;
+                    document.getElementById('goldenAvgCost').textContent = mean.toFixed(3);
+                }
+            }
+        }
         
     } catch (error) {
         console.error('Failed to load analytics:', error);
         document.getElementById('analyticsError').classList.remove('hidden');
         document.getElementById('analyticsOverview').classList.add('hidden');
         document.getElementById('analyticsCharts').classList.add('hidden');
+    }
+}
+
+// Golden Set runner
+async function runGoldenSet() {
+    try {
+        const res = await fetch('/api/golden/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        const data = await res.json();
+        const out = document.getElementById('goldenRunResult');
+        const agg = data.aggregate || {};
+        out.textContent = `Golden run complete: pass_rate ${(agg.pass_rate*100||0).toFixed(0)}%, reward ${(agg.avg_total_reward??0).toFixed(3)}, cost ${(agg.avg_cost_penalty??0).toFixed(3)}, steps ${(agg.avg_steps??0).toFixed(1)}`;
+        // Refresh analytics to incorporate new artifact
+        loadAnalytics();
+    } catch (e) {
+        const out = document.getElementById('goldenRunResult');
+        out.textContent = 'Golden run failed: ' + e.message;
     }
 }
 
@@ -727,6 +791,7 @@ window.quickTest = quickTest;
 window.streamTest = streamTest;
 window.loadEvolutionHistory = loadEvolutionHistory;
 window.loadAnalytics = loadAnalytics;
+window.runGoldenSet = runGoldenSet;
 window.startNewEvolution = startNewEvolution;
 window.submitHumanRating = submitHumanRating;
 

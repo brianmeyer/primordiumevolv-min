@@ -29,6 +29,8 @@ import json
 import os
 import time
 from glob import glob
+from app.config import FF_CODE_LOOP
+from app import code_loop
 
 load_dotenv()
 PORT = int(os.getenv("PORT", "8000"))
@@ -743,7 +745,12 @@ async def get_analytics():
                     total_ops = max(total_ops, len(ops))
                 except Exception:
                     continue
-            cleaned_analytics["operators"] = {"coverage_first_k": len(used)}
+            # Mean total_reward by operator (from variants)
+            vcur = c.execute("SELECT operator_name, AVG(total_reward), COUNT(*) FROM variants WHERE operator_name IS NOT NULL GROUP BY operator_name")
+            op_perf = []
+            for name, avg_reward, n in vcur.fetchall():
+                op_perf.append({"name": name, "avg_total_reward": avg_reward, "uses": n})
+            cleaned_analytics["operators"] = {"coverage_first_k": len(used), "performance": op_perf}
             c.close()
         except Exception:
             pass
@@ -774,6 +781,16 @@ async def get_analytics():
                     "pass_rate": pr
                 }
             cleaned_analytics["golden"] = summary
+        except Exception:
+            pass
+        # Thresholds
+        try:
+            from app.config import PHASE4_DELTA_REWARD_MIN, PHASE4_COST_RATIO_MAX, GOLDEN_PASS_RATE_TARGET
+            cleaned_analytics["thresholds"] = {
+                "delta_reward_min": PHASE4_DELTA_REWARD_MIN,
+                "cost_ratio_max": PHASE4_COST_RATIO_MAX,
+                "golden_pass_rate_target": GOLDEN_PASS_RATE_TARGET
+            }
         except Exception:
             pass
         return JSONResponse(cleaned_analytics)
@@ -883,84 +900,7 @@ async def golden_run(request: Request):
 @app.post("/api/meta/phase4/run")
 async def phase4_run():
     try:
-        ts = int(time.time())
-        artifacts_dir = os.path.join("runs", str(ts))
-        os.makedirs(artifacts_dir, exist_ok=True)
-        # Load current tuning
-        tuning_path = os.path.join("storage", "tuning.json")
-        with open(tuning_path, "r") as tf:
-            before_tuning = tf.read()
-        # Baseline KPIs (subset across at least 2 task types)
-        base = os.path.join(os.path.dirname(__file__), "..", "storage", "golden")
-        files = sorted(glob(os.path.join(base, "*.json")))
-        subset = []
-        seen_types = set()
-        for path in files:
-            with open(path, "r") as f:
-                item = json.load(f)
-            ttype = item.get("task_type") or item.get("task_class")
-            if ttype not in seen_types or len(subset) < 3:
-                subset.append((path, item))
-                seen_types.add(ttype)
-            if len(subset) >= 5 and len(seen_types) >= 2:
-                break
-        def run_subset():
-            import random
-            rewards = []
-            for _, it in subset:
-                random.seed(int(it.get("seed", 123)))
-                res = meta_run(
-                    task_class=it.get("task_class", "code"),
-                    task=it.get("task", ""),
-                    assertions=it.get("assertions") or [],
-                    session_id=None,
-                    n=6,
-                    memory_k=0,
-                    rag_k=int((it.get("flags") or {}).get("rag_k", 0)),
-                    operators=None,
-                    framework_mask=["SEAL", "SAMPLING"],
-                    use_bandit=True,
-                    test_cmd=None,
-                    test_weight=0.0,
-                    force_engine="ollama",
-                    compare_with_groq=False,
-                    judge_mode="off",
-                    judge_include_rationale=True,
-                )
-                rewards.append(res.get("best_total_reward") or 0.0)
-            return sum(rewards)/len(rewards) if rewards else 0.0
-        before_avg = run_subset()
-        # CRITIC: simple strategy — nudge process multiplier up slightly if low reward
-        import json
-        tuning = json.loads(before_tuning)
-        pm = float(tuning.get("process_multiplier", 1.0))
-        cm = float(tuning.get("cost_multiplier", 1.0))
-        patch = {}
-        if before_avg < 0.35:
-            patch["process_multiplier"] = min(1.5, pm + 0.05)
-        else:
-            patch["cost_multiplier"] = max(0.5, cm - 0.05)
-        # EDIT: apply patch
-        new_tuning = {"process_multiplier": patch.get("process_multiplier", pm), "cost_multiplier": patch.get("cost_multiplier", cm)}
-        with open(tuning_path, "w") as tf:
-            tf.write(json.dumps(new_tuning, indent=2))
-        # TEST: run again
-        after_avg = run_subset()
-        delta = after_avg - before_avg
-        # DECIDE: accept if gates pass
-        decision = (delta >= 0.05)
-        if not decision:
-            # REVERT
-            with open(tuning_path, "w") as tf:
-                tf.write(before_tuning)
-        code_loop = {
-            "critic_note": "Adjust process/cost multipliers to improve total_reward while controlling cost.",
-            "patch_summary": {"before": json.loads(before_tuning), "after": new_tuning},
-            "golden_kpis_before_after": {"before_avg_total_reward": before_avg, "after_avg_total_reward": after_avg, "delta": delta},
-            "decision": decision
-        }
-        with open(os.path.join(artifacts_dir, "code_loop.json"), "w") as f:
-            json.dump(code_loop, f, indent=2)
-        return JSONResponse(code_loop)
+        out = code_loop.run_phase4()
+        return JSONResponse(out)
     except Exception as e:
         return handle_exception(e, "phase4_failed")

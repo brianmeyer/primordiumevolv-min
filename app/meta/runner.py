@@ -584,4 +584,13 @@ def meta_run(
     except Exception:
         pass
 
+    # Optional post-run Phase 4 loop (auto) with overlap safeguards
+    try:
+        from app.config import FF_CODE_LOOP
+        if FF_CODE_LOOP:
+            from app import code_loop as _code_loop
+            _code_loop.maybe_enqueue(run_id)
+    except Exception:
+        pass
+
     return final_results
