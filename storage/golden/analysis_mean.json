@@ -1,0 +1,10 @@
+{
+  "id": "analysis_mean",
+  "task_type": "Data Analysis",
+  "task_class": "analysis",
+  "task": "Given the list [1,2,3,4,5], compute the mean and median and provide both values.",
+  "assertions": ["mean", "median", "3"],
+  "seed": 140,
+  "flags": {"web": false, "rag_k": 0}
+}
+

@@ -1,0 +1,10 @@
+{
+  "id": "business_market_entry",
+  "task_type": "Business Strategy",
+  "task_class": "business",
+  "task": "Outline a market entry plan for launching a meal-kit in a mid-size city.",
+  "assertions": ["market entry", "plan"],
+  "seed": 163,
+  "flags": {"web": false, "rag_k": 0}
+}
+

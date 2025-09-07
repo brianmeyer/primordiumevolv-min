@@ -1,0 +1,10 @@
+{
+  "id": "research_moon_landing",
+  "task_type": "Research & Facts",
+  "task_class": "research",
+  "task": "What year did humans first land on the Moon?",
+  "assertions": ["1969"],
+  "seed": 172,
+  "flags": {"web": false, "rag_k": 0}
+}
+

@@ -1,0 +1,10 @@
+{
+  "id": "code_prime",
+  "task_type": "Code & Programming",
+  "task_class": "code",
+  "task": "Write a Python function is_prime(n) that returns True if n is prime, else False. Include simple tests.",
+  "assertions": ["def is_prime", "return True if n is prime", "False for 1"],
+  "seed": 128,
+  "flags": {"web": false, "rag_k": 0}
+}
+

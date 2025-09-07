@@ -698,6 +698,84 @@ async def get_analytics():
             c.close()
         except Exception:
             pass
+        # Judge disagreement & latency stats
+        try:
+            c = store._conn()
+            vcur = c.execute("SELECT reward_metadata_json FROM variants WHERE reward_metadata_json IS NOT NULL")
+            metas = []
+            for (rmj,) in vcur.fetchall():
+                try:
+                    metas.append(json.loads(rmj))
+                except Exception:
+                    continue
+            total = len(metas)
+            tie_breakers = sum(1 for m in metas if (m.get("groq_metadata") or {}).get("tie_breaker_result"))
+            eval_latencies = []
+            for m in metas:
+                oh = m.get("evaluation_overhead_ms") or 0
+                if isinstance(oh, (int, float)):
+                    eval_latencies.append(float(oh))
+            eval_latencies.sort()
+            def pct(p):
+                if not eval_latencies:
+                    return None
+                k = max(0, min(len(eval_latencies)-1, int(round(p*(len(eval_latencies)-1)))))
+                return eval_latencies[k]
+            cleaned_analytics["judges"] = {
+                "evaluated": total,
+                "tie_breaker_rate": (tie_breakers/total) if total else 0.0,
+                "eval_latency_ms": {"p50": pct(0.5), "p90": pct(0.9)}
+            }
+            c.close()
+        except Exception:
+            pass
+        # Operator coverage (first K iterations across recent runs)
+        try:
+            c = store._conn()
+            rcur = c.execute("SELECT operator_names_json FROM runs WHERE operator_names_json IS NOT NULL ORDER BY started_at DESC LIMIT 20")
+            first_k = 5
+            used = set()
+            total_ops = 0
+            for (ops_json,) in rcur.fetchall():
+                try:
+                    ops = json.loads(ops_json) or []
+                    used.update(ops[:first_k])
+                    total_ops = max(total_ops, len(ops))
+                except Exception:
+                    continue
+            cleaned_analytics["operators"] = {"coverage_first_k": len(used)}
+            c.close()
+        except Exception:
+            pass
+        # Golden trends (scan artifacts)
+        try:
+            import glob as _glob
+            kpi_files = _glob.glob(os.path.join("runs", "*", "golden_kpis.json"))
+            by_type = {}
+            for fp in kpi_files[-50:]:
+                try:
+                    with open(fp, "r") as f:
+                        data = json.load(f)
+                    for item in data.get("per_item", []):
+                        tt = item.get("task_type") or "unknown"
+                        by_type.setdefault(tt, []).append(item)
+                except Exception:
+                    continue
+            summary = {}
+            for tt, items in by_type.items():
+                vals = [i.get("total_reward") for i in items if isinstance(i.get("total_reward"), (int, float))]
+                costs = [i.get("cost_penalty") or 0.0 for i in items]
+                steps = [i.get("steps") or 0 for i in items]
+                pr = sum(1 for v in vals if v >= 0.3) / len(vals) if vals else 0
+                summary[tt] = {
+                    "avg_total_reward": (sum(vals)/len(vals)) if vals else None,
+                    "avg_cost_penalty": (sum(costs)/len(costs)) if costs else None,
+                    "avg_steps": (sum(steps)/len(steps)) if steps else None,
+                    "pass_rate": pr
+                }
+            cleaned_analytics["golden"] = summary
+        except Exception:
+            pass
         return JSONResponse(cleaned_analytics)
     except Exception as e:
         return handle_exception(e, "analytics_failed")
@@ -775,19 +853,25 @@ async def golden_run(request: Request):
                 judge_mode="off",
                 judge_include_rationale=True,
             )
+            br = res.get("best_reward_breakdown") or {}
             per_item.append({
                 "id": slug,
-                "outcome_reward": res.get("metrics", {}).get("best_total_reward", None),
-                "process_reward": None,
-                "cost_penalty": None,
-                "total_reward": res.get("best_total_reward")
+                "task_type": item.get("task_type") or item.get("task_class"),
+                "outcome_reward": br.get("outcome_reward"),
+                "process_reward": br.get("process_reward"),
+                "cost_penalty": br.get("cost_penalty"),
+                "total_reward": res.get("best_total_reward"),
+                "steps": (res.get("metrics") or {}).get("steps_to_best")
             })
         # Aggregate
         valid = [p for p in per_item if isinstance(p.get("total_reward"), (int, float))]
-        avg_total_reward = sum(p["total_reward"] for p in valid) / len(valid) if valid else None
+        avg_total_reward = (sum(p["total_reward"] for p in valid) / len(valid)) if valid else None
+        avg_cost_penalty = (sum((p.get("cost_penalty") or 0.0) for p in valid) / len(valid)) if valid else None
+        avg_steps = (sum((p.get("steps") or 0) for p in valid) / len(valid)) if valid else None
+        pass_rate = (sum(1 for p in valid if p["total_reward"] >= 0.3) / len(valid)) if valid else 0
         artifacts_dir = os.path.join("runs", str(ts))
         os.makedirs(artifacts_dir, exist_ok=True)
-        kpis = {"per_item": per_item, "aggregate": {"avg_total_reward": avg_total_reward, "steps_to_best": None, "avg_cost_ratio": None}}
+        kpis = {"per_item": per_item, "aggregate": {"avg_total_reward": avg_total_reward, "avg_cost_penalty": avg_cost_penalty, "avg_steps": avg_steps, "pass_rate": pass_rate}}
         with open(os.path.join(artifacts_dir, "golden_kpis.json"), "w") as f:
             json.dump(kpis, f, indent=2)
         return JSONResponse(kpis)
@@ -802,45 +886,76 @@ async def phase4_run():
         ts = int(time.time())
         artifacts_dir = os.path.join("runs", str(ts))
         os.makedirs(artifacts_dir, exist_ok=True)
-        # Critic note (placeholder)
-        critic_note = "Evaluate reward alignment and operator diversity; propose minimal tweaks to scoring weights if KPIs regress."
-        # Run Golden Set before/after (no-op edit in this implementation; scaffold for future patches)
-        before = await golden_run(Request({'type': 'http'}))  # Not strictly used; compute fresh below
-        # Re-run golden set
+        # Load current tuning
+        tuning_path = os.path.join("storage", "tuning.json")
+        with open(tuning_path, "r") as tf:
+            before_tuning = tf.read()
+        # Baseline KPIs (subset across at least 2 task types)
         base = os.path.join(os.path.dirname(__file__), "..", "storage", "golden")
         files = sorted(glob(os.path.join(base, "*.json")))
-        per_item = []
-        import random
-        for path in files[:3]:  # at least 3 items
+        subset = []
+        seen_types = set()
+        for path in files:
             with open(path, "r") as f:
                 item = json.load(f)
-            random.seed(int(item.get("seed", 123)))
-            res = meta_run(
-                task_class=item.get("task_class", "code"),
-                task=item.get("task", ""),
-                assertions=item.get("assertions") or [],
-                session_id=None,
-                n=6,
-                memory_k=0,
-                rag_k=int((item.get("flags") or {}).get("rag_k", 0)),
-                operators=None,
-                framework_mask=["SEAL", "SAMPLING"],
-                use_bandit=True,
-                test_cmd=None,
-                test_weight=0.0,
-                force_engine="ollama",
-                compare_with_groq=False,
-                judge_mode="off",
-                judge_include_rationale=True,
-            )
-            per_item.append(res.get("best_total_reward") or 0.0)
-        after_avg = sum(per_item)/len(per_item) if per_item else 0.0
-        before_avg = after_avg  # no-op edit baseline
+            ttype = item.get("task_type") or item.get("task_class")
+            if ttype not in seen_types or len(subset) < 3:
+                subset.append((path, item))
+                seen_types.add(ttype)
+            if len(subset) >= 5 and len(seen_types) >= 2:
+                break
+        def run_subset():
+            import random
+            rewards = []
+            for _, it in subset:
+                random.seed(int(it.get("seed", 123)))
+                res = meta_run(
+                    task_class=it.get("task_class", "code"),
+                    task=it.get("task", ""),
+                    assertions=it.get("assertions") or [],
+                    session_id=None,
+                    n=6,
+                    memory_k=0,
+                    rag_k=int((it.get("flags") or {}).get("rag_k", 0)),
+                    operators=None,
+                    framework_mask=["SEAL", "SAMPLING"],
+                    use_bandit=True,
+                    test_cmd=None,
+                    test_weight=0.0,
+                    force_engine="ollama",
+                    compare_with_groq=False,
+                    judge_mode="off",
+                    judge_include_rationale=True,
+                )
+                rewards.append(res.get("best_total_reward") or 0.0)
+            return sum(rewards)/len(rewards) if rewards else 0.0
+        before_avg = run_subset()
+        # CRITIC: simple strategy — nudge process multiplier up slightly if low reward
+        import json
+        tuning = json.loads(before_tuning)
+        pm = float(tuning.get("process_multiplier", 1.0))
+        cm = float(tuning.get("cost_multiplier", 1.0))
+        patch = {}
+        if before_avg < 0.35:
+            patch["process_multiplier"] = min(1.5, pm + 0.05)
+        else:
+            patch["cost_multiplier"] = max(0.5, cm - 0.05)
+        # EDIT: apply patch
+        new_tuning = {"process_multiplier": patch.get("process_multiplier", pm), "cost_multiplier": patch.get("cost_multiplier", cm)}
+        with open(tuning_path, "w") as tf:
+            tf.write(json.dumps(new_tuning, indent=2))
+        # TEST: run again
+        after_avg = run_subset()
         delta = after_avg - before_avg
+        # DECIDE: accept if gates pass
         decision = (delta >= 0.05)
+        if not decision:
+            # REVERT
+            with open(tuning_path, "w") as tf:
+                tf.write(before_tuning)
         code_loop = {
-            "critic_note": critic_note,
-            "patch_summary": "no-op (scaffold)",
+            "critic_note": "Adjust process/cost multipliers to improve total_reward while controlling cost.",
+            "patch_summary": {"before": json.loads(before_tuning), "after": new_tuning},
             "golden_kpis_before_after": {"before_avg_total_reward": before_avg, "after_avg_total_reward": after_avg, "delta": delta},
             "decision": decision
         }

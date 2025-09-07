@@ -1,0 +1,10 @@
+{
+  "id": "business_okrs",
+  "task_type": "Business Strategy",
+  "task_class": "business",
+  "task": "Propose 3-5 OKRs for a SaaS startup (each with key results).",
+  "assertions": ["OKR", "3", "key results"],
+  "seed": 161,
+  "flags": {"web": false, "rag_k": 0}
+}
+

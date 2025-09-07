@@ -1,0 +1,10 @@
+{
+  "id": "business_swot",
+  "task_type": "Business Strategy",
+  "task_class": "business",
+  "task": "Create a brief SWOT analysis for a small cafe including all four sections.",
+  "assertions": ["Strengths", "Weaknesses", "Opportunities", "Threats"],
+  "seed": 160,
+  "flags": {"web": false, "rag_k": 0}
+}
+

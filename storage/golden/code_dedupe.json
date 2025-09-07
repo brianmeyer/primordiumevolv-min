@@ -1,0 +1,10 @@
+{
+  "id": "code_dedupe",
+  "task_type": "Code & Programming",
+  "task_class": "code",
+  "task": "Write a Python function dedupe_list(xs) that returns a list preserving order with duplicates removed.",
+  "assertions": ["def dedupe_list", "preserve order", "remove duplicates"],
+  "seed": 130,
+  "flags": {"web": false, "rag_k": 0}
+}
+

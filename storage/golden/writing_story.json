@@ -1,0 +1,10 @@
+{
+  "id": "writing_story",
+  "task_type": "Creative Writing",
+  "task_class": "writing",
+  "task": "Write a short story (under 120 words) about a lost key, ending with a twist.",
+  "assertions": ["story", "under 120", "twist"],
+  "seed": 151,
+  "flags": {"web": false, "rag_k": 0}
+}
+

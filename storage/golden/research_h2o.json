@@ -1,0 +1,10 @@
+{
+  "id": "research_h2o",
+  "task_type": "Research & Facts",
+  "task_class": "research",
+  "task": "What is the chemical formula for water?",
+  "assertions": ["H2O"],
+  "seed": 170,
+  "flags": {"web": false, "rag_k": 0}
+}
+

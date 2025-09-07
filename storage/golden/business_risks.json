@@ -1,0 +1,10 @@
+{
+  "id": "business_risks",
+  "task_type": "Business Strategy",
+  "task_class": "business",
+  "task": "Provide a risk and mitigation matrix for a new e-commerce website launch.",
+  "assertions": ["risk", "mitigation"],
+  "seed": 164,
+  "flags": {"web": false, "rag_k": 0}
+}
+

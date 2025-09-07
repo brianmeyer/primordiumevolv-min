@@ -1,0 +1,10 @@
+{
+  "id": "general_todo",
+  "task_type": "General Task",
+  "task_class": "general",
+  "task": "Create a to-do list with 5 items for preparing a presentation.",
+  "assertions": ["- ", "5 items"],
+  "seed": 183,
+  "flags": {"web": false, "rag_k": 0}
+}
+

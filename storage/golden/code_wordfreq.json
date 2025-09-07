@@ -1,0 +1,10 @@
+{
+  "id": "code_wordfreq",
+  "task_type": "Code & Programming",
+  "task_class": "code",
+  "task": "Write a Python function word_freq(text) that returns a dict of word->count, case-insensitive, ignoring punctuation.",
+  "assertions": ["def word_freq", "returns dict", "counts words"],
+  "seed": 129,
+  "flags": {"web": false, "rag_k": 0}
+}
+

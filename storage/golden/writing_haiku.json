@@ -1,0 +1,10 @@
+{
+  "id": "writing_haiku",
+  "task_type": "Creative Writing",
+  "task_class": "writing",
+  "task": "Write a haiku about dawn including the word 'light'.",
+  "assertions": ["haiku", "light"],
+  "seed": 150,
+  "flags": {"web": false, "rag_k": 0}
+}
+

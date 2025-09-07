@@ -1,0 +1,10 @@
+{
+  "id": "general_translate",
+  "task_type": "General Task",
+  "task_class": "general",
+  "task": "Translate 'Good morning' into Spanish (two words).",
+  "assertions": ["Buenos días", "Spanish"],
+  "seed": 181,
+  "flags": {"web": false, "rag_k": 0}
+}
+

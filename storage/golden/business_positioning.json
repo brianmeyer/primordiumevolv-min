@@ -1,0 +1,10 @@
+{
+  "id": "business_positioning",
+  "task_type": "Business Strategy",
+  "task_class": "business",
+  "task": "Write a positioning statement for a budget-friendly smartphone including 'affordable' and 'reliable'.",
+  "assertions": ["affordable", "reliable"],
+  "seed": 162,
+  "flags": {"web": false, "rag_k": 0}
+}
+

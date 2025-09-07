@@ -1,0 +1,10 @@
+{
+  "id": "writing_poem",
+  "task_type": "Creative Writing",
+  "task_class": "writing",
+  "task": "Write a short poem that includes the word 'river'.",
+  "assertions": ["poem", "river"],
+  "seed": 154,
+  "flags": {"web": false, "rag_k": 0}
+}
+

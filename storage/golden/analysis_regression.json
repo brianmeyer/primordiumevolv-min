@@ -1,0 +1,10 @@
+{
+  "id": "analysis_regression",
+  "task_type": "Data Analysis",
+  "task_class": "analysis",
+  "task": "Briefly explain whether a linear relationship exists between x=[1,2,3,4] and y=[2,4,6,8] and provide slope.",
+  "assertions": ["linear", "slope", "2"],
+  "seed": 142,
+  "flags": {"web": false, "rag_k": 0}
+}
+

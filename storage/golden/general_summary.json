@@ -1,0 +1,10 @@
+{
+  "id": "general_summary",
+  "task_type": "General Task",
+  "task_class": "general",
+  "task": "Summarize: 'Local generation with rigorous evaluation improves reliability.' in under 15 words including 'local'.",
+  "assertions": ["summary", "local", "under 15"],
+  "seed": 180,
+  "flags": {"web": false, "rag_k": 0}
+}
+

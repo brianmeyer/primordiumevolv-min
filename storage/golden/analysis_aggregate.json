@@ -1,0 +1,10 @@
+{
+  "id": "analysis_aggregate",
+  "task_type": "Data Analysis",
+  "task_class": "analysis",
+  "task": "Aggregate list [1,2,2,3,3,3] into counts per value.",
+  "assertions": ["{1: 1", "2: 2", "3: 3"],
+  "seed": 144,
+  "flags": {"web": false, "rag_k": 0}
+}
+

@@ -1,0 +1,10 @@
+{
+  "id": "general_steps",
+  "task_type": "General Task",
+  "task_class": "general",
+  "task": "Provide a 5-step plan to organize a home office.",
+  "assertions": ["1.", "2.", "3.", "4.", "5."],
+  "seed": 182,
+  "flags": {"web": false, "rag_k": 0}
+}
+

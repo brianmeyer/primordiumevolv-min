@@ -1,0 +1,10 @@
+{
+  "id": "research_independence",
+  "task_type": "Research & Facts",
+  "task_class": "research",
+  "task": "In what year did the United States declare independence?",
+  "assertions": ["1776"],
+  "seed": 171,
+  "flags": {"web": false, "rag_k": 0}
+}
+

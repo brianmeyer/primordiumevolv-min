@@ -1,0 +1,10 @@
+{
+  "id": "writing_rephrase",
+  "task_type": "Creative Writing",
+  "task_class": "writing",
+  "task": "Rephrase the sentence 'The product is innovative and robust' to sound more friendly while keeping the meaning.",
+  "assertions": ["friendly", "innovative", "robust"],
+  "seed": 152,
+  "flags": {"web": false, "rag_k": 0}
+}
+

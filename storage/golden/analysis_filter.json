@@ -1,0 +1,10 @@
+{
+  "id": "analysis_filter",
+  "task_type": "Data Analysis",
+  "task_class": "analysis",
+  "task": "Filter rows where age > 30 from a sample CSV and count them. Assume data is provided inline.",
+  "assertions": ["filter", "> 30", "count"],
+  "seed": 141,
+  "flags": {"web": false, "rag_k": 0}
+}
+

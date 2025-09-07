@@ -41,6 +41,8 @@ import re
 import time
 from typing import List, Optional, Dict, Any, Tuple
 from app.evolve.loop import score_output  # Import existing scoring
+import json as _json
+import os as _os
 from app.quality_judge import evaluate_response_quality  # New hybrid scoring
 
 
@@ -286,13 +288,22 @@ def compute_total_reward(
         # Penalize long evaluation overhead modestly
         cost_penalty += min(eval_ms / max(1.0, base_time), 1.0) * 0.1
     
-    # Total reward formula
-    total_reward = outcome_reward + process_reward - cost_penalty
+    # Optional tuning multipliers
+    try:
+        tpath = _os.path.join(_os.path.dirname(__file__), "..", "..", "storage", "tuning.json")
+        _t = _json.load(open(tpath, "r")) if _os.path.exists(tpath) else {}
+        m_proc = float(_t.get("process_multiplier", 1.0))
+        m_cost = float(_t.get("cost_multiplier", 1.0))
+    except Exception:
+        m_proc, m_cost = 1.0, 1.0
+
+    # Total reward formula (with optional tuning)
+    total_reward = outcome_reward + (process_reward * m_proc) - (cost_penalty * m_cost)
     
     reward_breakdown = {
         "outcome_reward": outcome_reward,
-        "process_reward": process_reward, 
-        "cost_penalty": cost_penalty,
+        "process_reward": process_reward * m_proc, 
+        "cost_penalty": cost_penalty * m_cost,
         "total_reward": total_reward,
         "outcome_metadata": outcome_metadata  # Include metadata from hybrid scoring
     }

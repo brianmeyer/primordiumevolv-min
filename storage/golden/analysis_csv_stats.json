@@ -1,0 +1,10 @@
+{
+  "id": "analysis_csv_stats",
+  "task_type": "Data Analysis",
+  "task_class": "analysis",
+  "task": "Given a small CSV of products with price, compute average price and count items over $10.",
+  "assertions": ["average", "> 10", "count"],
+  "seed": 143,
+  "flags": {"web": false, "rag_k": 0}
+}
+

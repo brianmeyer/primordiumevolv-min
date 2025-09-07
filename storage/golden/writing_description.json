@@ -1,0 +1,10 @@
+{
+  "id": "writing_description",
+  "task_type": "Creative Writing",
+  "task_class": "writing",
+  "task": "Write a product description for a reusable water bottle including the phrases 'BPA-free' and 'leak-proof'.",
+  "assertions": ["BPA-free", "leak-proof"],
+  "seed": 153,
+  "flags": {"web": false, "rag_k": 0}
+}
+

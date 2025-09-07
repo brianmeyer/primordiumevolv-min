@@ -126,6 +126,8 @@ def meta_run(
     
     # Track best variant (now by total_reward)
     best_variant_id = None
+    best_reward_breakdown = None
+    best_step_index = None
     best_score = float('-inf')  # Preserved for UI compatibility
     best_total_reward = float('-inf')  # Primary optimization target
     best_recipe = None
@@ -300,6 +302,8 @@ def meta_run(
                 best_total_reward = total_reward
                 best_score = score  # Keep for UI compatibility
                 best_variant_id = variant_id
+                best_reward_breakdown = reward_breakdown
+                best_step_index = i
                 best_recipe = {
                     "system": execution["system"],
                     "nudge": plan["nudge"],
@@ -507,8 +511,8 @@ def meta_run(
         eval_report = {"eligible": False, "error": "eval_failed"}
 
     # Calculate additional metrics
-    avg_total_reward = sum(reward_breakdown.get("total_reward", 0.0) for _ in range(n)) / n if n > 0 else 0.0
-    steps_to_best = next((i for i, _ in enumerate(range(n)) if _ == best_variant_id), n)
+    avg_total_reward = None  # Optional; compute from artifacts if needed
+    steps_to_best = (best_step_index + 1) if isinstance(best_step_index, int) else n
     
     # Create evaluation report with promotion metrics
     eval_metrics = {
@@ -542,6 +546,7 @@ def meta_run(
         "total_reward_improvement": best_total_reward - baseline_total_reward,  # New primary
         "timestamp": timestamp,
         "metrics": eval_metrics,
+        **({"best_reward_breakdown": best_reward_breakdown} if best_reward_breakdown else {}),
         **({"compare": compare} if compare else {}),
         **({"judge": judge_report} if judge_report else {}),
         **({"eval": eval_report} if eval_report else {}),
