@@ -98,7 +98,7 @@ async def groq_models():
 @app.get("/api/meta/stream")
 async def meta_stream(run_id: int):
     """Server-Sent Events stream for a run's live updates."""
-    import anyio
+    import asyncio
     import json as _json
     from app import realtime as _rt
 
@@ -106,17 +106,32 @@ async def meta_stream(run_id: int):
 
     async def event_generator():
         try:
+            # Send initial keep-alive immediately
+            yield ": connected\n\n"
+            
             while True:
                 try:
-                    evt = await anyio.to_thread.run_sync(q.get, True, 20)
-                    yield f"data: {_json.dumps(evt)}\n\n"
-                except Exception:
-                    # keep-alive comment every ~20s
-                    yield ": keep-alive\n\n"
+                    # Non-blocking get with timeout
+                    try:
+                        evt = q.get_nowait()
+                        yield f"data: {_json.dumps(evt)}\n\n"
+                    except:
+                        # No event available, send keep-alive and wait
+                        yield ": keep-alive\n\n" 
+                        await asyncio.sleep(5)
+                        
+                except Exception as e:
+                    yield f"data: {_json.dumps({'error': str(e)})}\n\n"
+                    break
         finally:
             _rt.unsubscribe(run_id, q)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    headers = {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no"
+    }
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
 
 # Validate model at startup
 @app.on_event("startup")
@@ -751,6 +766,12 @@ async def get_analytics():
             for name, avg_reward, n in vcur.fetchall():
                 op_perf.append({"name": name, "avg_total_reward": avg_reward, "uses": n})
             cleaned_analytics["operators"] = {"coverage_first_k": len(used), "performance": op_perf}
+            # Voice performance by system string
+            vcur2 = c.execute("SELECT system, AVG(total_reward), AVG(cost_penalty), COUNT(*) FROM variants WHERE system IS NOT NULL GROUP BY system")
+            voices = []
+            for sys_str, avg_r, avg_c, n in vcur2.fetchall():
+                voices.append({"system": sys_str, "avg_total_reward": avg_r, "avg_cost_penalty": avg_c, "uses": n})
+            cleaned_analytics["voices"] = voices
             c.close()
         except Exception:
             pass

@@ -195,8 +195,16 @@ function startEvolutionStream(runId, totalIterations) {
 
 function handleEvolutionEvent(data, totalIterations) {
     if (data.type === 'iter'){
-        addEvolutionStep(`🔄 Iteration ${data.i + 1}: ${data.operator} | score ${(data.score||0).toFixed(3)}`, 'running');
-        updateLastStep(`✅ Iteration ${data.i + 1}: ${data.operator} | score ${(data.score||0).toFixed(3)}`, 'completed');
+        // Format judge information for display
+        let judgeInfo = '';
+        if (data.judge_info && data.judge_info.judges && data.judge_info.judges.length > 0) {
+            const judgeScores = data.judge_info.judges.map(j => `${j.model.split('/').pop().split('-')[0]}: ${j.score.toFixed(2)}`).join(', ');
+            const tieBreaker = data.judge_info.tie_breaker_used ? ' (tie-breaker)' : '';
+            judgeInfo = ` | judges: ${judgeScores}${tieBreaker}`;
+        }
+        
+        addEvolutionStep(`🔄 Iteration ${data.i + 1}: ${data.operator} | score ${(data.score||0).toFixed(3)}${judgeInfo}`, 'running');
+        updateLastStep(`✅ Iteration ${data.i + 1}: ${data.operator} | score ${(data.score||0).toFixed(3)}${judgeInfo}`, 'completed');
         if (typeof totalIterations === 'number'){ 
             updateProgress(Math.min(100, Math.round(100*(data.i+1)/Math.max(1,totalIterations))));
         }

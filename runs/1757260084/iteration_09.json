@@ -1,0 +1,100 @@
+{
+  "iteration": 9,
+  "operator": "toggle_web",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 17,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "score": 0.32021379438803815,
+  "reward": 0.4948097943880382,
+  "reward_breakdown": {
+    "outcome_reward": 0.32021379438803815,
+    "process_reward": 0.2,
+    "cost_penalty": 0.025404000000000006,
+    "total_reward": 0.4948097943880382,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.4948097943880382,
+      "plays": 1,
+      "ucb_score": 3.032082276747077
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.5317864032772007,
+        "plays": 1,
+        "ucb_score": 3.06905888563624
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.2503180313149064,
+        "plays": 2,
+        "ucb_score": 2.044440609309008
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.3781513379193942,
+        "plays": 1,
+        "ucb_score": 2.9154238202784333
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.4948097943880382,
+        "plays": 1,
+        "ucb_score": 3.032082276747077
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      }
+    ]
+  },
+  "output_preview": "<think>\nHmm, the user is asking about popular peptides currently, specifically mentioning BPC-157. They want concise bullet points as a senior engineer would respond. \n\nLooking at the web context provided: There's mention of BPC-157 being compared to other peptides for benefits, RFK Jr. claiming regenerative properties (though that seems like a red flag), and it being noted for good oral bioavailability but not for others like IGF-1. \n\nKey points to extract: \n- BPC-157 is highlighted for oral bioavailability (important for practical use) \n- The context mentions it's in \"top 5 benefits\" discussions but doesn't specify the actual benefits \n- There's an unusual reference to RFK Jr. which might indicate controversial claims - better to note this as a caution \n- The \"4 go-to options\" context suggests BPC-157 is one of several popular peptides but the others aren't named \n\nUser's deeper need: They probably want quick, actionable info without fluff. Since they specified \"concise senior engineer\" output, I should avoid marketing language and focus on verifiable facts from the context. \n\nImportant to flag the RFK Jr. reference as potentially misleading since it's not a standard peptide source - that's a red flag for credibility. Also must clarify that \"good oral bioavailability\" is a relative term (BPC-157 is better than some but not all peptides). \n\nNo need to list unmentioned peptides since the context doesn't specify alternatives beyond BPC-157. Will stick strictly to what the web snippets imply. \n\nFinal check: Bullet points must be direct, no examples, no extra explanations. User said \"precise, directly usable output\" so I'll keep it to 3-4 lines max.\n</think>\n\n- BPC-157: Popular for oral bioavailability (better than many peptides), marketed for tissue repair and regenerative effects; note RFK Jr. claims are controversial and not scientifically validated.  \n- IGF-1: Common alternative for muscle growth, but poor oral bioavailability limits practical use.  \n- Growth hormone (GH) analogs: Used for muscle synthesis, but require injections due to low oral bioavailability.  \n- Collagen peptides: Gaining traction for joint health and skin elasticity, distinct from regenerative peptides like BPC-157."
+}

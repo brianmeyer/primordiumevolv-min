@@ -1,0 +1,100 @@
+{
+  "iteration": 1,
+  "operator": "add_fewshot",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": "Example: Fix this bug.\nIssue: IndexError on line 42. Solution: Add bounds checking before array access."
+  },
+  "score": 0.3212782737380174,
+  "reward": 0.6992182737380174,
+  "reward_breakdown": {
+    "outcome_reward": 0.3212782737380174,
+    "process_reward": 0.39999999999999997,
+    "cost_penalty": 0.022059999999999993,
+    "total_reward": 0.6992182737380174,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.6992182737380174,
+      "plays": 1,
+      "ucb_score": 0.6992182737380174
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.6992182737380174,
+        "plays": 1,
+        "ucb_score": 0.6992182737380174
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user wants a Python function that calculates factorial. Let me think about the simplest way.\n\nFirst, factorial of a number n is the product of all positive integers up to n. But wait, factorial of 0 is 1. So the function needs to handle that.\n\nWait, the user mentioned a bug fix with an IndexError. But in the problem statement, they said \"Fix this bug. Issue: IndexError on line 42. Solution: Add bounds checking before array access.\" Hmm, but the current task is to write a factorial function. Maybe the user is mixing contexts here. Wait, the examples say \"Fix this bug\" but the actual task is to write the function. Oh, maybe the context is a red herring? Or perhaps the user is confused.\n\nWait, the user's instruction says: \"Write a simple Python function that calculates the factorial of a number\". The context part mentions a bug fix with IndexError on line 42, but that's probably part of the example they provided for another problem. The user says: \"Examples: Example: Fix this bug.\" So maybe the context is a previous example, but the current task is to write the factorial function. The user wants the answer in bullet points, concise.\n\nSo, I need to write a simple factorial function in Python. Let's think.\n\nThe standard recursive approach might be error-prone for large numbers, but the user wants simple. Alternatively, iterative.\n\nBut the problem says \"simple\", so maybe the iterative solution.\n\nWait, the user also mentions in the context that there was an IndexError, but since the current task is to write the factorial function, maybe that context is irrelevant here. The user's instruction says \"Respond in bullet points. Constraints: Respond in bullet points.\"\n\nWait, the user wants the answer to be bullet points. But the problem says \"Return precise, directly usable output.\" So the answer should be a bullet point list with the code.\n\nWait, the user says: \"Write a simple Python function...\" So the output should be a bullet point listing the function.\n\nBut the user wants it in bullet points, precise.\n\nLet me draft:\n\n- def factorial(n):\n    if n < 0:\n        raise ValueError(\"Factorial not defined for negative numbers\")\n    result = 1\n    for i in range(1, n + 1):\n        result *= i\n    return result\n\nBut the user said \"simple\", so maybe that's it. However, the context mentions an IndexError, but in this function, there's no array access, so maybe that's a red herring. The user probably included that as part of a previous example but wants the factorial function.\n\nWait, the instruction says \"Respond in bullet points. Constraints: Respond in bullet points.\" So the answer should be a bullet point list.\n\nWait, but the user said \"Return precise, directly usable output.\" So the answer is a bullet point with the code.\n\nWait, the problem says \"Write a simple Python function...\" So the output is a code function. But the user wants it in bullet points.\n\nWait, maybe the answer is just:\n\n- def factorial(n):\n    if n < 0:\n        raise ValueError(\"n must be non-negative\")\n    result = 1\n    for i in range(2, n + 1):\n        result *= i\n    return result\n\nBut to handle 0 correctly, the loop starts from 2 when n is 0, so the initial result is 1.\n\nAlternatively, the code can handle n=0 correctly.\n\nWait, the problem says \"simple\", so the code should be concise.\n\nYes, the code above should work. Let me test for n=0: the loop runs from 2 to 0+1=1, so the range is empty, returns 1. Correct.\n\nAnother way is using recursion, but iterative is better for performance and avoiding stack overflow.\n\nThe user mentioned \"Fix this bug\" with IndexError, but in this function, there's no array access, so maybe that's a different context. So the answer is the function as written.\n\nSo the bullet point would be:\n\n- def factorial(n):\n    if n < 0:\n        raise ValueError(\"n must be non-negative\")\n    result = 1\n    for i in range(2, n + 1):\n        result *= i\n    return result\n\nBut the user wants it concise. Maybe even shorter.\n\nAlternatively, using math.factorial is built-in, but the user wants a simple function they write.\n\nYes, so the code as above.\n\nWait, the problem says \"simple Python function\", so this should be it.\n\nI think that's the answer.\n</think>\n\n- def factorial(n):\n    if n < 0:\n        raise ValueError(\"n must be non-negative\")\n    result = 1\n    for i in range(2, n + 1):\n        result *= i\n    return result"
+}

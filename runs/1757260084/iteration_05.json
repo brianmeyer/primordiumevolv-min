@@ -1,0 +1,100 @@
+{
+  "iteration": 5,
+  "operator": "raise_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.9563984364272142,
+      "top_k": 17,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.37499040327720073,
+  "reward": 0.5317864032772007,
+  "reward_breakdown": {
+    "outcome_reward": 0.37499040327720073,
+    "process_reward": 0.2,
+    "cost_penalty": 0.043204,
+    "total_reward": 0.5317864032772007,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.5317864032772007,
+      "plays": 1,
+      "ucb_score": 2.88660644830815
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.5317864032772007,
+        "plays": 1,
+        "ucb_score": 2.88660644830815
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.2503180313149064,
+        "plays": 2,
+        "ucb_score": 1.9154272536303019
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.3781513379193942,
+        "plays": 1,
+        "ucb_score": 2.7329713829503435
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user is asking about popular peptides currently, specifically mentioning BPC-157. They want a concise response in bullet points. \n\nFirst, I need to focus on peptides that are actually gaining traction in the fitness/science community right now, not just historical ones. BPC-157 is a good starting point since they mentioned it - it's known for tissue repair and muscle growth. \n\nI should pick 3-4 other peptides that are trending but avoid anything too niche. Let me think: \n- TB-500 is big in sports for tendon healing \n- Growth hormone-releasing peptides like CERA are hot for muscle gains \n- EPO is controversial but definitely popular in athletic circles \n- Maybe include something like BPC-157's sibling BPC-157? Wait no, BPC-157 is the main one. \n\nWait, the user said \"different peptides\" so I'll stick to 4 distinct ones. Important to note they're not FDA-approved though - that's crucial context. \n\nAlso must keep it ultra-concise as per their constraints. Bullet points only, no fluff. User is probably a fitness enthusiast or researcher who wants quick facts without marketing jargon. \n\n*Double-checks*: \n- TB-500: tendon repair, sports \n- CERA: GH release, muscle \n- EPO: blood flow, but risky \n- BPC-157: their example, gut healing etc. \n\nYep, that covers the main trending ones without going too technical. Gotta add the disclaimer about medical use upfront since they might not realize these are experimental. \n\n*Structure*: \nFirst bullet = disclaimer (non-medical use) \nThen 4 bullets with: \n- Name \n- Primary use \n- Why popular now \n- Caveats \n\nUser said \"concise senior engineer\" so I'll strip all adjectives. No \"this peptide is...\" just straight facts. \n\n*Final check*: \nIs EPO too controversial? Maybe, but it's definitely popular in underground circles. Alternative could be something like GHRP-6 but TB-500 is more current. Stick with EPO since they mentioned \"now\" - it's trending in recovery circles. \n\nAlright, time to write tight bullets.\n</think>\n\n- **BPC-157**: Promotes tissue repair, reduces inflammation, and supports gut health. Popular for athletic recovery and chronic injury management. *Not FDA-approved*.\n- **TB-500**: Accelerates tendon/ligament healing and reduces muscle damage. Gaining traction in sports medicine for acute injuries.\n- **CERA (GHRP-6)**: Stimulates growth hormone release for muscle growth and fat loss. Widely used by athletes for performance enhancement.\n- **EPO (Erythropoietin)**: Boosts red blood cell production for endurance. *Highly regulated*; used off-label in athletic recovery due to performance benefits.  \n*Note: All peptides are experimental, require medical supervision, and not approved for human use by regulatory bodies.*"
+}

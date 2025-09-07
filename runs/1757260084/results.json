@@ -1,0 +1,95 @@
+{
+  "run_id": 34,
+  "task_class": "research",
+  "task": "Tell me about different peptides that are popular now like bpc-157",
+  "assertions": [],
+  "best_score": 0.3738873001174457,
+  "best_total_reward": 0.5406433001174457,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5732159270097152,
+      "top_k": 17,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 2,
+      "avg_reward": 0.5999271681839151,
+      "mean_payoff": 0.2503180313149064
+    },
+    "inject_rag": {
+      "n": 1,
+      "avg_reward": 0.3781513379193942,
+      "mean_payoff": 0.3781513379193942
+    },
+    "raise_temp": {
+      "n": 1,
+      "avg_reward": 0.5317864032772007,
+      "mean_payoff": 0.5317864032772007
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382,
+      "mean_payoff": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 1,
+      "avg_reward": 0.3884058449148782,
+      "mean_payoff": 0.3884058449148782
+    },
+    "change_nudge": {
+      "n": 1,
+      "avg_reward": 0.42262688215499,
+      "mean_payoff": 0.42262688215499
+    },
+    "lower_temp": {
+      "n": 1,
+      "avg_reward": 0.5406433001174457,
+      "mean_payoff": 0.5406433001174457
+    }
+  },
+  "baseline": 0.44000998095380406,
+  "improvement": -0.06612268083635836,
+  "total_reward_improvement": 0.5406433001174457,
+  "timestamp": 1757260084,
+  "metrics": {
+    "best_total_reward": 0.5406433001174457,
+    "best_score": 0.3738873001174457,
+    "avg_total_reward": null,
+    "steps_to_best": 15,
+    "cost_penalty_avg": 0.03324400000000001,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.541",
+        "cost efficiency: 0.033 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.3738873001174457,
+    "process_reward": 0.2,
+    "cost_penalty": 0.03324400000000001,
+    "total_reward": 0.5406433001174457,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

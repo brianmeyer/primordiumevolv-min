@@ -263,21 +263,3 @@ def _start_worker():
             _running = False
 
     threading.Thread(target=_worker, daemon=True).start()
-    global _running
-    if _lock.acquire(blocking=False):
-        if _running:
-            _lock.release()
-            return False
-        _running = True
-        _lock.release()
-
-        def _worker():
-            global _running
-            try:
-                run_phase4()
-            finally:
-                _running = False
-
-        threading.Thread(target=_worker, daemon=True).start()
-        return True
-    return False

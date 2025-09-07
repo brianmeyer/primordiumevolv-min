@@ -1,0 +1,100 @@
+{
+  "iteration": 4,
+  "operator": "inject_rag",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 17,
+      "max_tokens": 4096
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.20392733791939419,
+  "reward": 0.3781513379193942,
+  "reward_breakdown": {
+    "outcome_reward": 0.20392733791939419,
+    "process_reward": 0.25,
+    "cost_penalty": 0.07577600000000001,
+    "total_reward": 0.3781513379193942,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.3781513379193942,
+      "plays": 1,
+      "ucb_score": 2.4744454858558043
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.2503180313149064,
+        "plays": 2,
+        "ucb_score": 1.7326218386824177
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.3781513379193942,
+        "plays": 1,
+        "ucb_score": 2.4744454858558043
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      }
+    ]
+  },
+  "output_preview": "<think>\nHmm, the user is asking about popular peptides like BPC-157. They provided some RAG context with numbers and names that seem like a dataset or model evaluation metrics. But the context looks messy - it's mostly numbers and names that don't form coherent text. The RAG output shows some similarity scores (like 0.962, 0.993) but the rest is garbled text with names like \"athieu Rita\" and \"bsa\".\n\nI need to focus on the actual query. The user wants concise information about current popular peptides, specifically mentioning BPC-157. As a senior engineer, I should give precise, usable output without fluff. \n\nLooking at the context they included: it appears to be irrelevant RAG output - probably a test dataset where the system generated random strings. The numbers might be similarity scores between models (GKI-ICD, MRR), but the names section is just scrambled. This isn't helpful for answering about peptides.\n\nMy approach: Since the user's context is noise, I'll ignore it and provide a clean, professional response about peptides. I'll cover BPC-157 first as requested, then list other popular peptides with key facts to keep it concise. I must stick to bullet points as instructed.\n\nKey points to include:\n- BPC-157: Origin (synthetic peptide), common uses (wound healing, tissue repair), current status (research phase, not FDA-approved)\n- Other peptides: Growth hormone-releasing peptides (GHRP-6, CJC-129), Insulin-like growth factor (IGF-1), Testosterone-boosting peptides (like TRH)\n- Important caveats: Most are experimental, regulatory status varies, risks exist\n\nI'll avoid technical jargon where possible to keep it accessible. The response must be strictly bullet points - no paragraphs. Also, since the user said \"concise senior engineer\", I'll skip disclaimers about the RAG context they provided (it's irrelevant here).\n\nFinal check: Am I missing any major popular peptides? BPC-157 is the focus, then I'll pick 2-3 others that are actually trending in medical research right now. No marketing claims - just factual, science-based info from reliable sources.\n</think>\n\n- **BPC-157**: Synthetic peptide (human) from *Bovine* polypeptide. Popular for wound healing, tissue repair, and reducing inflammation. Currently in clinical trials (not FDA-approved).  \n- **GHRP-6**: Growth hormone-releasing peptide. Used for muscle growth, fat loss, and metabolic support. Limited clinical validation.  \n- **CJC-129**: Growth hormone-releasing peptide. Targets GH secretion for anti-aging and performance benefits. Experimental status.  \n- **IGF-1 (Insulin-like Growth Factor 1)**: Endogenous peptide with roles in tissue regeneration. Used in research for regenerative medicine (e.g., spinal cord injury). Not a direct \"popular\" peptide but clinically significant.  \n- **TRH (Thyrotropin-Releasing Hormone)**: Peptide for testosterone optimization. Emerging in sports/health contexts but low clinical adoption.  \n\n*Note: All peptides are experimental or research-stage; none are FDA-approved for widespread clinical use. Risks include immune reactions and unregulated market products.*"
+}

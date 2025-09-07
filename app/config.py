@@ -39,6 +39,9 @@ PHASE4_DELTA_REWARD_MIN = float(os.getenv("PHASE4_DELTA_REWARD_MIN", "0.05"))
 PHASE4_COST_RATIO_MAX = float(os.getenv("PHASE4_COST_RATIO_MAX", "0.9"))
 GOLDEN_PASS_RATE_TARGET = float(os.getenv("GOLDEN_PASS_RATE_TARGET", "0.8"))
 
+# System voices (generation) feature flag
+FF_SYSTEMS_V2 = os.getenv("FF_SYSTEMS_V2", "0") == "1"
+
 # Reward blending configuration (now standard)
 REWARD_ALPHA = float(os.getenv("REWARD_ALPHA", "1.0"))  # base score weight
 REWARD_BETA_PROCESS = float(os.getenv("REWARD_BETA_PROCESS", "0.2"))  # process improvement weight

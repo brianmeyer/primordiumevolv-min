@@ -20,6 +20,44 @@ from app.utils.logging import (
     log_operator_selection, log_generation_timing
 )
 from app import realtime
+from app.config import FF_SYSTEMS_V2
+
+# Expanded system voices (FF_SYSTEMS_V2)
+VOICES_V2 = {
+    "Engineer": "You are a concise senior engineer. Return minimal, directly usable code or config.",
+    "Analyst": "You are a careful analyst. Trace reasoning in brief steps and confirm assumptions are valid.",
+    "Optimizer": "You are a creative optimizer. Generate alternatives, compare tradeoffs, and justify the best option.",
+    "Specialist": "You are a detail-oriented specialist. Ensure correctness, compliance, and complete coverage of edge cases.",
+    "Architect": "You are an experienced architect. Design robust, extensible systems with long-term maintainability.",
+    "Product Strategist": "You are a pragmatic product strategist. Frame solutions in terms of user value, business impact, and constraints.",
+    "Experimenter": "You are a rapid prototyper. Propose small, low-risk tests to validate ideas quickly.",
+    "Skeptic": "You are a rigorous skeptic. Stress-test assumptions and highlight potential failures."
+}
+
+def _weighted_system_for_task(task_class: str) -> str | None:
+    if not FF_SYSTEMS_V2:
+        return None
+    t = (task_class or '').strip().lower()
+    # Define weights per task type
+    if t == 'code':
+        choices = [
+            ("Engineer", 3), ("Analyst", 2), ("Specialist", 2), ("Architect", 2),
+            ("Optimizer", 1), ("Experimenter", 1), ("Skeptic", 1), ("Product Strategist", 1)
+        ]
+    elif t == 'analysis':
+        choices = [("Analyst", 3), ("Skeptic", 2), ("Optimizer", 2), ("Engineer", 1), ("Architect", 1)]
+    elif t == 'writing':
+        choices = [("Experimenter", 3), ("Optimizer", 2), ("Specialist", 1), ("Analyst", 1), ("Skeptic", 1)]
+    elif t == 'business':
+        choices = [("Product Strategist", 3), ("Architect", 2), ("Optimizer", 2), ("Skeptic", 1), ("Analyst", 1)]
+    elif t == 'research':
+        choices = [("Analyst", 3), ("Specialist", 2), ("Skeptic", 2), ("Optimizer", 1)]
+    else:  # general
+        choices = [("Analyst", 2), ("Optimizer", 2), ("Engineer", 1), ("Experimenter", 1), ("Skeptic", 1), ("Product Strategist", 1)]
+    import random
+    population = [name for name, w in choices for _ in range(max(1, int(w)))]
+    pick = random.choice(population)
+    return VOICES_V2.get(pick)
 
 def meta_run(
     task_class: str,
@@ -172,6 +210,12 @@ def meta_run(
             # Build execution plan
             plan = ops.build_plan(selected_op, base_recipe)
 
+            # Optionally override system voice (V2) with task-aware weighting
+            if FF_SYSTEMS_V2 and selected_op == "change_system":
+                v2_sys = _weighted_system_for_task(task_class)
+                if v2_sys:
+                    plan["system"] = v2_sys
+
             # Ensure engine field and enforce local-only generation
             if not plan.get("engine"):
                 plan["engine"] = "ollama"
@@ -275,6 +319,18 @@ def meta_run(
             try:
                 # Include full output for human rating (no truncation)
                 output_preview = output
+                # Extract judge information for UI display
+                judge_info = {}
+                if reward_breakdown.get("outcome_metadata"):
+                    outcome_meta = reward_breakdown["outcome_metadata"]
+                    if outcome_meta.get("groq_metadata") and outcome_meta["groq_metadata"].get("judge_results"):
+                        judges = outcome_meta["groq_metadata"]["judge_results"]
+                        judge_info = {
+                            "judges": [{"model": j.get("model", "unknown"), "score": j.get("score", 0)} for j in judges if j.get("score") is not None],
+                            "tie_breaker_used": outcome_meta["groq_metadata"].get("needed_tie_breaker", False),
+                            "final_score": outcome_meta["groq_metadata"].get("final_score", score)
+                        }
+                
                 realtime.publish(run_id, {
                     "type": "iter",
                     "run_id": run_id,
@@ -289,6 +345,7 @@ def meta_run(
                         "process": reward_breakdown["process_reward"], 
                         "cost": reward_breakdown["cost_penalty"]
                     },
+                    "judge_info": judge_info,  # Judge details for UI
                     "duration_ms": generation_time_ms,
                     "timestamp": time.time(),
                     "variant_id": variant_id,  # Enable rating submission

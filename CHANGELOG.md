@@ -1,5 +1,40 @@
 # Changelog
 
+## [2.7.0] - 2025-09-07 - Real-Time Judge Display & System Voices V2
+
+### 👁️ **Real-Time Judge Transparency**
+- **Live Judge Display**: Individual judge scores shown in real-time evolution progress
+  - `✅ Iteration 2: add_fewshot | score 0.366 | judges: llama: 0.80, scout: 0.75 (tie-breaker)`
+- **Judge Information Streaming**: Backend now includes judge metadata in SSE events
+- **Tie-Breaker Indicators**: Clear visual indication when tie-breaker judges were used
+- **Model Name Shortening**: Simplified judge model names for clean UI display
+
+### 🎭 **System Voices V2 (Experimental)**
+- **8 Specialized AI Personas**: Task-aware system voice selection with weighted distribution
+  - **Engineer**: Minimal, directly usable code/config  
+  - **Analyst**: Brief reasoning steps with assumption validation
+  - **Optimizer**: Creative alternatives with tradeoff comparisons
+  - **Specialist**: Detail-oriented with edge case coverage
+  - **Architect**: Robust, extensible system design
+  - **Product Strategist**: User value and business impact focus
+  - **Experimenter**: Rapid prototyping and small tests
+  - **Skeptic**: Rigorous assumption testing and failure analysis
+- **Task-Class Weighting**: Different personas favored based on task type (code, analysis, writing, business, research)
+- **Feature Flag Control**: `FF_SYSTEMS_V2` enables/disables the enhanced system voice selection
+
+### 🔧 **Technical Implementation**
+- **Streaming Enhancement**: Added `judge_info` field to iteration events with judge scores and tie-breaker status
+- **UI Processing**: JavaScript formatting of judge information for status line display
+- **Weighted Selection**: Random selection from weighted persona pools based on task classification
+- **Backward Compatibility**: All existing functionality preserved when feature flags disabled
+
+### 🛠️ **Configuration**
+- **New Feature Flag**: `FF_SYSTEMS_V2=1` to enable advanced system voices
+- **Judge Metadata**: Automatic extraction from two-judge evaluation results
+- **Error Handling**: Graceful fallback when judge information unavailable
+
+---
+
 ## [2.6.0] - 2025-09-06 - Advanced Two-Judge AI Scoring System
 
 ### 🧠 Revolutionary AI Evaluation Architecture

@@ -56,6 +56,20 @@ Ten cutting-edge models with intelligent rotation for fair distribution:
 - **10% Semantic Similarity**: Ensures topical alignment with task requirements
 - **Robust Fallbacks**: Graceful degradation if AI models unavailable
 
+## System Voices for Generation
+
+Eight distinct system prompts (“voices”) are available for generation; selection is task‑aware and optimized by learning. Enable with `FF_SYSTEMS_V2=1`.
+
+- Engineer (precise executor): “You are a concise senior engineer. Return minimal, directly usable code or config.”
+- Analyst (constraint checker): “You are a careful analyst. Trace reasoning in brief steps and confirm assumptions are valid.”
+- Optimizer (tradeoff explorer): “You are a creative optimizer. Generate alternatives, compare tradeoffs, and justify the best option.”
+- Specialist (accuracy enforcer): “You are a detail-oriented specialist. Ensure correctness, compliance, and complete coverage of edge cases.”
+- Architect (systems thinker): “You are an experienced architect. Design robust, extensible systems with long-term maintainability.”
+- Product Strategist: “You are a pragmatic product strategist. Frame solutions in terms of user value, business impact, and constraints.”
+- Experimenter: “You are a rapid prototyper. Propose small, low-risk tests to validate ideas quickly.”
+- Skeptic: “You are a rigorous skeptic. Stress-test assumptions and highlight potential failures.”
+
+Analytics expose voice usage and mean total_reward/cost per system string.
 ## Groq Integration
 - Set `GROQ_API_KEY` and optional `GROQ_MODEL_ID` in `.env`.
 - Verify with `GET /api/health/groq`.

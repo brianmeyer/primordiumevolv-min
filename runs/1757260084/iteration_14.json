@@ -1,0 +1,100 @@
+{
+  "iteration": 14,
+  "operator": "lower_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5732159270097152,
+      "top_k": 17,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.3738873001174457,
+  "reward": 0.5406433001174457,
+  "reward_breakdown": {
+    "outcome_reward": 0.3738873001174457,
+    "process_reward": 0.2,
+    "cost_penalty": 0.03324400000000001,
+    "total_reward": 0.5406433001174457,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.5406433001174457,
+      "plays": 1,
+      "ucb_score": 3.4246970733192117
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.3884058449148782,
+        "plays": 1,
+        "ucb_score": 3.272459618116644
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.42262688215499,
+        "plays": 1,
+        "ucb_score": 3.306680655356756
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.5317864032772007,
+        "plays": 1,
+        "ucb_score": 3.4158401764789668
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.5406433001174457,
+        "plays": 1,
+        "ucb_score": 3.4246970733192117
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.2503180313149064,
+        "plays": 2,
+        "ucb_score": 2.289652011652524
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.3781513379193942,
+        "plays": 1,
+        "ucb_score": 3.26220511112116
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.4948097943880382,
+        "plays": 1,
+        "ucb_score": 3.378863567589804
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 0,
+        "ucb_score": Infinity
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user is asking about popular peptides like BPC-157. They want a concise response in bullet points as a senior engineer would give it. \n\nFirst, I need to recall which peptides are currently trending in the fitness and recovery space. BPC-157 is definitely the most famous one - it's that gut-healing peptide that's been hyped for muscle recovery. Then there's TB-500 which is another growth factor blend people use for tissue repair. CJC-129 is also gaining traction as a GH-releasing peptide. \n\nHmm the user said \"popular now\" so I should focus on peptides with recent clinical interest rather than old-school ones. Better skip the ones that are still in early research phase like GHRP-6. \n\nFor each peptide I'll include: what it does (super brief), key use case, and why it's popular now. Must keep it technical but accessible - this user seems knowledgeable since they used the term \"BPC-157\" correctly. \n\nWait should I mention safety? No, user didn't ask for that and they want concise output. Just stick to the brief. \n\n*checks mental notes* \n- BPC-157: gut healing, muscle recovery \n- TB-500: tendon/ligament repair \n- CJC-129: GH release \n- GHRP-28: but it's not as popular now... skip \n- Maybe add GHH-20 for completeness? No, too niche. \n\nUser said \"different peptides\" so I'll do 3-4 max. Keep each bullet under 20 words. \n\n*refining* \nFor BPC-157: emphasize the \"rapid tissue repair\" angle since that's why it's hot now. TB-500 should note it's a blend - people confuse it with single peptides. CJC-129's GH release is key. \n\nFinal check: all these have recent studies (2020s) so they're \"popular now\". No fluff. \n\n*structure* \n- Bullet 1: BPC-157 \n- Bullet 2: TB-500 \n- Bullet 3: CJC-129 \n- Bullet 4: Optional GHRP-28? No, too obscure. Stick to 3. \n\nThere. Short, technical, no markdown as requested.\n</think>\n\n- **BPC-157**: Promotes rapid tissue repair, reduces inflammation, and accelerates healing in muscles/joints; popular for athletic recovery and gut health.  \n- **TB-500**: A blend of growth factors (e.g., IGF-1) targeting tendon/ligament repair; favored for sports injuries and chronic tissue damage.  \n- **CJC-129**: Stimulates natural GH release; used for muscle growth, fat loss, and metabolic health in clinical-grade recovery protocols.  \n- **GHRP-28**: Enhances GH secretion with minimal side effects; trending for body composition and age-related decline mitigation."
+}
