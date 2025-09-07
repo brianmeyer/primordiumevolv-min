@@ -249,9 +249,27 @@ Deterministic micro-benchmarks to validate changes and measure Δ(total_reward) 
 - Endpoints:
   - `GET /api/golden/list` — IDs and metadata.
   - `POST /api/golden/run` — runs all or subset, returns KPI JSON.
+  - `GET /api/golden/stream` — Server‑Sent Events; streams per‑item progress and final aggregate KPIs.
 - Artifacts: `runs/<ts>/golden_kpis.json` with per‑item and aggregate summary:
   - `per_item`: `{ id, task_type, outcome_reward, process_reward, cost_penalty, total_reward, steps }`
   - `aggregate`: `{ avg_total_reward, avg_cost_penalty, avg_steps, pass_rate }`
+
+## Analytics UI (Tabbed)
+
+Open the Analytics panel to explore metrics across seven tabs:
+
+- Overview: KPI tiles (Total Runs, Avg Reward/Score, improvement) + mini trend + task performance.
+- Runs: Recent runs list (replaces the old “Evolution History” panel) with refresh; drill‑down via `/api/meta/runs/{id}`.
+- Operators: Coverage (first K iterations) and operator performance (uses, mean total_reward, avg time).
+- Voices: System voice performance (uses, mean total_reward, avg cost_penalty) when enabled.
+- Judges: Evaluated count, tie‑breaker rate, evaluation latency p50/p90.
+- Golden: “🏁 Run Golden Set” streaming button and per‑task_type summary; streams via `/api/golden/stream`.
+- Costs: Evaluation latency p50/p90 and Golden average cost_penalty.
+- Thresholds: Current Phase‑4 thresholds (delta_reward_min, cost_ratio_max, pass_rate_target).
+
+Streaming behavior:
+- Evolution runs stream live in the “🧬 Evolution in Progress” section during a run (`/api/meta/stream`).
+- Golden Set streams in the Golden tab while a Golden evaluation is running (`/api/golden/stream`).
 
 ## Phase 4: AlphaEvolve‑lite (Criticize → Edit → Test → Decide)
 
