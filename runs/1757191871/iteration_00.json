@@ -1,0 +1,102 @@
+{
+  "iteration": 0,
+  "operator": "use_groq",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.28266465635643445,
+  "reward": 0.38266465635643443,
+  "reward_breakdown": {
+    "outcome_reward": 0.28266465635643445,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.38266465635643443
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.09566616408910861,
+      "plays": 4,
+      "ucb_score": 2.1636763475785554
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 14.814836383581664
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 1.6746456042595037
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 99.55853550265402
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 22.28348031017465
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 14.341541134308544
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 7.103292896036283
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 3.3505645791733523
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 18,
+        "ucb_score": 4.714534691261097
+      },
+      {
+        "operator": "use_groq",
+        "mean_payoff": 0.09566616408910861,
+        "plays": 4,
+        "ucb_score": 2.1636763475785554
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 2.4128213068771895
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 18.787117010912237
+      }
+    ]
+  },
+  "output_preview": "- **Evolution Strategies (ES) \u2013 OpenAI, 2017**  \n  - Population of parameter vectors updated via black\u2011box gradient estimates.  \n  - Scales to millions of parameters; works well on sparse\u2011reward RL ta..."
+}

@@ -108,7 +108,7 @@
 <body>
   <div class="text-center mb-2">
     <h1 style="margin:0;font-size:2.5em;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">PrimordiumEvolv</h1>
-    <p style="color:var(--muted);font-size:1.2em;margin:8px 0 0 0;">Self-Evolving AI System</p>
+    <p style="color:var(--muted);font-size:1.2em;margin:8px 0 0 0;">Self-Evolving AI System — Local generation; Groq evaluates only</p>
   </div>
 
   <!-- System Health -->
@@ -145,7 +145,7 @@
         
         <label class="flex flex-align gap-2">
           <span class="text-muted">Iterations:</span>
-          <input id="evolutionIterations" type="number" value="12" min="2" max="15" style="width:80px;padding:8px">
+          <input id="evolutionIterations" type="number" value="12" min="2" max="24" style="width:80px;padding:8px">
         </label>
       </div>
       
@@ -162,7 +162,7 @@
       <div id="progressBar" class="progress-bar"></div>
     </div>
     <div id="evolutionSteps"></div>
-    <div id="currentOutput" class="evolution-step" style="margin-top:16px;font-family:monospace;font-size:0.9em;background:var(--code);min-height:100px;padding:16px;white-space:pre-wrap;overflow:auto"></div>
+    <div id="currentOutput" class="evolution-step" style="margin-top:16px;font-family:monospace;font-size:0.9em;background:var(--code);min-height:100px;max-height:400px;padding:16px;white-space:pre-wrap;overflow-y:auto;border-radius:8px;border:1px solid var(--border)"></div>
     
     <!-- Human Rating Panel -->
     <div id="ratingPanel" class="rating-panel hidden" style="margin-top:16px;padding:16px;background:var(--panel);border-radius:10px;border:1px solid var(--accent)">
@@ -208,18 +208,48 @@
     <details>
       <summary>⚙️ Advanced Evolution Settings</summary>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
-        <label style="display:flex;flex-direction:column;gap:4px">
+        <label id="epsilonGroup" style="display:flex;flex-direction:column;gap:4px;opacity:0.5">
           <span class="text-muted">Learning Rate (ε)</span>
-          <input id="advEpsilon" type="number" value="0.3" step="0.05" min="0" max="1" style="width:100%">
+          <input id="advEpsilon" type="number" value="0.3" step="0.05" min="0" max="1" style="width:100%" disabled>
         </label>
         <label style="display:flex;flex-direction:column;gap:4px">
           <span class="text-muted">Memory Context</span>
           <input id="advMemoryK" type="number" value="3" min="0" max="10" style="width:100%">
         </label>
         <label style="display:flex;flex-direction:column;gap:4px">
+          <span class="text-muted">Strategy</span>
+          <select id="advStrategy" style="width:100%" onchange="toggleEpsilonVisibility()">
+            <option value="ucb">UCB1 (Recommended)</option>
+            <option value="epsilon_greedy">Epsilon Greedy</option>
+          </select>
+        </label>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px">
+        <label style="display:flex;flex-direction:column;gap:4px">
+          <span class="text-muted">RAG Context</span>
+          <input id="advRagK" type="number" value="3" min="0" max="10" style="width:100%">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px">
           <span class="text-muted">Web Research</span>
           <input type="checkbox" id="advUseWeb" checked style="transform:scale(1.5);margin:8px">
         </label>
+        <div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+        <label style="display:flex;flex-direction:column;gap:4px">
+          <span class="text-muted">Ratings Mode</span>
+          <select id="ratingsMode" style="width:100%">
+            <option value="prompted">Prompted (default)</option>
+            <option value="off">Off</option>
+          </select>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px">
+          <span class="text-muted">Reading Delay (ms)</span>
+          <input id="readingDelayMs" type="number" value="2000" min="0" max="8000" step="250" style="width:100%">
+        </label>
+      </div>
+      <div class="text-muted" style="margin-top:8px;font-size:0.9em">
+        All generation is local (Ollama). Groq evaluates only.
       </div>
     </details>
   </div>

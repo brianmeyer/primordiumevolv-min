@@ -1,0 +1,102 @@
+{
+  "iteration": 2,
+  "operator": "lower_top_k",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 29,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.28341533908746974,
+  "reward": 0.3834153390874697,
+  "reward_breakdown": {
+    "outcome_reward": 0.28341533908746974,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.3834153390874697
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.05477361986963853,
+      "plays": 7,
+      "ucb_score": 1.6480902427828652
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 10.518831807941938
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 1.6466822150092586
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 91.38055429909852
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.02871974021528139,
+        "plays": 14,
+        "ucb_score": 1.1553647288544733
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 10.222135818754161
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 5.98800406883933
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.8723123346969137
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 19,
+        "ucb_score": 4.537380085500696
+      },
+      {
+        "operator": "use_groq",
+        "mean_payoff": 0.1090948462874346,
+        "plays": 5,
+        "ucb_score": 1.9943324984661335
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 2.2731961688681466
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.05477361986963853,
+        "plays": 7,
+        "ucb_score": 1.6480902427828652
+      }
+    ]
+  },
+  "output_preview": "- **Neural Architecture Search (NAS)**\n  - Controllers (e.g., RL or evolutionary algorithms) generate candidate network graphs, evaluate them, and iteratively improve the search policy.\n  - Example: Google\u2019s **AutoML** (RL\u2011based controller) that discovers CNN cells for ImageNet.\n\n- **Meta\u2011Learning (Learning\u2011to\u2011Learn)**\n  - Models such as **MAML**, **Reptile**, or **MetaOptNet** are trained to adapt quickly to new tasks with only a few gradient steps, effectively evolving their own weight initialization.\n  - Used for rapid domain adaptation in robotics and few\u2011shot vision.\n\n- **Program Synthesis / Code\u2011Generating Transformers**\n  - Large language models (e.g., **Codex**, **GPT\u20114\u2011Code**) generate, refactor, and test code snippets autonomously.\n  - Closed\u2011loop pipelines: generate code \u2192 run unit tests \u2192 use test failures as feedback to re\u2011prompt or fine\u2011tune.\n\n- **Self\u2011Optimizing Compilers**\n  - **LLVM\u2019s Auto\u2011Tuning** passes (e.g., **Polly**, **MLIR**) explore schedule space and select optimal transformations based on runtime profiling.\n  - **Facebook\u2019s HHVM JIT** rewrites hot code paths on\u2011the\u2011fly using profile\u2011guided optimizations.\n\n- **Continual / Incremental Learning Systems**\n  - Architectures like **Elastic Weight Consolidation (EWC)** or **Replay Buffers** allow models to acquire new knowledge without catastrophic forgetting.\n  - Deployed in recommendation engines that evolve with user behavior.\n\n- **Low\u2011Rank Adaptation (LoRA) & Parameter Efficient Fine\u2011Tuning**\n  - Freeze the base LLM weights; inject trainable low\u2011rank matrices (\u0394W = A\u202fB\u1d40) into attention/FFN layers.\n  - Enables rapid task\u2011specific adaptation and iterative re\u2011training with minimal compute.\n\n- **Reinforcement\u2011Learning\u2011Based Code Optimizer**\n  - Agents (e.g., PPO) modify source code or compiler flags, receive reward from execution latency or energy consumption, and iteratively improve the program.\n  - Projects: **OpenAI Codex RL for speed**, **Google\u2019s AutoTVM** for tensor program tuning.\n\n- **Evolutionary Algorithms for Model Weight Evolution**\n  - **NeuroEvolution of Augmenting Topologies (NEAT)** evolves both architecture and weights from scratch.\n  - Applied to control policies in simulated environments where gradient methods struggle.\n\n- **Self\u2011Supervised Data Augmentation Loops**\n  - Models generate synthetic labeled data (e.g., via diffusion or GANs), train on it, then improve the generator based on downstream performance.\n  - Used in medical imaging to expand scarce datasets.\n\n- **Dynamic Sparse Training (DST)**\n  - Networks start dense, prune and regrow connections during training based on gradient magnitude, effectively \u201crewriting\u201d their connectivity on the fly.\n  - Examples: **RigL**, **SNIP**, **Dynamic Sparse Reparameterization**."
+}

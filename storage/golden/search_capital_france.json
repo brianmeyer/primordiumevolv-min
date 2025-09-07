@@ -1,0 +1,9 @@
+{
+  "id": "search_capital_france",
+  "task_class": "search",
+  "task": "What is the capital of France?",
+  "assertions": ["Paris"],
+  "seed": 125,
+  "flags": {"web": false, "rag_k": 0}
+}
+

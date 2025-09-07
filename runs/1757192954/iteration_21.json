@@ -1,0 +1,102 @@
+{
+  "iteration": 21,
+  "operator": "use_groq",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.3333522276701225,
+  "reward": 0.4333522276701225,
+  "reward_breakdown": {
+    "outcome_reward": 0.3333522276701225,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.4333522276701225
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.1972208101618105,
+      "plays": 7,
+      "ucb_score": 1.8263118624520787
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.24524214477366396,
+        "plays": 7,
+        "ucb_score": 1.874333197063932
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.04115001244410066,
+        "plays": 10,
+        "ucb_score": 1.4041453754797013
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.031617437292651346,
+        "plays": 13,
+        "ucb_score": 1.2270434507213206
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.02871974021528139,
+        "plays": 14,
+        "ucb_score": 1.1806610704600584
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.2488959094992121,
+        "plays": 7,
+        "ucb_score": 1.8779869617894802
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0860043839709722,
+        "plays": 6,
+        "ucb_score": 1.8456238313025768
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.21746281362675646,
+        "plays": 7,
+        "ucb_score": 1.8465538659170246
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.02529433602516922,
+        "plays": 20,
+        "ucb_score": 0.9890775999534626
+      },
+      {
+        "operator": "use_groq",
+        "mean_payoff": 0.1972208101618105,
+        "plays": 7,
+        "ucb_score": 1.8263118624520787
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.08357311576989875,
+        "plays": 6,
+        "ucb_score": 1.8431925631015034
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.05477361986963853,
+        "plays": 7,
+        "ucb_score": 1.6838646721599067
+      }
+    ]
+  },
+  "output_preview": "* **Automated Code Refactoring**: Architectures that use machine learning to identify and rewrite inefficient code, such as Facebook's \"Codex\" model.\n* **Neural Architecture Search (NAS)**: Frameworks like Google's AutoML and Microsoft's Neural Network Intelligence (NNI) that use reinforcement learning to search for optimal neural network architectures.\n* **Online Learning and Retraining**: Systems like Google's TensorFlow and Amazon's SageMaker that retrain models on streaming data to adapt to changing patterns and concepts.\n* **Low-Rank Adaptation (LoRA)**: Techniques like LoRA and BitFit that update pre-trained models with low-rank matrices to adapt to new tasks and domains.\n* **Meta-Learning and Few-Shot Learning**: Architectures like Model-Agnostic Meta-Learning (MAML) and Reptile that learn to adapt to new tasks with few examples.\n* **Evolutionary Algorithms**: Frameworks like DEAP and Pyevolve that use genetic algorithms and evolution strategies to search for optimal architectures and hyperparameters.\n* **Self-Modifying Code**: Architectures that use techniques like reflection and introspection to modify their own code and architecture at runtime.\n* **Graph Neural Networks (GNNs)**: Models like GraphSAGE and Graph Attention Network (GAT) that learn to evolve and adapt their graph structure to changing data and tasks."
+}

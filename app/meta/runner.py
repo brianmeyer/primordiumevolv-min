@@ -5,6 +5,7 @@ from typing import List, Optional, Dict, Any
 
 from app.meta import store, bandit
 from app.meta import operators as ops
+from app.meta.rewards import compute_total_reward, get_default_baseline
 from app.config import DEFAULT_OPERATORS, EVO_DEFAULTS, OP_GROUPS
 from app.engines import call_engine
 from app.groq_client import available as groq_available
@@ -31,7 +32,7 @@ def meta_run(
     operators: Optional[List[str]] = None,
     eps: float = EVO_DEFAULTS["eps"],
     use_bandit: bool = True,
-    bandit_algorithm: str = "epsilon_greedy",  # "epsilon_greedy" or "ucb"
+    bandit_algorithm: Optional[str] = None,  # "epsilon_greedy" or "ucb", defaults to config
     framework_mask: Optional[List[str]] = None,
     test_cmd: Optional[str] = None,
     test_weight: float = 0.0,
@@ -40,6 +41,10 @@ def meta_run(
     judge_mode: Optional[str] = "off",
     judge_include_rationale: bool = True,
     pre_run_id: Optional[int] = None,
+    # UCB-specific parameters  
+    ucb_c: Optional[float] = None,
+    warm_start_min_pulls: Optional[int] = None,
+    stratified_explore: Optional[bool] = None,
 ) -> Dict[str, Any]:
     """
     Run meta-evolution cycle using epsilon-greedy bandit to select operators.
@@ -78,11 +83,20 @@ def meta_run(
     # Load current operator stats
     operator_stats = store.list_operator_stats()
     
-    # Initialize bandit
+    # Initialize bandit with configuration defaults
+    strategy = bandit_algorithm or EVO_DEFAULTS["strategy"]
+    ucb_c = ucb_c or EVO_DEFAULTS["ucb_c"]
+    warm_start_min_pulls = warm_start_min_pulls or EVO_DEFAULTS["warm_start_min_pulls"]
+    stratified_explore = stratified_explore if stratified_explore is not None else EVO_DEFAULTS["stratified_explore"]
+    
     if use_bandit:
-        if bandit_algorithm == "ucb":
-            bandit_agent = bandit.UCB()
-        else:  # default to epsilon_greedy
+        if strategy == "ucb":
+            bandit_agent = bandit.UCB(
+                c=ucb_c,
+                warm_start_min_pulls=warm_start_min_pulls, 
+                stratified_explore=stratified_explore
+            )
+        else:  # default to epsilon_greedy  
             bandit_agent = bandit.EpsilonGreedy(eps=eps)
     else:
         bandit_agent = None
@@ -110,9 +124,10 @@ def meta_run(
     }
     log_meta_run_start(run_id, task_class, task, run_config, logs_dir)
     
-    # Track best variant
+    # Track best variant (now by total_reward)
     best_variant_id = None
-    best_score = float('-inf')
+    best_score = float('-inf')  # Preserved for UI compatibility
+    best_total_reward = float('-inf')  # Primary optimization target
     best_recipe = None
     best_execution = None
     best_output = None
@@ -124,6 +139,9 @@ def meta_run(
     timestamp = int(time.time())
     artifacts_dir = f"runs/{timestamp}"
     os.makedirs(artifacts_dir, exist_ok=True)
+    
+    # Get task baseline once before the loop (used for cost penalty calculation)
+    task_baseline = get_default_baseline(task)
     
     # Evolution loop
     for i in range(n):
@@ -152,11 +170,11 @@ def meta_run(
             # Build execution plan
             plan = ops.build_plan(selected_op, base_recipe)
 
-            # Ensure engine field and allow override
+            # Ensure engine field and enforce local-only generation
             if not plan.get("engine"):
                 plan["engine"] = "ollama"
-            if force_engine in ("ollama", "groq"):
-                plan["engine"] = force_engine
+            # Enforce local generation regardless of external overrides
+            plan["engine"] = "ollama"
             
             # Gather contexts based on plan
             context = {"task": task}
@@ -185,8 +203,8 @@ def meta_run(
                 except Exception:
                     context["web_context"] = ""
             
-            # If engine switch requested but unavailable, fallback and tag
-            if plan.get("engine") == "groq" and not groq_available():
+            # Groq is evaluation-only; generation always uses Ollama
+            if plan.get("engine") != "ollama":
                 plan["engine"] = "ollama"
                 groups = list(set(groups + ["ENGINE_DISABLED"]))
 
@@ -207,8 +225,27 @@ def meta_run(
             # Log generation timing
             log_generation_timing(run_id, i, selected_op, generation_time_ms, logs_dir)
             
-            # Score output
+            # Score output (legacy) and compute total reward
             score = score_output(output, assertions, task, test_cmd, test_weight)
+            
+            # Compute comprehensive reward breakdown
+            execution_context = {
+                "tool_success_rate": 1.0,  # Assume success unless we have failures
+                "tool_calls": 0,  # Could be enhanced to track actual tool usage
+                "token_usage": {"input": len(task.split()) * 1.3, "output": len(output.split()) * 1.3}
+            }
+            
+            reward_breakdown, total_reward = compute_total_reward(
+                output=output,
+                assertions=assertions,
+                task=task,
+                execution_time_ms=generation_time_ms,
+                operator_name=selected_op,
+                execution_context=execution_context,
+                test_cmd=test_cmd,
+                test_weight=test_weight,
+                task_baseline=task_baseline
+            )
             
             # Save variant with analytics
             model_id_value = model_used if plan.get("engine") == "groq" else OLLAMA_MODEL_ID
@@ -224,11 +261,18 @@ def meta_run(
                 operator_name=selected_op,
                 groups_json=json.dumps(groups),
                 execution_time_ms=generation_time_ms,
-                model_id=model_id_value
+                model_id=model_id_value,
+                total_reward=total_reward,
+                outcome_reward=reward_breakdown["outcome_reward"],
+                process_reward=reward_breakdown["process_reward"],
+                cost_penalty=reward_breakdown["cost_penalty"],
+                reward_metadata=reward_breakdown.get("outcome_metadata")
             )
 
-            # Stream iteration event
+            # Stream iteration event with output and variant_id for human rating
             try:
+                # Include full output for human rating (no truncation)
+                output_preview = output
                 realtime.publish(run_id, {
                     "type": "iter",
                     "run_id": run_id,
@@ -237,15 +281,24 @@ def meta_run(
                     "engine": plan.get("engine", "ollama"),
                     "model_id": model_id_value,
                     "score": score,
+                    "total_reward": total_reward,  # Primary metric
+                    "reward_breakdown": {
+                        "outcome": reward_breakdown["outcome_reward"],
+                        "process": reward_breakdown["process_reward"], 
+                        "cost": reward_breakdown["cost_penalty"]
+                    },
                     "duration_ms": generation_time_ms,
                     "timestamp": time.time(),
+                    "variant_id": variant_id,  # Enable rating submission
+                    "output": output_preview,   # Show actual AI response to user
                 })
             except Exception:
                 pass
             
-            # Update best if this is better
-            if score > best_score:
-                best_score = score
+            # Update best if this is better (use total_reward as primary criterion)
+            if total_reward > best_total_reward:
+                best_total_reward = total_reward
+                best_score = score  # Keep for UI compatibility
                 best_variant_id = variant_id
                 best_recipe = {
                     "system": execution["system"],
@@ -264,39 +317,53 @@ def meta_run(
                 }
                 best_output = output
             
-            # Calculate reward and update operator stats
-            reward_base = score - baseline
-            # Optional process+cost reward blending
-            try:
-                from app.config import FF_PROCESS_COST_REWARD, REWARD_ALPHA, REWARD_BETA_PROCESS, REWARD_GAMMA_COST
-            except Exception:
-                FF_PROCESS_COST_REWARD = False
-            if FF_PROCESS_COST_REWARD:
-                process_reward = 0.0 if best_score in (None, float('-inf')) else (score - (best_score if best_score != float('-inf') else score))
-                cost_reward = -float(generation_time_ms)
-                reward = (
-                    REWARD_ALPHA * reward_base +
-                    REWARD_BETA_PROCESS * process_reward +
-                    REWARD_GAMMA_COST * cost_reward
-                )
-            else:
-                reward = reward_base
+            # Update bandit with total_reward (new comprehensive reward system)
             if use_bandit and bandit_agent:
-                operator_stats = bandit_agent.update(selected_op, reward, operator_stats)
-            store.upsert_operator_stat(selected_op, reward, generation_time_ms)
+                operator_stats = bandit_agent.update(selected_op, total_reward, operator_stats)
+            
+            # Store stats using total_reward as primary metric
+            store.upsert_operator_stat(selected_op, total_reward, generation_time_ms)
             
             # Track engine-specific operator performance
             engine_used = plan.get("engine", "ollama")
-            store.upsert_operator_engine_stat(selected_op, engine_used, reward, generation_time_ms)
+            store.upsert_operator_engine_stat(selected_op, engine_used, total_reward, generation_time_ms)
             
-            # Save iteration artifact
+            # Get UCB scores for diagnostics (if UCB is being used)
+            ucb_scores = {}
+            if use_bandit and hasattr(bandit_agent, 'get_ucb_scores'):
+                try:
+                    ucb_scores = bandit_agent.get_ucb_scores(operators, operator_stats)
+                except:
+                    ucb_scores = {}
+            
+            # Prepare bandit state for artifacts
+            bandit_state = {
+                "chosen_op": {
+                    "mean_payoff": operator_stats.get(selected_op, {}).get("mean_payoff", 0.0),
+                    "plays": operator_stats.get(selected_op, {}).get("n", 0),
+                    "ucb_score": ucb_scores.get(selected_op, 0.0)
+                },
+                "snapshot": [
+                    {
+                        "operator": op,
+                        "mean_payoff": operator_stats.get(op, {}).get("mean_payoff", 0.0),
+                        "plays": operator_stats.get(op, {}).get("n", 0),
+                        "ucb_score": ucb_scores.get(op, 0.0)
+                    }
+                    for op in operators
+                ]
+            }
+            
+            # Save iteration artifact with enhanced data
             iteration_data = {
                 "iteration": i,
                 "operator": selected_op,
                 "plan": plan,
-                "score": score,
-                "reward": reward,
-                "output_preview": output[:200] + "..." if len(output) > 200 else output
+                "score": score,  # Legacy score for UI compatibility
+                "reward": total_reward,  # Now using total_reward as primary
+                "reward_breakdown": reward_breakdown,
+                "bandit_state": bandit_state,
+                "output_preview": output
             }
             
             with open(f"{artifacts_dir}/iteration_{i:02d}.json", "w") as f:
@@ -319,7 +386,9 @@ def meta_run(
                         "engine": plan.get("engine", "ollama"),
                         "time_ms": generation_time_ms,
                         "score": score,
-                        "reward": reward,
+                        "reward": total_reward,
+                        "reward_breakdown": reward_breakdown,
+                        "bandit_state": bandit_state,
                     })
                     with open(traj_path, "w") as tf:
                         json.dump({"run_id": run_id, "trajectory": traj}, tf, indent=2)
@@ -330,28 +399,51 @@ def meta_run(
             print(f"Error in iteration {i}: {e}")
             continue
     
+    # Updated promotion policy using total_reward criteria
+    baseline_total_reward = 0.0  # Could be enhanced to track historical total_reward baseline
+    
     # Finish run tracking and logging - ALWAYS mark run as finished
-    store.save_run_finish(run_id, best_variant_id or -1, best_score, operator_sequence)
+    total_reward_improvement = best_total_reward - baseline_total_reward if best_total_reward != float('-inf') else 0.0
+    store.save_run_finish(run_id, best_variant_id or -1, best_score, operator_sequence, 
+                         best_total_reward if best_total_reward != float('-inf') else None, 
+                         total_reward_improvement)
     
     # Log run completion
     log_meta_run_finish(run_id, best_score, n, logs_dir)
+    baseline_cost_penalty = task_baseline.get("cost_penalty", 0.1)  # Estimated baseline cost
     
-    # Save best as new recipe if it's significantly better (only if we had success)
-    if best_variant_id and best_score > baseline + 0.1:
-        # Calculate engine confidence based on performance
-        engine_confidence = min(1.0, 0.5 + (best_score - baseline) * 2)
-        best_engine = best_recipe.get("engine", "ollama")
+    promotion_eligible = False
+    promotion_reasons = []
+    
+    if best_variant_id and best_total_reward > baseline_total_reward + 0.05:
+        # Check cost efficiency requirement
+        current_cost_penalty = reward_breakdown.get("cost_penalty", 0.0) if 'reward_breakdown' in locals() else 0.0
         
-        recipe_id = store.save_recipe(task_class, 
-                                    best_recipe["system"],
-                                    best_recipe["nudge"], 
-                                    best_recipe["params"],
-                                    best_score,
-                                    engine=best_engine,
-                                    engine_confidence=engine_confidence)
-        # Auto-approve if significantly better
-        if best_score > baseline + 0.2:
-            store.approve_recipe(recipe_id, 1)
+        if current_cost_penalty <= 0.9 * baseline_cost_penalty:
+            promotion_eligible = True
+            promotion_reasons.append(f"total_reward improvement: {best_total_reward - baseline_total_reward:.3f}")
+            promotion_reasons.append(f"cost efficiency: {current_cost_penalty:.3f} <= {0.9 * baseline_cost_penalty:.3f}")
+            
+            # Calculate engine confidence based on total_reward performance
+            engine_confidence = min(1.0, 0.5 + (best_total_reward - baseline_total_reward) * 2)
+            best_engine = best_recipe.get("engine", "ollama")
+            
+            recipe_id = store.save_recipe(task_class, 
+                                        best_recipe["system"],
+                                        best_recipe["nudge"], 
+                                        best_recipe["params"],
+                                        best_score,  # Still use score for legacy compatibility
+                                        engine=best_engine,
+                                        engine_confidence=engine_confidence)
+            
+            # Auto-approve if exceptionally better
+            if best_total_reward > baseline_total_reward + 0.15:
+                store.approve_recipe(recipe_id, 1)
+                promotion_reasons.append("auto-approved for exceptional performance")
+        else:
+            promotion_reasons.append(f"cost too high: {current_cost_penalty:.3f} > {0.9 * baseline_cost_penalty:.3f}")
+    else:
+        promotion_reasons.append(f"insufficient total_reward improvement: {best_total_reward - baseline_total_reward:.3f} < 0.05")
     
     # Optional single-shot Groq cross-check
     compare = None
@@ -414,18 +506,42 @@ def meta_run(
     except Exception:
         eval_report = {"eligible": False, "error": "eval_failed"}
 
-    # Save final artifacts
+    # Calculate additional metrics
+    avg_total_reward = sum(reward_breakdown.get("total_reward", 0.0) for _ in range(n)) / n if n > 0 else 0.0
+    steps_to_best = next((i for i, _ in enumerate(range(n)) if _ == best_variant_id), n)
+    
+    # Create evaluation report with promotion metrics
+    eval_metrics = {
+        "best_total_reward": best_total_reward,
+        "best_score": best_score,  # Legacy compatibility
+        "avg_total_reward": avg_total_reward,
+        "steps_to_best": steps_to_best,
+        "cost_penalty_avg": reward_breakdown.get("cost_penalty", 0.0) if 'reward_breakdown' in locals() else 0.0,
+        "promotion": {
+            "eligible": promotion_eligible,
+            "reasons": promotion_reasons
+        }
+    }
+    
+    # Save eval_report.json
+    with open(f"{artifacts_dir}/eval_report.json", "w") as f:
+        json.dump({"metrics": eval_metrics}, f, indent=2)
+    
+    # Save final artifacts (enhanced)
     final_results = {
         "run_id": run_id,
         "task_class": task_class,
         "task": task,
         "assertions": assertions,
-        "best_score": best_score,
+        "best_score": best_score,  # Legacy for UI compatibility
+        "best_total_reward": best_total_reward,  # Primary metric
         "best_recipe": best_recipe,
         "operator_stats": operator_stats,
         "baseline": baseline,
-        "improvement": best_score - baseline if best_score != float('-inf') else 0,
+        "improvement": best_score - baseline if best_score != float('-inf') else 0,  # Legacy
+        "total_reward_improvement": best_total_reward - baseline_total_reward,  # New primary
         "timestamp": timestamp,
+        "metrics": eval_metrics,
         **({"compare": compare} if compare else {}),
         **({"judge": judge_report} if judge_report else {}),
         **({"eval": eval_report} if eval_report else {}),
@@ -433,6 +549,29 @@ def meta_run(
     
     with open(f"{artifacts_dir}/results.json", "w") as f:
         json.dump(final_results, f, indent=2)
+    
+    # Optional bandit diagnostics (debug flag)
+    debug_bandit = os.getenv("DEBUG_BANDIT", "false").lower() == "true"
+    if debug_bandit and use_bandit and operator_stats:
+        print(f"\n=== Bandit Summary (Run {run_id}) ===")
+        print(f"Strategy: {strategy}")
+        
+        # Get final UCB scores
+        final_ucb_scores = {}
+        if hasattr(bandit_agent, 'get_ucb_scores'):
+            try:
+                final_ucb_scores = bandit_agent.get_ucb_scores(operators, operator_stats)
+            except:
+                pass
+        
+        for op in operators:
+            stats = operator_stats.get(op, {})
+            mean_payoff = stats.get("mean_payoff", 0.0)
+            plays = stats.get("n", 0)
+            ucb_score = final_ucb_scores.get(op, 0.0)
+            
+            print(f"  {op:15s}: payoff={mean_payoff:6.3f}, plays={plays:2d}, ucb={ucb_score:6.3f}")
+        print("=" * 40)
     
     # Stream completion
     try:

@@ -1,0 +1,42 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-06T20:00:22.953993+00:00",
+  "unix_timestamp": 1757188822.953999,
+  "data": {
+    "run_id": 26,
+    "task_class": "research",
+    "task": "can you find me some information about using peptides? what is the wolverine protocol? What kind of studies have been done? which peptides would be best for aging?",
+    "config": {
+      "n": 15,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web",
+        "use_groq",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.3,
+      "use_bandit": true,
+      "bandit_algorithm": null,
+      "framework_mask": [
+        "SEAL",
+        "SAMPLING",
+        "ENGINE",
+        "WEB"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

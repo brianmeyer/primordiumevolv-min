@@ -1,0 +1,129 @@
+{
+  "iteration": 1,
+  "operator": "toggle_web",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "score": 0.29229164094305987,
+  "reward": 0.3922916409430599,
+  "reward_breakdown": {
+    "outcome_reward": 0.29229164094305987,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.3922916409430599,
+    "outcome_metadata": {
+      "method": "semantic_fallback",
+      "semantic_score": 0.29229164094305987,
+      "semantic_weight": 0.1,
+      "groq_score": 0.0,
+      "groq_weight": 0.9,
+      "disagreement_threshold": 0.3,
+      "groq_metadata": {
+        "method": "two_judge_plus_tiebreaker",
+        "disagreement_threshold": 0.3,
+        "needed_tie_breaker": true,
+        "successful_initial_judges": 0,
+        "score_difference": null,
+        "final_score": 0.0,
+        "initial_scores": [],
+        "judge_results": [
+          {
+            "model": "groq/compound-mini",
+            "error": "invalid_json",
+            "raw_response": "```json\n{\n  \"score\": 1.0,\n  \"reasoning\": \"The provided Python function is straightforward, accurate, and complete. It correctly adds two numbers and includes proper type hints for the parameters and return value. The usage example demonstrates how to use the function effectively.\",\n  \"strengths\": [\n    \"Accurate and correct implementation\",\n    \"Proper use of type hints for clarity\",\n    \"Includes a usage example for demonstration\"\n  ],\n  \"weaknesses\": []\n}\n```",
+            "role": "judge_1"
+          },
+          {
+            "model": "llama-3.3-70b-versatile",
+            "error": "invalid_json",
+            "raw_response": "```json\n{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides a clear, concise, and correct Python function that adds two numbers, meeting the task requirements.\",\n  \"strengths\": [\"Correct implementation\", \"Clear and concise code\"],\n  \"weaknesses\": [\"Lack of error handling for non-numeric inputs\", \"No documentation or comments in the code\"]\n}\n```",
+            "role": "judge_2"
+          }
+        ],
+        "error": "no_successful_evaluations"
+      },
+      "final_score": 0.29229164094305987
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.0186805543306219,
+      "plays": 21,
+      "ucb_score": 0.958257864384217
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 4.831437564284158
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.6200850209641202
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 14,
+        "ucb_score": 78.54213261649677
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 14,
+        "ucb_score": 19.2971566575729
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 4.720027385027604
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.06721590752076975,
+        "plays": 7,
+        "ucb_score": 1.6946115461724927
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.0327788770726896
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0186805543306219,
+        "plays": 21,
+        "ucb_score": 0.958257864384217
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.1646600709813835
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 12.355478794144478
+      }
+    ]
+  },
+  "output_preview": "- Function name: `add`\n- Signature: `def add(a: float, b: float) -> float:`\n- Body: `return a + b`\n- Usage example: `result = add(3, 4)`"
+}

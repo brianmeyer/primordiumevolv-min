@@ -46,6 +46,7 @@ class MetaRunRequest(BaseModel):
     rag_k: conint(ge=0, le=10) = 3
     operators: Optional[List[constr(strip_whitespace=True, min_length=2)]] = None
     use_bandit: bool = True
+    bandit_algorithm: Optional[constr(strip_whitespace=True)] = "ucb"  # "epsilon_greedy", "ucb"
     framework_mask: Optional[List[constr(strip_whitespace=True, min_length=2)]] = None
     eps: float = Field(default=0.1, ge=0.0, le=1.0)
     force_engine: Optional[constr(strip_whitespace=True, min_length=3)] = None  # "ollama" or "groq"
@@ -55,5 +56,5 @@ class MetaRunRequest(BaseModel):
 
 class HumanRatingRequest(BaseModel):
     variant_id: conint(ge=1)
-    human_score: conint(ge=1, le=10)
+    human_score: conint(ge=1, le=10)  # UI sends 1-10 int directly
     feedback: Optional[constr(strip_whitespace=True)] = None

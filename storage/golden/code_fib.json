@@ -1,0 +1,9 @@
+{
+  "id": "code_fib",
+  "task_class": "code",
+  "task": "Write a Python function fibonacci(n) that returns the nth Fibonacci number. Prefer a recursive approach and include a brief docstring.",
+  "assertions": ["def fibonacci", "recursive", "returns correct output for n=10"],
+  "seed": 123,
+  "flags": {"web": false, "rag_k": 0}
+}
+

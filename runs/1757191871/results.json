@@ -1,0 +1,105 @@
+{
+  "run_id": 27,
+  "task_class": "other",
+  "task": "Is there a good self evolution structure currently being used anywhere for AI like we're doing here?",
+  "assertions": [],
+  "best_score": 0.38282906970841846,
+  "best_total_reward": 0.5735530697084185,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5593537333463643,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 19,
+      "avg_reward": 3.5702735756651025,
+      "mean_payoff": 0.02743272561241602
+    },
+    "change_nudge": {
+      "n": 9,
+      "avg_reward": 0.2415090336713669,
+      "mean_payoff": 0.05276096260356295
+    },
+    "raise_top_k": {
+      "n": 5,
+      "avg_reward": 0.3879585166894475,
+      "mean_payoff": 0.11210961797925349
+    },
+    "inject_memory": {
+      "n": 5,
+      "avg_reward": 4.102766416660631,
+      "mean_payoff": 0.07454024662316264
+    },
+    "inject_rag": {
+      "n": 3,
+      "avg_reward": 0.43848099118649014,
+      "mean_payoff": 0.15450997081522078
+    },
+    "lower_top_k": {
+      "n": 6,
+      "avg_reward": 14.199199784310794,
+      "mean_payoff": 0.08467272469866972
+    },
+    "lower_temp": {
+      "n": 13,
+      "avg_reward": 19.511363227562306,
+      "mean_payoff": 0.04411946690064757
+    },
+    "use_groq": {
+      "n": 4,
+      "avg_reward": 0.524207551948199,
+      "mean_payoff": 0.09566616408910861
+    },
+    "add_fewshot": {
+      "n": 3,
+      "avg_reward": 7.788304475243738,
+      "mean_payoff": 0.17701575144900747
+    },
+    "raise_temp": {
+      "n": 12,
+      "avg_reward": 90.1636386273433,
+      "mean_payoff": 0.04478339012187122
+    },
+    "change_system": {
+      "n": 3,
+      "avg_reward": 8.085000464431515,
+      "mean_payoff": 0.15818157445470535
+    }
+  },
+  "baseline": 0.0,
+  "improvement": 0.38282906970841846,
+  "total_reward_improvement": 0.5735530697084185,
+  "timestamp": 1757191871,
+  "metrics": {
+    "best_total_reward": 0.5735530697084185,
+    "best_score": 0.38282906970841846,
+    "avg_total_reward": 0.4635299124456623,
+    "steps_to_best": 12,
+    "cost_penalty_avg": 0.052496000000000015,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.574",
+        "cost efficiency: 0.052 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

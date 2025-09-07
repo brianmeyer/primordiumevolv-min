@@ -1,0 +1,102 @@
+{
+  "iteration": 6,
+  "operator": "use_groq",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 29,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.3314944107204452,
+  "reward": 0.5314944107204452,
+  "reward_breakdown": {
+    "outcome_reward": 0.3314944107204452,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.5314944107204452
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.17716480357348174,
+      "plays": 3,
+      "ucb_score": 2.5449183435042366
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 1,
+        "ucb_score": 27.334546135789047
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 1.6622885823260156
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 109.38859068862344
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 24.195413067929344
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.2760160233097405,
+        "plays": 2,
+        "ucb_score": 3.1759100280592127
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 7.085817428027402
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.2694592608445506,
+        "plays": 2,
+        "ucb_score": 3.169353265594023
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.028077114274995003,
+        "plays": 18,
+        "ucb_score": 0.9947084491914858
+      },
+      {
+        "operator": "use_groq",
+        "mean_payoff": 0.17716480357348174,
+        "plays": 3,
+        "ucb_score": 2.5449183435042366
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.708474789170417
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.1104307961907608,
+        "plays": 5,
+        "ucb_score": 1.9444848018058551
+      }
+    ]
+  },
+  "output_preview": "- **General use of peptides**  \n  - Short chains of amino acids that act as signaling molecules (e.g., hormones, growth factors).  \n  - Administered subcutaneously, intramuscularly, or orally (some ar..."
+}

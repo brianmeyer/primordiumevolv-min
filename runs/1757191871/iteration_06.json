@@ -1,0 +1,102 @@
+{
+  "iteration": 6,
+  "operator": "lower_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5593537333463643,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.38282906970841846,
+  "reward": 0.5735530697084185,
+  "reward_breakdown": {
+    "outcome_reward": 0.38282906970841846,
+    "process_reward": 0.2,
+    "cost_penalty": 0.009275999999999996,
+    "total_reward": 0.5735530697084185
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.04411946690064757,
+      "plays": 13,
+      "ucb_score": 1.2019302428168015
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.15818157445470535,
+        "plays": 3,
+        "ucb_score": 2.568356900494865
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.05276096260356295,
+        "plays": 9,
+        "ucb_score": 1.4442763358870432
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.04478339012187122,
+        "plays": 12,
+        "ucb_score": 1.249871053141951
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.04411946690064757,
+        "plays": 13,
+        "ucb_score": 1.2019302428168015
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.17701575144900747,
+        "plays": 3,
+        "ucb_score": 2.587191077489167
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 7.122555772472056
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 3.37780640027914
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 18,
+        "ucb_score": 4.723615298296359
+      },
+      {
+        "operator": "use_groq",
+        "mean_payoff": 0.09566616408910861,
+        "plays": 4,
+        "ucb_score": 2.1829392240143286
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 2.4320841833129627
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.08467272469866972,
+        "plays": 6,
+        "ucb_score": 1.7889240415901646
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user is asking about self-evolution structures for AI systems, specifically whether there's a good one currently in use anywhere similar to what they're doing. They want a concise re..."
+}

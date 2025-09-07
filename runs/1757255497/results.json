@@ -1,0 +1,95 @@
+{
+  "run_id": 32,
+  "task_class": "code",
+  "task": "Write a simple function to check if a number is even",
+  "assertions": [],
+  "best_score": 0.3190341290621457,
+  "best_total_reward": 0.8519034129062146,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": "Example: Write a function to reverse a string.\ndef reverse_string(s): return s[::-1]",
+    "engine": "groq"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 21,
+      "avg_reward": 3.273017919003971
+    },
+    "change_nudge": {
+      "n": 10,
+      "avg_reward": 0.25850814274833084
+    },
+    "raise_top_k": {
+      "n": 6,
+      "avg_reward": 0.40687187967777166
+    },
+    "inject_memory": {
+      "n": 7,
+      "avg_reward": 3.0714813913963397
+    },
+    "inject_rag": {
+      "n": 7,
+      "avg_reward": 0.4053832384209666
+    },
+    "lower_top_k": {
+      "n": 8,
+      "avg_reward": 10.833189566003249
+    },
+    "lower_temp": {
+      "n": 14,
+      "avg_reward": 18.146414165808853
+    },
+    "use_groq": {
+      "n": 7,
+      "avg_reward": 0.4967679827036386
+    },
+    "add_fewshot": {
+      "n": 9,
+      "avg_reward": 2.937089851999691,
+      "mean_payoff": 0.09465593476735717
+    },
+    "raise_temp": {
+      "n": 14,
+      "avg_reward": 77.39139012473272
+    },
+    "change_system": {
+      "n": 8,
+      "avg_reward": 3.309148336142929
+    }
+  },
+  "baseline": 0.5634129777504502,
+  "improvement": -0.2443788486883045,
+  "total_reward_improvement": 0.8519034129062146,
+  "timestamp": 1757255497,
+  "metrics": {
+    "best_total_reward": 0.8519034129062146,
+    "best_score": 0.3190341290621457,
+    "avg_total_reward": 0.8519034129062146,
+    "steps_to_best": 1,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.852",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

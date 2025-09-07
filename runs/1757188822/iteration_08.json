@@ -1,0 +1,102 @@
+{
+  "iteration": 8,
+  "operator": "raise_top_k",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 36,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.3838367458319835,
+  "reward": 0.35708074583198357,
+  "reward_breakdown": {
+    "outcome_reward": 0.3838367458319835,
+    "process_reward": 0.1,
+    "cost_penalty": 0.126756,
+    "total_reward": 0.35708074583198357
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.08927018645799589,
+      "plays": 4,
+      "ucb_score": 2.146964649831327
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 1,
+        "ucb_score": 27.348865631574576
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 1.6673512886125756
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0462796549773302,
+        "plays": 11,
+        "ucb_score": 1.2871161037411556
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 24.199730558357317
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.2760160233097405,
+        "plays": 2,
+        "ucb_score": 3.186035440632333
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 7.092977175920167
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.2694592608445506,
+        "plays": 2,
+        "ucb_score": 3.179478678167143
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.028077114274995003,
+        "plays": 18,
+        "ucb_score": 0.9980835867158591
+      },
+      {
+        "operator": "use_groq",
+        "mean_payoff": 0.17716480357348174,
+        "plays": 3,
+        "ucb_score": 2.553185708250672
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.08927018645799589,
+        "plays": 4,
+        "ucb_score": 2.146964649831327
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.1104307961907608,
+        "plays": 5,
+        "ucb_score": 1.9508886750018481
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user is asking about peptides for aging, specifically the \"Wolverine Protocol.\" First, I need to clarify what they mean by that. I've never heard of a \"Wolverine Protocol\" in the con..."
+}

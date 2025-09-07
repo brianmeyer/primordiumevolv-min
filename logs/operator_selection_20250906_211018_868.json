@@ -1,0 +1,11 @@
+{
+  "artifact_type": "operator_selection",
+  "timestamp": "2025-09-06T21:10:18.868228+00:00",
+  "unix_timestamp": 1757193018.868232,
+  "data": {
+    "run_id": 28,
+    "iteration": 21,
+    "operator": "use_groq",
+    "selection_method": "ucb"
+  }
+}

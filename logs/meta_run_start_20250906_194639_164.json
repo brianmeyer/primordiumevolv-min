@@ -1,0 +1,37 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-06T19:46:39.164380+00:00",
+  "unix_timestamp": 1757187999.164384,
+  "data": {
+    "run_id": 24,
+    "task_class": "code",
+    "task": "Write a Python function that calculates prime numbers efficiently using sieve method",
+    "config": {
+      "n": 8,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web",
+        "use_groq",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.1,
+      "use_bandit": true,
+      "bandit_algorithm": null,
+      "framework_mask": null,
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

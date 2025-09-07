@@ -1,0 +1,103 @@
+{
+  "run_id": 26,
+  "task_class": "research",
+  "task": "can you find me some information about using peptides? what is the wolverine protocol? What kind of studies have been done? which peptides would be best for aging?",
+  "assertions": [],
+  "best_score": 0.44000998095380406,
+  "best_total_reward": 0.552153980953804,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 17,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 18,
+      "avg_reward": 3.7396653417222803,
+      "mean_payoff": 0.028077114274995003
+    },
+    "change_nudge": {
+      "n": 8,
+      "avg_reward": 0.21234157995127945
+    },
+    "raise_top_k": {
+      "n": 4,
+      "avg_reward": 0.34481112338774245,
+      "mean_payoff": 0.08927018645799589
+    },
+    "inject_memory": {
+      "n": 4,
+      "avg_reward": 5.035282712546836
+    },
+    "inject_rag": {
+      "n": 2,
+      "avg_reward": 0.42595653055690397,
+      "mean_payoff": 0.2694592608445506
+    },
+    "lower_top_k": {
+      "n": 5,
+      "avg_reward": 16.93743247153455,
+      "mean_payoff": 0.1104307961907608
+    },
+    "lower_temp": {
+      "n": 12,
+      "avg_reward": 21.08951407405013,
+      "mean_payoff": 0.04386114025609667
+    },
+    "use_groq": {
+      "n": 3,
+      "avg_reward": 0.5713885171454538,
+      "mean_payoff": 0.17716480357348174
+    },
+    "add_fewshot": {
+      "n": 2,
+      "avg_reward": 11.416933085692095,
+      "mean_payoff": 0.2760160233097405
+    },
+    "raise_temp": {
+      "n": 11,
+      "avg_reward": 98.3114784406052,
+      "mean_payoff": 0.0462796549773302
+    },
+    "change_system": {
+      "n": 2,
+      "avg_reward": 11.890228334965215,
+      "mean_payoff": 0.27348998255125706
+    }
+  },
+  "baseline": 0.3893926437775537,
+  "improvement": 0.05061733717625033,
+  "total_reward_improvement": 0.552153980953804,
+  "timestamp": 1757188822,
+  "metrics": {
+    "best_total_reward": 0.552153980953804,
+    "best_score": 0.44000998095380406,
+    "avg_total_reward": 0.5263336830731601,
+    "steps_to_best": 15,
+    "cost_penalty_avg": 0.08935200000000001,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.552",
+        "cost efficiency: 0.089 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "code_reverse",
+  "task_class": "code",
+  "task": "Write a Python function reverse_string(s) that returns the reversed string and explain in one sentence.",
+  "assertions": ["def reverse_string", "[::-1] or reversed", "returns correct for 'hello'"],
+  "seed": 124,
+  "flags": {"web": false, "rag_k": 0}
+}
+

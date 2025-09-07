@@ -1,0 +1,102 @@
+{
+  "iteration": 10,
+  "operator": "change_nudge",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.31150012444100655,
+  "reward": 0.4115001244410066,
+  "reward_breakdown": {
+    "outcome_reward": 0.31150012444100655,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.4115001244410066
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.04115001244410066,
+      "plays": 10,
+      "ucb_score": 1.3876416749735434
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.11333842857244612,
+        "plays": 4,
+        "ucb_score": 2.242328680582365
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.04115001244410066,
+        "plays": 10,
+        "ucb_score": 1.3876416749735434
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.031617437292651346,
+        "plays": 13,
+        "ucb_score": 1.2125687478441531
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.02871974021528139,
+        "plays": 14,
+        "ucb_score": 1.1667128977585137
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.11564956262050526,
+        "plays": 4,
+        "ucb_score": 2.244639814630424
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0860043839709722,
+        "plays": 6,
+        "ucb_score": 1.8243176455655283
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.09563159839877586,
+        "plays": 4,
+        "ucb_score": 2.2246218504086945
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.02529433602516922,
+        "plays": 20,
+        "ucb_score": 0.9774077214108864
+      },
+      {
+        "operator": "use_groq",
+        "mean_payoff": 0.1090948462874346,
+        "plays": 5,
+        "ucb_score": 2.0133216170588693
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.08357311576989875,
+        "plays": 6,
+        "ucb_score": 1.821886377364455
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.05477361986963853,
+        "plays": 7,
+        "ucb_score": 1.6641389771550599
+      }
+    ]
+  },
+  "output_preview": "* **Code Rewriting**:\n  * GitHub's Copilot: Uses AI to assist in rewriting code, suggesting improvements and adapting to the user's coding style.\n  * Codex: A model that can rewrite code in various programming languages, improving code quality and readability.\n* **LoRA (Low-Rank Adaptation)**:\n  * LoRA for Transformers: Allows for efficient adaptation of transformer models to new tasks and domains with minimal retraining.\n  * Adapter-based methods: Inserting small trainable modules (adapters) into a pre-trained model to adapt it to new tasks.\n* **Retraining**:\n  * Online Learning: Continuously updating models with new data, allowing them to adapt to changing distributions and patterns.\n  * Transfer Learning: Retraining pre-trained models on new datasets to adapt to specific tasks or domains.\n* **Neural Architecture Search (NAS)**:\n  * Reinforcement Learning-based NAS: Uses RL to search for optimal architectures, adapting to new tasks and improving performance.\n  * Evolutionary Algorithm-based NAS: Employs evolutionary algorithms to search for optimal architectures, adapting to new tasks and improving performance.\n* **Self-Modifying Code**:\n  * Genetic Programming: Automatically evolving code through selection, mutation, and crossover, adapting to new tasks and improving performance.\n  * Autonomous Programming: Using AI to modify and adapt code at runtime, improving performance and adapting to new tasks.\n* **Meta-Learning**:\n  * Model-Agnostic Meta-Learning (MAML): Trains models to adapt to new tasks with few examples, improving performance and adaptability.\n  * Reptile: A meta-learning algorithm that adapts models to new tasks through iterative refinement.\n* **Other Examples**:\n  * Self-Organizing Maps (SOMs): Artificial neural networks that adapt to data distributions and patterns.\n  * Evolving Neural Networks: Neural networks that adapt and evolve over time through various mechanisms, such as neuroevolution or synaptic plasticity.\n  * Adaptive Ensemble Methods: Combining multiple models to adapt to changing data distributions and improve overall performance."
+}

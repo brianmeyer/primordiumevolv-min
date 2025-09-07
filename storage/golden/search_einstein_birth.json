@@ -1,0 +1,9 @@
+{
+  "id": "search_einstein_birth",
+  "task_class": "search",
+  "task": "In what year was Albert Einstein born?",
+  "assertions": ["1879"],
+  "seed": 126,
+  "flags": {"web": false, "rag_k": 0}
+}
+

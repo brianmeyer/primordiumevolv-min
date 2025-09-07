@@ -1,5 +1,55 @@
 # Changelog
 
+## [2.6.0] - 2025-09-06 - Advanced Two-Judge AI Scoring System
+
+### 🧠 Revolutionary AI Evaluation Architecture
+- **Two-Judge System**: Independent evaluation by two different Groq models for robust scoring
+- **Automatic Tie-Breaker**: When judges disagree significantly (≥0.3), third judge reviews both evaluations and makes final decision
+- **Smart Model Rotation**: Intelligent distribution across 10 cutting-edge models with usage tracking for fairness
+- **90/10 AI/Semantic Weighting**: Heavily favor AI judgment over topical similarity for accuracy assessment
+
+### 🎯 Model Pool Excellence
+**10 State-of-the-Art Models** with specialized capabilities:
+- `llama-3.3-70b-versatile` - Advanced reasoning and analysis
+- `openai/gpt-oss-120b` - Large-scale language understanding
+- `openai/gpt-oss-20b` - Efficient high-quality evaluation  
+- `llama-3.1-8b-instant` - Fast, reliable scoring
+- `groq/compound` - Multi-faceted comprehensive analysis
+- `groq/compound-mini` - Lightweight efficient evaluation
+- `meta-llama/llama-4-maverick-17b-128e-instruct` - Latest instruction-following
+- `meta-llama/llama-4-scout-17b-16e-instruct` - Exploration-focused evaluation
+- `qwen/qwen3-32b` - Advanced multilingual capabilities
+- `moonshotai/kimi-k2-instruct` - Specialized instruction understanding
+
+### 🔬 Technical Implementation
+- **Weighted Model Selection**: Inverse frequency weighting ensures even distribution across all models
+- **Disagreement Detection**: Automatically triggers tie-breaker when initial judges differ by 30%+
+- **Comprehensive Metadata**: Full evaluation breakdown with individual judge scores, reasoning, and decisions
+- **Graceful Fallbacks**: Robust error handling with semantic similarity backup when AI judges unavailable
+- **Transparent Process**: Detailed logging of which models were used, their individual scores, and final decision rationale
+
+### 📊 Evaluation Criteria
+**AI Judges Score On:**
+- **Accuracy & Correctness**: Factual accuracy and logical reasoning
+- **Completeness & Thoroughness**: Coverage of all task requirements
+- **Clarity & Coherence**: Communication effectiveness and structure
+- **Relevance to Task**: Alignment with specific requirements
+- **Practical Usefulness**: Real-world applicability and value
+
+### 🛠 Integration Benefits
+- **Enhanced Outcome Rewards**: More accurate quality assessment leads to better evolution guidance
+- **Reduced Noise**: Two-judge consensus eliminates outlier evaluations
+- **Better UCB Bandit Performance**: More reliable scores improve operator selection accuracy  
+- **Detailed Analytics**: Rich metadata enables deeper analysis of what makes responses high-quality
+
+### ⚙️ Configuration
+- **Disagreement Threshold**: 0.3 (configurable) triggers tie-breaker evaluation
+- **Weighting**: 90% AI judgment, 10% semantic similarity (optimized through testing)
+- **Model Selection**: 2-3 models per evaluation with intelligent rotation
+- **Fallback Strategy**: Graceful degradation to semantic-only scoring if needed
+
+---
+
 ## [2.5.0] - 2025-09-06 - Human-in-the-Loop Rating Enablement
 
 ### ✅ What’s New

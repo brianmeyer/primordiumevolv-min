@@ -1,0 +1,102 @@
+{
+  "iteration": 12,
+  "operator": "change_system",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.31064983448317596,
+  "reward": 0.41064983448317594,
+  "reward_breakdown": {
+    "outcome_reward": 0.31064983448317596,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.41064983448317594
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.1728007097545921,
+      "plays": 5,
+      "ucb_score": 2.0814917568547857
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.1728007097545921,
+        "plays": 5,
+        "ucb_score": 2.0814917568547857
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.04115001244410066,
+        "plays": 10,
+        "ucb_score": 1.3907983950386993
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.031617437292651346,
+        "plays": 13,
+        "ucb_score": 1.2153373744920057
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.02871974021528139,
+        "plays": 14,
+        "ucb_score": 1.1693808131525674
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.18160564987352465,
+        "plays": 5,
+        "ucb_score": 2.0902966969737182
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0860043839709722,
+        "plays": 6,
+        "ucb_score": 1.8283929536458579
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.09563159839877586,
+        "plays": 4,
+        "ucb_score": 2.2296130630794186
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.02529433602516922,
+        "plays": 20,
+        "ucb_score": 0.9796398595752659
+      },
+      {
+        "operator": "use_groq",
+        "mean_payoff": 0.1090948462874346,
+        "plays": 5,
+        "ucb_score": 2.017785893387628
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.08357311576989875,
+        "plays": 6,
+        "ucb_score": 1.8259616854447844
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.05477361986963853,
+        "plays": 7,
+        "ucb_score": 1.6679119792885944
+      }
+    ]
+  },
+  "output_preview": "* **Code Rewriting**: GitHub's Copilot, which uses AI to suggest and rewrite code, improving existing architecture.\n* **Neural Architecture Search (NAS)**: Automated search for optimal neural network architectures, such as Google's AutoML.\n* **Transfer Learning**: Utilizing pre-trained models and fine-tuning them for new tasks, like BERT for natural language processing.\n* **Low-Rank Adaptation (LoRA)**: Efficiently updating large pre-trained models with minimal retraining, used in Transformers and language models.\n* **Meta-Learning**: Training models to learn how to learn, enabling adaptation to new tasks with few examples, such as Model-Agnostic Meta-Learning (MAML).\n* **Online Learning**: Continuously updating models with new data, like streaming algorithms and incremental learning.\n* **Evolutionary Algorithms**: Using principles of natural evolution, such as genetic algorithms, to search for optimal architectures and hyperparameters.\n* **Self-Modifying Code**: Code that can modify its own architecture or functionality at runtime, like some forms of meta-programming.\n* **AutoML for Hyperparameter Tuning**: Automated hyperparameter tuning, such as Bayesian optimization and grid search, to improve model performance.\n* **Graph Neural Network (GNN) Architecture Search**: Searching for optimal GNN architectures for specific tasks, like node classification and graph regression."
+}

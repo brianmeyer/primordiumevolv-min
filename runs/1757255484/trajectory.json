@@ -1,0 +1,243 @@
+{
+  "run_id": 31,
+  "trajectory": [
+    {
+      "i": 0,
+      "op": "inject_memory",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "groq",
+      "time_ms": 403,
+      "score": 0.37051135264538826,
+      "reward": 0.47051135264538824,
+      "reward_breakdown": {
+        "outcome_reward": 0.37051135264538826,
+        "process_reward": 0.1,
+        "cost_penalty": 0.0,
+        "total_reward": 0.47051135264538824,
+        "outcome_metadata": {
+          "method": "semantic_fallback",
+          "semantic_score": 0.37051135264538826,
+          "semantic_weight": 0.1,
+          "groq_score": 0.0,
+          "groq_weight": 0.9,
+          "disagreement_threshold": 0.3,
+          "groq_metadata": {
+            "method": "two_judge_plus_tiebreaker",
+            "disagreement_threshold": 0.3,
+            "needed_tie_breaker": true,
+            "successful_initial_judges": 0,
+            "score_difference": null,
+            "final_score": 0.0,
+            "initial_scores": [],
+            "judge_results": [
+              {
+                "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+                "error": "invalid_json",
+                "raw_response": "```json\n{\n \"score\": 1.0,\n \"reasoning\": \"The provided Python function is accurate, complete, clear, and relevant to the task. It correctly adds two numbers and includes proper type hints and a docstring.\",\n \"strengths\": [\"Correctness\", \"Type hints\", \"Docstring\"],\n \"weaknesses\": []\n}\n```",
+                "role": "judge_1"
+              },
+              {
+                "model": "qwen/qwen3-32b",
+                "error": "invalid_json",
+                "raw_response": "<think>\nOkay, let's evaluate this Python function. The task was to write a function that adds two numbers. The AI provided a function called 'add' that takes two floats and returns their sum. \n\nFirst, accuracy: The function correctly adds the two parameters. The type hints are there, which is good for clarity. The docstring explains what it does, which is helpful.\n\nCompleteness: It does the basic task, but maybe it's too simple. What if the user wanted to handle other types like integers or different data types? The function is limited to floats. Also, there's no error handling if non-numeric types are passed. But the task didn't specify handling those cases, so maybe that's okay.\n\nClarity and coherence: The code is straightforward. The function name is clear, and the parameters are well-named. The docstring is concise.\n\nRelevance: It directly addresses the task. The function adds two numbers as required.\n\nUsefulness: It works for the intended purpose. However, in real-world scenarios, you might want more robustness, but the task didn't ask for that.\n\nStrengths include correct implementation, type hints, and a docstring. Weaknesses are the lack of handling other types and possible edge cases. Since the task was basic, the response is adequate but could be improved with more thoroughness.\n</think>\n\n{\n  \"score\": 0.9,\n  \"reasoning\": \"The function correctly adds two numbers with type hints and a docstring. It handles basic numeric inputs but lacks error handling for non-numeric types and doesn't support other numeric types like integers. The implementation is simple and meets the core task requirements.\",\n  \"strengths\": [\n    \"Correctly implements basic addition functionality\",\n    \"Includes type hints and documentation\"\n  ],\n  \"weaknesses\": [\n    \"Limited to float inputs only (could handle int/float more generally)\",\n    \"No error handling for non-numeric inputs\"\n  ]\n}",
+                "role": "judge_2"
+              }
+            ],
+            "error": "no_successful_evaluations"
+          },
+          "final_score": 0.37051135264538826
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.06721590752076975,
+          "plays": 7,
+          "ucb_score": 1.6928977975567667
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 4.829834499242382
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 10,
+            "ucb_score": 1.6186511960018144
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 14,
+            "ucb_score": 78.54092081322933
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.0,
+            "plays": 14,
+            "ucb_score": 19.29594485430547
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 4.718424319985829
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.06721590752076975,
+            "plays": 7,
+            "ucb_score": 1.6928977975567667
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.0,
+            "plays": 7,
+            "ucb_score": 2.0310651284569636
+          },
+          {
+            "operator": "toggle_web",
+            "mean_payoff": 0.0,
+            "plays": 20,
+            "ucb_score": 4.37882060924633
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 6,
+            "ucb_score": 2.162809010914588
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 12.353875729102702
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "op": "toggle_web",
+      "groups": [
+        "WEB"
+      ],
+      "engine": "groq",
+      "time_ms": 373,
+      "score": 0.29229164094305987,
+      "reward": 0.3922916409430599,
+      "reward_breakdown": {
+        "outcome_reward": 0.29229164094305987,
+        "process_reward": 0.1,
+        "cost_penalty": 0.0,
+        "total_reward": 0.3922916409430599,
+        "outcome_metadata": {
+          "method": "semantic_fallback",
+          "semantic_score": 0.29229164094305987,
+          "semantic_weight": 0.1,
+          "groq_score": 0.0,
+          "groq_weight": 0.9,
+          "disagreement_threshold": 0.3,
+          "groq_metadata": {
+            "method": "two_judge_plus_tiebreaker",
+            "disagreement_threshold": 0.3,
+            "needed_tie_breaker": true,
+            "successful_initial_judges": 0,
+            "score_difference": null,
+            "final_score": 0.0,
+            "initial_scores": [],
+            "judge_results": [
+              {
+                "model": "groq/compound-mini",
+                "error": "invalid_json",
+                "raw_response": "```json\n{\n  \"score\": 1.0,\n  \"reasoning\": \"The provided Python function is straightforward, accurate, and complete. It correctly adds two numbers and includes proper type hints for the parameters and return value. The usage example demonstrates how to use the function effectively.\",\n  \"strengths\": [\n    \"Accurate and correct implementation\",\n    \"Proper use of type hints for clarity\",\n    \"Includes a usage example for demonstration\"\n  ],\n  \"weaknesses\": []\n}\n```",
+                "role": "judge_1"
+              },
+              {
+                "model": "llama-3.3-70b-versatile",
+                "error": "invalid_json",
+                "raw_response": "```json\n{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides a clear, concise, and correct Python function that adds two numbers, meeting the task requirements.\",\n  \"strengths\": [\"Correct implementation\", \"Clear and concise code\"],\n  \"weaknesses\": [\"Lack of error handling for non-numeric inputs\", \"No documentation or comments in the code\"]\n}\n```",
+                "role": "judge_2"
+              }
+            ],
+            "error": "no_successful_evaluations"
+          },
+          "final_score": 0.29229164094305987
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.0186805543306219,
+          "plays": 21,
+          "ucb_score": 0.958257864384217
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 4.831437564284158
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 10,
+            "ucb_score": 1.6200850209641202
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 14,
+            "ucb_score": 78.54213261649677
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.0,
+            "plays": 14,
+            "ucb_score": 19.2971566575729
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 4.720027385027604
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.06721590752076975,
+            "plays": 7,
+            "ucb_score": 1.6946115461724927
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.0,
+            "plays": 7,
+            "ucb_score": 2.0327788770726896
+          },
+          {
+            "operator": "toggle_web",
+            "mean_payoff": 0.0186805543306219,
+            "plays": 21,
+            "ucb_score": 0.958257864384217
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 6,
+            "ucb_score": 2.1646600709813835
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 12.355478794144478
+          }
+        ]
+      }
+    }
+  ]
+}

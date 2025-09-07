@@ -1,0 +1,9 @@
+{
+  "id": "analysis_summary",
+  "task_class": "analysis",
+  "task": "Summarize the following paragraph in one sentence: 'PrimordiumEvolv introduces a self-evolving system that blends local generation with rigorous evaluation to steadily improve.'",
+  "assertions": ["summary", "improve", "local"],
+  "seed": 127,
+  "flags": {"web": false, "rag_k": 0}
+}
+

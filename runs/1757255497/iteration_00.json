@@ -1,0 +1,140 @@
+{
+  "iteration": 0,
+  "operator": "add_fewshot",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": "Example: Write a function to reverse a string.\ndef reverse_string(s): return s[::-1]"
+  },
+  "score": 0.3190341290621457,
+  "reward": 0.8519034129062146,
+  "reward_breakdown": {
+    "outcome_reward": 0.7519034129062147,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.8519034129062146,
+    "outcome_metadata": {
+      "method": "hybrid_two_judge",
+      "semantic_score": 0.3190341290621457,
+      "semantic_weight": 0.1,
+      "groq_score": 0.8,
+      "groq_weight": 0.9,
+      "disagreement_threshold": 0.3,
+      "groq_metadata": {
+        "method": "two_judge_plus_tiebreaker",
+        "disagreement_threshold": 0.3,
+        "needed_tie_breaker": true,
+        "successful_initial_judges": 1,
+        "score_difference": null,
+        "final_score": 0.8,
+        "initial_scores": [
+          0.8
+        ],
+        "judge_results": [
+          {
+            "model": "llama-3.1-8b-instant",
+            "score": 0.8,
+            "reasoning": "The response is mostly accurate and correct, but lacks a clear explanation and example usage. It also uses a lambda function which might not be the most Pythonic way to implement a simple function.",
+            "strengths": [
+              "Correct implementation of the even check using the modulo operator",
+              "Clear function signature"
+            ],
+            "weaknesses": [
+              "Lack of explanation of the modulo operator and its usage",
+              "Usage example is too brief and doesn't demonstrate the function's purpose",
+              "Use of a lambda function instead of a regular function definition"
+            ],
+            "raw_response": "{\n  \"score\": 0.8,\n  \"reasoning\": \"The response is mostly accurate and correct, but lacks a clear explanation and example usage. It also uses a lambda function which might not be the most Pythonic way to implement a simple function.\",\n  \"strengths\": [\n    \"Correct implementation of the even check using the modulo operator\",\n    \"Clear function signature\"\n  ],\n  \"weaknesses\": [\n    \"Lack of explanation of the modulo operator and its usage\",\n    \"Usage example is too brief and doesn't demonstrate the function's purpose\",\n    \"Use of a lambda function instead of a regular function definition\"\n  ]\n}",
+            "role": "judge_1"
+          },
+          {
+            "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+            "error": "invalid_json",
+            "raw_response": "```json\n{\n  \"score\": 0.8,\n  \"reasoning\": \"The response provides a simple and correct function to check if a number is even. The implementation uses the modulus operator, which is a common approach. However, the response could be improved with additional context or explanation.\",\n  \"strengths\": [\n    \"Correct implementation: The function correctly identifies even numbers using the modulus operator.\",\n    \"Concise code: The use of a lambda function makes the code very concise.\",\n    \"Proper signature: The function signature clearly indicates the input and output types.\"\n  ],\n  \"weaknesses\": [\n    \"Lack of documentation: There is no docstring or comment to explain what the function does or how to use it.\",\n    \"Limited context: The response does not provide any context or example usage beyond the basic function definition.\"\n  ]\n}\n```",
+            "role": "judge_2"
+          }
+        ]
+      },
+      "final_score": 0.7519034129062147
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.09465593476735717,
+      "plays": 9,
+      "ucb_score": 1.5313791972475472
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 4.833023478525233
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.6215035057839315
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 14,
+        "ucb_score": 78.5433314549775
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 14,
+        "ucb_score": 19.29835549605363
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.09465593476735717,
+        "plays": 9,
+        "ucb_score": 1.5313791972475472
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 4.700572443686608
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.034474290711235
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 21,
+        "ucb_score": 4.213574076578168
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.166491327009376
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 12.357064708385552
+      }
+    ]
+  },
+  "output_preview": "- Signature: `is_even(n: int) \u2192 bool`\n- Implementation: `lambda n: n % 2 == 0`\n- Usage: `if is_even(7): \u2026`"
+}

@@ -7,6 +7,17 @@ let evolutionEventSource = null;
 document.addEventListener('DOMContentLoaded', function() {
     checkHealth();
     setupRatingSystem();
+    // Load and persist rating prefs UI controls if present
+    const modeEl = document.getElementById('ratingsMode');
+    const delayEl = document.getElementById('readingDelayMs');
+    if (modeEl) {
+        modeEl.value = localStorage.getItem('ratings_mode') || 'prompted';
+        modeEl.addEventListener('change', () => localStorage.setItem('ratings_mode', modeEl.value));
+    }
+    if (delayEl) {
+        delayEl.value = localStorage.getItem('reading_delay_ms') || '2000';
+        delayEl.addEventListener('change', () => localStorage.setItem('reading_delay_ms', String(delayEl.value)));
+    }
     
     // Auto-check health every 30 seconds
     setInterval(checkHealth, 30000);
@@ -69,9 +80,11 @@ async function startEvolution() {
     const iterations = parseInt(document.getElementById('evolutionIterations').value);
     const epsilon = parseFloat(document.getElementById('advEpsilon').value);
     const memoryK = parseInt(document.getElementById('advMemoryK').value);
+    const strategy = document.getElementById('advStrategy').value;
+    const ragK = parseInt(document.getElementById('advRagK').value);
     const useWeb = document.getElementById('advUseWeb').checked;
     
-    console.log('Evolution config:', { taskType, iterations, epsilon, memoryK, useWeb });
+    console.log('Evolution config:', { taskType, iterations, epsilon, memoryK, strategy, ragK, useWeb });
     
     // Show progress UI
     showEvolutionProgress();
@@ -95,7 +108,7 @@ async function startEvolution() {
         } catch(_e) {}
 
         // Build framework mask
-        const frameworkMask = ['SEAL','SAMPLING','ENGINE'].concat(useWeb? ['WEB']: []);
+        const frameworkMask = ['SEAL','SAMPLING'].concat(useWeb? ['WEB']: []);
 
         const response = await fetch('/api/meta/run_async', {
             method: 'POST',
@@ -108,9 +121,10 @@ async function startEvolution() {
                 task: task,
                 n: iterations,
                 use_bandit: true,
+                bandit_algorithm: strategy,
                 eps: epsilon,
                 memory_k: memoryK,
-                rag_k: 3,
+                rag_k: ragK,
                 framework_mask: frameworkMask
             }),
         });
@@ -300,6 +314,22 @@ function startNewEvolution() {
     document.getElementById('evolutionTask').focus();
 }
 
+// Session Management Helper
+async function ensureSession() {
+    try {
+        const sess = await fetch('/api/session/list').then(r=>r.json());
+        let sid = (sess.sessions&&sess.sessions[0]&&sess.sessions[0].id) || null;
+        if(!sid){
+            const created = await fetch('/api/session/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:'Quick Test Session'})}).then(r=>r.json());
+            sid = created.id;
+        }
+        return sid;
+    } catch(_e) {
+        // Fallback to session ID 1 if session management fails
+        return 1;
+    }
+}
+
 // Quick Test Functions
 async function quickTest() {
     const prompt = document.getElementById('testPrompt').value.trim();
@@ -313,6 +343,7 @@ async function quickTest() {
     output.textContent = 'Testing...';
     
     try {
+        const sessionId = await ensureSession();
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
@@ -320,12 +351,12 @@ async function quickTest() {
             },
             body: JSON.stringify({
                 prompt: prompt,
-                session_id: 1
+                session_id: sessionId
             }),
         });
         
         const data = await response.json();
-        output.textContent = data.output || 'No response';
+        output.textContent = data.response || 'No response';
     } catch (error) {
         output.textContent = 'Error: ' + error.message;
     }
@@ -343,7 +374,8 @@ async function streamTest() {
     output.textContent = 'Streaming...';
     
     try {
-        const response = await fetch(`/api/chat/stream?prompt=${encodeURIComponent(prompt)}&session_id=1`);
+        const sessionId = await ensureSession();
+        const response = await fetch(`/api/chat/stream?prompt=${encodeURIComponent(prompt)}&session_id=${sessionId}`);
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         
@@ -362,7 +394,8 @@ async function streamTest() {
                     if (data === '[DONE]') return;
                     try {
                         const parsed = JSON.parse(data);
-                        output.textContent += parsed.chunk || '';
+                        if (parsed.done) return;
+                        output.textContent += parsed.token || '';
                     } catch (e) {
                         // Skip invalid JSON
                     }
@@ -371,6 +404,21 @@ async function streamTest() {
         }
     } catch (error) {
         output.textContent = 'Error: ' + error.message;
+    }
+}
+
+// Toggle epsilon visibility based on strategy selection
+function toggleEpsilonVisibility() {
+    const strategy = document.getElementById('advStrategy').value;
+    const epsilonGroup = document.getElementById('epsilonGroup');
+    const epsilonInput = document.getElementById('advEpsilon');
+    
+    if (strategy === 'epsilon_greedy') {
+        epsilonGroup.style.opacity = '1';
+        epsilonInput.disabled = false;
+    } else {
+        epsilonGroup.style.opacity = '0.5';
+        epsilonInput.disabled = true;
     }
 }
 
@@ -595,7 +643,16 @@ function setupRatingSystem() {
 function showRatingPanel() {
     const panel = document.getElementById('ratingPanel');
     if (panel) {
-        panel.classList.remove('hidden');
+        const mode = (localStorage.getItem('ratings_mode') || 'prompted');
+        if (mode === 'off') {
+            panel.classList.add('hidden');
+            return;
+        }
+        const delay = parseInt(localStorage.getItem('reading_delay_ms') || '2000');
+        panel.classList.add('hidden');
+        setTimeout(() => {
+            panel.classList.remove('hidden');
+        }, Math.max(0, Math.min(8000, isNaN(delay) ? 2000 : delay)));
         
         // Reset rating form
         document.getElementById('detailedRating').value = 5;
@@ -621,7 +678,7 @@ async function submitHumanRating() {
     
     const rating = parseInt(document.getElementById('detailedRating').value);
     const feedback = document.getElementById('ratingFeedback').value.trim();
-    const humanScore = rating / 10.0; // Convert to 0-1 scale
+    const humanScore = rating; // Use 1-10 scale directly
     
     try {
         showRatingStatus('⏳ Submitting rating...', 'var(--muted)');

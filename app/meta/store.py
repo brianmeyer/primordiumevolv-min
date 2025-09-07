@@ -126,10 +126,19 @@ def init_db():
         ("runs", "operator_names_json", "TEXT"),
         ("runs", "meta_version", "TEXT DEFAULT 'v1'"),
         ("runs", "config_json", "TEXT"),
+        # New reward system fields for runs
+        ("runs", "best_total_reward", "REAL DEFAULT NULL"),
+        ("runs", "total_reward_improvement", "REAL DEFAULT NULL"),
         ("variants", "operator_name", "TEXT"),
         ("variants", "groups_json", "TEXT"),
         ("variants", "execution_time_ms", "INTEGER DEFAULT 0"),
         ("variants", "model_id", "TEXT"),
+        # New reward system fields for variants
+        ("variants", "total_reward", "REAL DEFAULT NULL"),
+        ("variants", "outcome_reward", "REAL DEFAULT NULL"),
+        ("variants", "process_reward", "REAL DEFAULT NULL"),
+        ("variants", "cost_penalty", "REAL DEFAULT NULL"),
+        ("variants", "reward_metadata_json", "TEXT DEFAULT NULL"),
         ("recipes", "updated_at", "REAL DEFAULT 0"),
         ("recipes", "engine", "TEXT DEFAULT 'ollama'"),
         ("recipes", "engine_confidence", "REAL DEFAULT 0.5"),
@@ -202,28 +211,42 @@ def save_run_start(task_class: str, task: str, assertions: Optional[List[str]]) 
     c.close()
     return run_id
 
+def update_run_config(run_id: int, config: dict):
+    c = _conn()
+    try:
+        config_json = json.dumps(config) if config else None
+        c.execute("UPDATE runs SET config_json = ? WHERE id = ?", (config_json, run_id))
+        c.commit()
+    finally:
+        c.close()
+
 def save_variant(run_id: int, system: str, nudge: str, params: dict, 
                 prompt: str, output: str, score: float, 
                 operator_name: str = None, groups_json: str = None,
-                execution_time_ms: int = 0, model_id: str = None) -> int:
+                execution_time_ms: int = 0, model_id: str = None,
+                total_reward: float = None, outcome_reward: float = None,
+                process_reward: float = None, cost_penalty: float = None,
+                reward_metadata: dict = None) -> int:
     c = _conn()
+    reward_metadata_json = json.dumps(reward_metadata) if reward_metadata else None
     cursor = c.execute(
-        "INSERT INTO variants(run_id, system, nudge, params_json, prompt, output, score, created_at, operator_name, groups_json, execution_time_ms, model_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (run_id, system, nudge, json.dumps(params), prompt, output, score, time.time(), operator_name, groups_json, execution_time_ms, model_id)
+        "INSERT INTO variants(run_id, system, nudge, params_json, prompt, output, score, created_at, operator_name, groups_json, execution_time_ms, model_id, total_reward, outcome_reward, process_reward, cost_penalty, reward_metadata_json) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (run_id, system, nudge, json.dumps(params), prompt, output, score, time.time(), operator_name, groups_json, execution_time_ms, model_id, total_reward, outcome_reward, process_reward, cost_penalty, reward_metadata_json)
     )
     variant_id = cursor.lastrowid
     c.commit()
     c.close()
     return variant_id
 
-def save_run_finish(run_id: int, best_variant_id: int, best_score: float, operator_names: List[str] = None):
+def save_run_finish(run_id: int, best_variant_id: int, best_score: float, operator_names: List[str] = None, 
+                    best_total_reward: float = None, total_reward_improvement: float = None):
     c = _conn()
     try:
         c.execute("BEGIN TRANSACTION")
         operator_names_json = json.dumps(operator_names) if operator_names else None
         c.execute(
-            "UPDATE runs SET finished_at = ?, best_variant_id = ?, best_score = ?, operator_names_json = ? WHERE id = ?",
-            (time.time(), best_variant_id, best_score, operator_names_json, run_id)
+            "UPDATE runs SET finished_at = ?, best_variant_id = ?, best_score = ?, operator_names_json = ?, best_total_reward = ?, total_reward_improvement = ? WHERE id = ?",
+            (time.time(), best_variant_id, best_score, operator_names_json, best_total_reward, total_reward_improvement, run_id)
         )
         c.execute("COMMIT")
     except Exception as e:
@@ -555,6 +578,61 @@ def get_analytics_overview() -> Dict:
         """)
         recent_avg = cursor.fetchone()[0]
         
+        # Reward-based analytics (new system)
+        cursor = c.execute("""
+            SELECT 
+                AVG(total_reward) as avg_total_reward,
+                AVG(outcome_reward) as avg_outcome_reward,
+                AVG(process_reward) as avg_process_reward,
+                AVG(cost_penalty) as avg_cost_penalty,
+                COUNT(*) as total_variants_with_rewards
+            FROM variants 
+            WHERE total_reward IS NOT NULL
+        """)
+        reward_stats = cursor.fetchone()
+        
+        # Reward progression over runs
+        cursor = c.execute("""
+            SELECT 
+                r.started_at,
+                r.best_total_reward,
+                r.total_reward_improvement,
+                AVG(r.best_total_reward) OVER (ORDER BY r.started_at ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as rolling_avg_reward
+            FROM runs r 
+            WHERE r.best_total_reward IS NOT NULL 
+            ORDER BY r.started_at
+        """)
+        reward_progression = []
+        for row in cursor.fetchall():
+            reward_progression.append({
+                "timestamp": row[0],
+                "best_total_reward": row[1],
+                "total_reward_improvement": row[2],
+                "rolling_avg_reward": row[3]
+            })
+        
+        # Top operators by total reward (new metric)
+        cursor = c.execute("""
+            SELECT 
+                v.operator_name, 
+                AVG(v.total_reward) as avg_total_reward,
+                AVG(v.outcome_reward) as avg_outcome_reward,
+                COUNT(*) as uses
+            FROM variants v 
+            WHERE v.total_reward IS NOT NULL AND v.operator_name IS NOT NULL
+            GROUP BY v.operator_name 
+            ORDER BY avg_total_reward DESC 
+            LIMIT 10
+        """)
+        top_operators_by_reward = []
+        for row in cursor.fetchall():
+            top_operators_by_reward.append({
+                "name": row[0],
+                "avg_total_reward": row[1],
+                "avg_outcome_reward": row[2],
+                "uses": row[3]
+            })
+        
         return {
             "basic_stats": {
                 "total_runs": basic_stats[0],
@@ -568,9 +646,30 @@ def get_analytics_overview() -> Dict:
                 "recent_avg_score": recent_avg,
                 "improvement": ((recent_avg - early_avg) / abs(early_avg)) * 100 if early_avg and recent_avg and early_avg != 0 else 0
             },
+            "reward_analytics": {
+                "avg_total_reward": reward_stats[0],
+                "avg_outcome_reward": reward_stats[1],
+                "avg_process_reward": reward_stats[2],
+                "avg_cost_penalty": reward_stats[3],
+                "total_variants_with_rewards": reward_stats[4],
+                "reward_progression": reward_progression,
+                "top_operators_by_reward": top_operators_by_reward
+            },
             "score_progression": score_progression,
             "top_operators": top_operators,
             "task_performance": task_performance
         }
+    finally:
+        c.close()
+
+def clear_operator_stats():
+    """Clear all operator statistics to reset learning state."""
+    c = _conn()
+    try:
+        c.execute("DELETE FROM operator_stats")
+        c.execute("DELETE FROM operator_engine_stats") 
+        c.execute("DELETE FROM chat_temp_stats")
+        c.commit()
+        return {"cleared": True, "message": "All operator learning stats cleared"}
     finally:
         c.close()

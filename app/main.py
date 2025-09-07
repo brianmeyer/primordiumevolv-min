@@ -28,6 +28,7 @@ from app.errors import (
 import json
 import os
 import time
+from glob import glob
 
 load_dotenv()
 PORT = int(os.getenv("PORT", "8000"))
@@ -337,6 +338,7 @@ async def meta_run_ep(body: MetaRunRequest):
             operators=body.operators,
             eps=body.eps,
             use_bandit=body.use_bandit,
+            bandit_algorithm=body.bandit_algorithm,
             framework_mask=body.framework_mask,
             force_engine=body.force_engine,
             compare_with_groq=body.compare_with_groq,
@@ -348,10 +350,19 @@ async def meta_run_ep(body: MetaRunRequest):
         return handle_exception(e, "meta_run_failed")
 
 @app.post("/api/meta/run_async")
-async def meta_run_async_ep(body: MetaRunRequest):
+async def meta_run_async_ep(body: MetaRunRequest, request: Request):
     try:
         # Create run immediately and return ID
         run_id = store.save_run_start(body.task_class, body.task, body.assertions or [])
+        # Capture optional user preferences from raw body and persist to run config
+        try:
+            raw = await request.json()
+            prefs = (raw or {}).get("user_prefs")
+            if prefs:
+                cfg = {"user_prefs": prefs}
+                store.update_run_config(run_id, cfg)
+        except Exception:
+            pass
 
         import threading
 
@@ -368,6 +379,7 @@ async def meta_run_async_ep(body: MetaRunRequest):
                     operators=body.operators,
                     eps=body.eps,
                     use_bandit=body.use_bandit,
+                    bandit_algorithm=body.bandit_algorithm,
                     framework_mask=body.framework_mask,
                     force_engine=body.force_engine,
                     compare_with_groq=body.compare_with_groq,
@@ -390,14 +402,25 @@ async def meta_stats():
         store.init_db()
         import time
         operator_stats_dict = store.list_operator_stats()
-        # Convert dict to list for easier frontend consumption
+        # Convert dict to list for easier frontend consumption and sanitize infinite values
+        def sanitize_float(val):
+            if val == float('-inf') or val == float('inf') or val != val:  # NaN check
+                return 0.0
+            return val
+        
         operator_stats_list = [
-            {"name": name, "n": stats["n"], "avg_reward": stats["avg_reward"]}
+            {"name": name, "n": stats["n"], "avg_reward": sanitize_float(stats["avg_reward"])}
             for name, stats in operator_stats_dict.items()
         ]
+        # Sanitize recent_runs data too
+        recent_runs = store.recent_runs(None, 30)
+        for run in recent_runs:
+            if 'best_score' in run and run['best_score'] is not None:
+                run['best_score'] = sanitize_float(run['best_score'])
+        
         return JSONResponse({
             "operator_stats": operator_stats_list,
-            "recent_runs": store.recent_runs(None, 30),
+            "recent_runs": recent_runs,
             "now": time.time()
         })
     except Exception as e:
@@ -463,6 +486,28 @@ async def get_meta_run(run_id: int):
         })
     except Exception as e:
         return handle_exception(e, "get_meta_run_failed")
+
+@app.get("/api/meta/variants/{variant_id}")
+async def get_variant_output(variant_id: int):
+    """Get the full output for a specific variant."""
+    try:
+        c = store._conn()
+        cursor = c.execute(
+            "SELECT output FROM variants WHERE id = ?",
+            (variant_id,)
+        )
+        variant_data = cursor.fetchone()
+        c.close()
+        
+        if not variant_data:
+            return JSONResponse({"error": "variant_not_found"}, status_code=404)
+        
+        return JSONResponse({
+            "variant_id": variant_id,
+            "output": variant_data[0]
+        })
+    except Exception as e:
+        return handle_exception(e, "get_variant_output_failed")
 
 @app.get("/api/meta/logs")
 async def get_meta_logs(limit: int = Query(default=50, le=200)):
@@ -627,6 +672,180 @@ async def get_analytics():
                 return obj
         
         cleaned_analytics = clean_value(analytics)
+        # Augment with rating analytics
+        try:
+            c = store._conn()
+            cur = c.execute("SELECT id, config_json FROM runs WHERE finished_at IS NOT NULL")
+            prompted_run_ids = []
+            for run_id, cfg in cur.fetchall():
+                try:
+                    cfg_obj = json.loads(cfg) if cfg else {}
+                    mode = ((cfg_obj or {}).get("user_prefs") or {}).get("ratings_mode", "prompted")
+                    if mode != "off":
+                        prompted_run_ids.append(run_id)
+                except Exception:
+                    prompted_run_ids.append(run_id)
+            # Count variants for prompted runs
+            shown = 0
+            if prompted_run_ids:
+                q_marks = ",".join(["?"]*len(prompted_run_ids))
+                vcur = c.execute(f"SELECT COUNT(*) FROM variants WHERE run_id IN ({q_marks})", tuple(prompted_run_ids))
+                shown = int(vcur.fetchone()[0] or 0)
+            rcur = c.execute("SELECT COUNT(*) FROM human_ratings")
+            received = int(rcur.fetchone()[0] or 0)
+            skipped = max(0, shown - received)
+            cleaned_analytics["human_ratings"] = {"ratings_shown": shown, "ratings_received": received, "ratings_skipped": skipped}
+            c.close()
+        except Exception:
+            pass
         return JSONResponse(cleaned_analytics)
     except Exception as e:
         return handle_exception(e, "analytics_failed")
+
+@app.post("/api/meta/reset")
+async def reset_learning():
+    """Clear all operator learning statistics to start fresh."""
+    try:
+        result = store.clear_operator_stats()
+        return JSONResponse(result)
+    except Exception as e:
+        return handle_exception(e, "reset_learning_failed")
+
+# ---- Golden Set ----
+
+@app.get("/api/golden/list")
+async def golden_list():
+    try:
+        base = os.path.join(os.path.dirname(__file__), "..", "storage", "golden")
+        items = []
+        for path in sorted(glob(os.path.join(base, "*.json"))):
+            try:
+                with open(path, "r") as f:
+                    data = json.load(f)
+                items.append({
+                    "id": data.get("id") or os.path.splitext(os.path.basename(path))[0],
+                    "task_class": data.get("task_class"),
+                    "flags": data.get("flags", {}),
+                })
+            except Exception:
+                continue
+        return JSONResponse({"items": items})
+    except Exception as e:
+        return handle_exception(e, "golden_list_failed")
+
+@app.post("/api/golden/run")
+async def golden_run(request: Request):
+    try:
+        body = await request.json()
+        ids = (body or {}).get("ids")  # optional subset
+        base = os.path.join(os.path.dirname(__file__), "..", "storage", "golden")
+        files = sorted(glob(os.path.join(base, "*.json")))
+        per_item = []
+        import random
+        ts = int(time.time())
+        for path in files:
+            with open(path, "r") as f:
+                item = json.load(f)
+            slug = item.get("id") or os.path.splitext(os.path.basename(path))[0]
+            if ids and slug not in ids:
+                continue
+            # Guardrails: deterministic, web off, rag pinned
+            seed = int(item.get("seed", 123))
+            random.seed(seed)
+            task_class = item.get("task_class", "code")
+            task = item.get("task", "")
+            assertions = item.get("assertions") or []
+            flags = item.get("flags") or {}
+            n = 8
+            res = meta_run(
+                task_class=task_class,
+                task=task,
+                assertions=assertions,
+                session_id=None,
+                n=n,
+                memory_k=int(flags.get("memory_k", 0)),
+                rag_k=int(flags.get("rag_k", 0)),
+                operators=None,
+                framework_mask=["SEAL", "SAMPLING"] + (["WEB"] if flags.get("web") else []),
+                use_bandit=True,
+                test_cmd=None,
+                test_weight=0.0,
+                force_engine="ollama",
+                compare_with_groq=False,
+                judge_mode="off",
+                judge_include_rationale=True,
+            )
+            per_item.append({
+                "id": slug,
+                "outcome_reward": res.get("metrics", {}).get("best_total_reward", None),
+                "process_reward": None,
+                "cost_penalty": None,
+                "total_reward": res.get("best_total_reward")
+            })
+        # Aggregate
+        valid = [p for p in per_item if isinstance(p.get("total_reward"), (int, float))]
+        avg_total_reward = sum(p["total_reward"] for p in valid) / len(valid) if valid else None
+        artifacts_dir = os.path.join("runs", str(ts))
+        os.makedirs(artifacts_dir, exist_ok=True)
+        kpis = {"per_item": per_item, "aggregate": {"avg_total_reward": avg_total_reward, "steps_to_best": None, "avg_cost_ratio": None}}
+        with open(os.path.join(artifacts_dir, "golden_kpis.json"), "w") as f:
+            json.dump(kpis, f, indent=2)
+        return JSONResponse(kpis)
+    except Exception as e:
+        return handle_exception(e, "golden_run_failed")
+
+# ---- Phase 4: criticize–edit–test loop ----
+
+@app.post("/api/meta/phase4/run")
+async def phase4_run():
+    try:
+        ts = int(time.time())
+        artifacts_dir = os.path.join("runs", str(ts))
+        os.makedirs(artifacts_dir, exist_ok=True)
+        # Critic note (placeholder)
+        critic_note = "Evaluate reward alignment and operator diversity; propose minimal tweaks to scoring weights if KPIs regress."
+        # Run Golden Set before/after (no-op edit in this implementation; scaffold for future patches)
+        before = await golden_run(Request({'type': 'http'}))  # Not strictly used; compute fresh below
+        # Re-run golden set
+        base = os.path.join(os.path.dirname(__file__), "..", "storage", "golden")
+        files = sorted(glob(os.path.join(base, "*.json")))
+        per_item = []
+        import random
+        for path in files[:3]:  # at least 3 items
+            with open(path, "r") as f:
+                item = json.load(f)
+            random.seed(int(item.get("seed", 123)))
+            res = meta_run(
+                task_class=item.get("task_class", "code"),
+                task=item.get("task", ""),
+                assertions=item.get("assertions") or [],
+                session_id=None,
+                n=6,
+                memory_k=0,
+                rag_k=int((item.get("flags") or {}).get("rag_k", 0)),
+                operators=None,
+                framework_mask=["SEAL", "SAMPLING"],
+                use_bandit=True,
+                test_cmd=None,
+                test_weight=0.0,
+                force_engine="ollama",
+                compare_with_groq=False,
+                judge_mode="off",
+                judge_include_rationale=True,
+            )
+            per_item.append(res.get("best_total_reward") or 0.0)
+        after_avg = sum(per_item)/len(per_item) if per_item else 0.0
+        before_avg = after_avg  # no-op edit baseline
+        delta = after_avg - before_avg
+        decision = (delta >= 0.05)
+        code_loop = {
+            "critic_note": critic_note,
+            "patch_summary": "no-op (scaffold)",
+            "golden_kpis_before_after": {"before_avg_total_reward": before_avg, "after_avg_total_reward": after_avg, "delta": delta},
+            "decision": decision
+        }
+        with open(os.path.join(artifacts_dir, "code_loop.json"), "w") as f:
+            json.dump(code_loop, f, indent=2)
+        return JSONResponse(code_loop)
+    except Exception as e:
+        return handle_exception(e, "phase4_failed")

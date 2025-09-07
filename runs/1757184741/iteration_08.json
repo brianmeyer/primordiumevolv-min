@@ -1,0 +1,21 @@
+{
+  "iteration": 8,
+  "operator": "raise_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.9760775400033668,
+      "top_k": 29,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.42136916476074443,
+  "reward": 21.720105000226887,
+  "output_preview": "<think>\nOkay, the user is asking about peptides related to aging, specifically the \"Wolverine Protocol.\" Let me unpack this carefully.\n\nFirst, I need to clarify that \"Wolverine Protocol\" isn't a recog..."
+}

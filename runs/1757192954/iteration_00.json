@@ -1,0 +1,102 @@
+{
+  "iteration": 0,
+  "operator": "use_groq",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.34547423143717293,
+  "reward": 0.545474231437173,
+  "reward_breakdown": {
+    "outcome_reward": 0.34547423143717293,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.545474231437173
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.1090948462874346,
+      "plays": 5,
+      "ucb_score": 1.9892736905033988
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 10.512300914944827
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 1.642911602179328
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 91.37728885259996
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 20.677400647175165
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 10.21560492575705
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 5.982945260876596
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.8657814416998026
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 19,
+        "ucb_score": 4.534784971772135
+      },
+      {
+        "operator": "use_groq",
+        "mean_payoff": 0.1090948462874346,
+        "plays": 5,
+        "ucb_score": 1.9892736905033988
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 2.2681373609054116
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 15.915560392845919
+      }
+    ]
+  },
+  "output_preview": "- **AutoML\u2011Driven Model Pipelines**  \n  - *Architecture*: Meta\u2011learner searches hyper\u2011parameters, network topologies, and data preprocessing steps; best configuration is automatically deployed and the pipeline retrains on new data.  \n  - *Self\u2011evolution*: Continuous loop of evaluation \u2192 architecture mutation \u2192 retraining \u2192 deployment.\n\n- **Neural Architecture Search (NAS) with Weight Reuse**  \n  - *Architecture*: Gradient\u2011based NAS (e.g., DARTS) that retains shared weights between successive candidate architectures.  \n  - *Self\u2011evolution*: As the search progresses, the controller refines the architecture graph while re\u2011using learned weights, reducing retraining cost.\n\n- **Program Synthesis + Self\u2011Repair (Rewriting Code)**  \n  - *Architecture*: LLM\u2011powered code generator coupled with a test\u2011driven feedback loop; failing tests trigger automated synthesis of patches.  \n  - *Self\u2011evolution*: The system rewrites its own source (e.g., data preprocessing scripts) to fix bugs or improve performance without human intervention.\n\n- **Low\u2011Rank Adaptation (LoRA) for On\u2011Device Fine\u2011Tuning**  \n  - *Architecture*: Base transformer frozen; LoRA modules (rank\u2011decomposed weight updates) are inserted for task\u2011specific adaptation.  \n  - *Self\u2011evolution*: LoRA matrices are periodically retrained on fresh user data, then merged (or kept separate) to continuously improve the model while keeping the base model stable.\n\n- **Continual Learning with Elastic Weight Consolidation (EWC)**  \n  - *Architecture*: Single model that learns sequential tasks; EWC penalizes changes to important weights from previous tasks.  \n  - *Self\u2011evolution*: The model incrementally incorporates new knowledge without catastrophic forgetting, effectively \u201crewriting\u201d its internal representation over time.\n\n- **Meta\u2011Learning Optimizers (Learned Optimizers)**  \n  - *Architecture*: A small RNN/LSTM optimizer that updates the parameters of a target model; the optimizer itself is trained via outer\u2011loop meta\u2011gradient descent.  \n  - *Self\u2011evolution*: The optimizer adapts its update rules as it encounters new loss landscapes, improving training efficiency for future tasks.\n\n- **Self\u2011Modifying Neural Programs (Neural Module Networks)**  \n  - *Architecture*: Dynamically assembled modules (e.g., attention, reasoning blocks) based on input queries; a controller decides the composition graph at runtime.  \n  - *Self\u2011evolution*: The controller is retrained to generate more effective module graphs, effectively rewriting the network structure per example.\n\n- **Reinforcement\u2011Learning\u2011Based Architecture Search (RL\u2011NAS)**  \n  - *Architecture*: Policy network proposes architecture actions (add/remove layers, change connectivity); reward = validation performance after brief training.  \n  - *Self\u2011evolution*: The policy improves its own architecture proposals over episodes, leading to progressively better models.\n\n- **Versioned Model Registry with Automated Rollback/Promotion**  \n  - *Architecture*: CI/CD pipeline monitors model metrics; if a new version underperforms, the system automatically rolls back and triggers a retraining job with adjusted hyper\u2011parameters.  \n  - *Self\u2011evolution*: The deployment graph evolves based on empirical performance, ensuring only improving versions stay live.\n\n- **Hybrid Symbolic\u2011Neural Systems**  \n  - *Architecture*: Symbolic reasoning engine (e.g., Prolog) orchestrates neural sub\u2011components; the symbolic layer can rewrite neural sub\u2011graphs based on logical deductions.  \n  - *Self\u2011evolution*: Logical rules generate new neural sub\u2011structures, which are then trained, enabling a feedback loop between symbolic rewrite and neural adaptation."
+}

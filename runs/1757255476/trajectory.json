@@ -1,0 +1,145 @@
+{
+  "run_id": 30,
+  "trajectory": [
+    {
+      "i": 0,
+      "op": "lower_top_k",
+      "groups": [
+        "SAMPLING"
+      ],
+      "engine": "groq",
+      "time_ms": 475,
+      "score": 0.31902483073757,
+      "reward": 1.086902483073757,
+      "reward_breakdown": {
+        "outcome_reward": 0.886902483073757,
+        "process_reward": 0.2,
+        "cost_penalty": 0.0,
+        "total_reward": 1.086902483073757,
+        "outcome_metadata": {
+          "method": "hybrid_two_judge",
+          "semantic_score": 0.31902483073757,
+          "semantic_weight": 0.1,
+          "groq_score": 0.95,
+          "groq_weight": 0.9,
+          "disagreement_threshold": 0.3,
+          "groq_metadata": {
+            "method": "two_judge_plus_tiebreaker",
+            "disagreement_threshold": 0.3,
+            "needed_tie_breaker": false,
+            "successful_initial_judges": 2,
+            "score_difference": 0.0,
+            "final_score": 0.95,
+            "initial_scores": [
+              0.95,
+              0.95
+            ],
+            "judge_results": [
+              {
+                "model": "openai/gpt-oss-20b",
+                "score": 0.95,
+                "reasoning": "The response accurately provides concise, correct implementations of a hello world function in three popular languages. It is clear, directly relevant to the task, and practically useful for quick reference.",
+                "strengths": [
+                  "Correctness: Each function correctly returns the string \"Hello, world!\".",
+                  "Clarity: Code is minimal, well-formatted, and easy to understand."
+                ],
+                "weaknesses": [
+                  "Lacks brief explanatory comments or context for each snippet.",
+                  "The C example omits necessary headers (e.g., <stdio.h>), which might confuse beginners."
+                ],
+                "raw_response": "{\n  \"score\": 0.95,\n  \"reasoning\": \"The response accurately provides concise, correct implementations of a hello world function in three popular languages. It is clear, directly relevant to the task, and practically useful for quick reference.\",\n  \"strengths\": [\n    \"Correctness: Each function correctly returns the string \\\"Hello, world!\\\".\",\n    \"Clarity: Code is minimal, well-formatted, and easy to understand.\"\n  ],\n  \"weaknesses\": [\n    \"Lacks brief explanatory comments or context for each snippet.\",\n    \"The C example omits necessary headers (e.g., <stdio.h>), which might confuse beginners.\"\n  ]\n}",
+                "role": "judge_1"
+              },
+              {
+                "model": "moonshotai/kimi-k2-instruct",
+                "score": 0.95,
+                "reasoning": "The response provides concise, correct, and idiomatic implementations of a hello-world function in three popular languages. Each snippet compiles/runs and returns the expected string. It is complete, clear, and immediately useful.",
+                "strengths": [
+                  "Correct and idiomatic code in all three languages",
+                  "Compact yet complete\u2014no missing syntax or imports",
+                  "Covers multiple popular languages, increasing practical value"
+                ],
+                "weaknesses": [
+                  "No usage examples or comments for absolute beginners",
+                  "Does not explain why the function is written differently per language"
+                ],
+                "raw_response": "{\n  \"score\": 0.95,\n  \"reasoning\": \"The response provides concise, correct, and idiomatic implementations of a hello-world function in three popular languages. Each snippet compiles/runs and returns the expected string. It is complete, clear, and immediately useful.\",\n  \"strengths\": [\n    \"Correct and idiomatic code in all three languages\",\n    \"Compact yet complete\u2014no missing syntax or imports\",\n    \"Covers multiple popular languages, increasing practical value\"\n  ],\n  \"weaknesses\": [\n    \"No usage examples or comments for absolute beginners\",\n    \"Does not explain why the function is written differently per language\"\n  ]\n}",
+                "role": "judge_2"
+              }
+            ]
+          },
+          "final_score": 0.886902483073757
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.13586281038421963,
+          "plays": 8,
+          "ucb_score": 1.6549283976518103
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 4.8282139234105195
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 10,
+            "ucb_score": 1.6172017089127195
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 14,
+            "ucb_score": 78.53969577304882
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.0,
+            "plays": 14,
+            "ucb_score": 19.294719814124946
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 4.7168037441539665
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.0,
+            "plays": 6,
+            "ucb_score": 5.259042249306113
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.0,
+            "plays": 7,
+            "ucb_score": 2.0293326600192167
+          },
+          {
+            "operator": "toggle_web",
+            "mean_payoff": 0.0,
+            "plays": 20,
+            "ucb_score": 4.377795667096389
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 6,
+            "ucb_score": 2.1609377311290525
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.13586281038421963,
+            "plays": 8,
+            "ucb_score": 1.6549283976518103
+          }
+        ]
+      }
+    }
+  ]
+}

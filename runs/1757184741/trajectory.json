@@ -1,0 +1,148 @@
+{
+  "run_id": 22,
+  "trajectory": [
+    {
+      "i": 0,
+      "op": "add_fewshot",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 44486,
+      "score": 0.4282267685422627,
+      "reward": 22.28183412476471
+    },
+    {
+      "i": 1,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 50549,
+      "score": 0.416776865303972,
+      "reward": 25.29959424087876
+    },
+    {
+      "i": 2,
+      "op": "change_system",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 46451,
+      "score": 0.40251225192826773,
+      "reward": 23.233476704827915
+    },
+    {
+      "i": 3,
+      "op": "inject_memory",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 38211,
+      "score": 0.38815659245776013,
+      "reward": 19.096249913463303
+    },
+    {
+      "i": 4,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 45391,
+      "score": 0.41700315433763546,
+      "reward": 22.720865787719156
+    },
+    {
+      "i": 5,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 54353,
+      "score": 0.3995883997013819,
+      "reward": 27.18096808215565
+    },
+    {
+      "i": 6,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 53342,
+      "score": 0.41231590468183077,
+      "reward": 26.69074108813219
+    },
+    {
+      "i": 8,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 43379,
+      "score": 0.42136916476074443,
+      "reward": 21.720105000226887
+    },
+    {
+      "i": 10,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 51434,
+      "score": 0.4139784570368882,
+      "reward": 25.73873615095826
+    },
+    {
+      "i": 11,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 46162,
+      "score": 0.41960406261445354,
+      "reward": 23.10948687765134
+    },
+    {
+      "i": 12,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 42315,
+      "score": 0.41006958443642694,
+      "reward": 21.174545503837706
+    },
+    {
+      "i": 13,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 33886,
+      "score": 0.42782509284152304,
+      "reward": 16.981352113923823
+    },
+    {
+      "i": 14,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 1740555,
+      "score": 0.4152748282571342,
+      "reward": 870.3007917964226
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "run_id": 29,
+  "trajectory": [
+    {
+      "i": 0,
+      "op": "raise_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "groq",
+      "time_ms": 874,
+      "score": 0.3627153333374647,
+      "reward": 1.1047715333337464,
+      "reward_breakdown": {
+        "outcome_reward": 0.9047715333337464,
+        "process_reward": 0.2,
+        "cost_penalty": 0.0,
+        "total_reward": 1.1047715333337464,
+        "outcome_metadata": {
+          "method": "hybrid_two_judge",
+          "semantic_score": 0.3627153333374647,
+          "semantic_weight": 0.1,
+          "groq_score": 0.965,
+          "groq_weight": 0.9,
+          "disagreement_threshold": 0.3,
+          "groq_metadata": {
+            "method": "two_judge_plus_tiebreaker",
+            "disagreement_threshold": 0.3,
+            "needed_tie_breaker": false,
+            "successful_initial_judges": 2,
+            "score_difference": 0.030000000000000027,
+            "final_score": 0.965,
+            "initial_scores": [
+              0.95,
+              0.98
+            ],
+            "judge_results": [
+              {
+                "model": "llama-3.1-8b-instant",
+                "score": 0.95,
+                "reasoning": "The response accurately and correctly implements a simple 'Hello, World!' function in Python, meeting all task requirements. However, it lacks a brief explanation of the code and its functionality.",
+                "strengths": [
+                  "Accurately implements the 'Hello, World!' function in Python",
+                  "Meets all task requirements",
+                  "Provides a clear and concise code example"
+                ],
+                "weaknesses": [
+                  "Lacks a brief explanation of the code and its functionality",
+                  "Does not provide any additional context or information about the implementation"
+                ],
+                "raw_response": "{\n  \"score\": 0.95,\n  \"reasoning\": \"The response accurately and correctly implements a simple 'Hello, World!' function in Python, meeting all task requirements. However, it lacks a brief explanation of the code and its functionality.\",\n  \"strengths\": [\n    \"Accurately implements the 'Hello, World!' function in Python\",\n    \"Meets all task requirements\",\n    \"Provides a clear and concise code example\"\n  ],\n  \"weaknesses\": [\n    \"Lacks a brief explanation of the code and its functionality\",\n    \"Does not provide any additional context or information about the implementation\"\n  ]\n}",
+                "role": "judge_1"
+              },
+              {
+                "model": "openai/gpt-oss-120b",
+                "score": 0.98,
+                "reasoning": "The response correctly provides a simple hello world function in Python, meets all task requirements, and clearly explains the code and expected output. It is accurate, complete, and easy to understand, making it practically useful. Minor redundancy in explanation prevents a perfect score.",
+                "strengths": [
+                  "Accurate and correct implementation",
+                  "Clear and concise explanation of the code",
+                  "Includes a demonstration call and expected output"
+                ],
+                "weaknesses": [
+                  "Slightly verbose description beyond what is strictly needed",
+                  "Only provides one language (Python) without mentioning alternatives"
+                ],
+                "raw_response": "{\n  \"score\": 0.98,\n  \"reasoning\": \"The response correctly provides a simple hello world function in Python, meets all task requirements, and clearly explains the code and expected output. It is accurate, complete, and easy to understand, making it practically useful. Minor redundancy in explanation prevents a perfect score.\",\n  \"strengths\": [\n    \"Accurate and correct implementation\",\n    \"Clear and concise explanation of the code\",\n    \"Includes a demonstration call and expected output\"\n  ],\n  \"weaknesses\": [\n    \"Slightly verbose description beyond what is strictly needed\",\n    \"Only provides one language (Python) without mentioning alternatives\"\n  ]\n}",
+                "role": "judge_2"
+              }
+            ]
+          },
+          "final_score": 0.9047715333337464
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.07891225238098189,
+          "plays": 14,
+          "ucb_score": 1.2259793429569046
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 4.826575465528076
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 10,
+            "ucb_score": 1.6157362276313534
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.07891225238098189,
+            "plays": 14,
+            "ucb_score": 1.2259793429569046
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.0,
+            "plays": 14,
+            "ucb_score": 19.293481256384776
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 4.715165286271522
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.0,
+            "plays": 6,
+            "ucb_score": 5.257150321107142
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.0,
+            "plays": 7,
+            "ucb_score": 2.027581074865284
+          },
+          {
+            "operator": "toggle_web",
+            "mean_payoff": 0.0,
+            "plays": 20,
+            "ucb_score": 4.376759415344633
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 6,
+            "ucb_score": 2.1590458029300823
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.0,
+            "plays": 7,
+            "ucb_score": 13.84771412858035
+          }
+        ]
+      }
+    }
+  ]
+}

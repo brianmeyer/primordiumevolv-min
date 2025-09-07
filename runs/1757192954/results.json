@@ -1,0 +1,105 @@
+{
+  "run_id": 28,
+  "task_class": "code",
+  "task": "Give me some good examples of self evolving architectures, everything from rewriting code to LoRA and retraining.",
+  "assertions": [],
+  "best_score": 0.34547423143717293,
+  "best_total_reward": 0.545474231437173,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "groq"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 20,
+      "avg_reward": 3.4170542329070166,
+      "mean_payoff": 0.02529433602516922
+    },
+    "change_nudge": {
+      "n": 10,
+      "avg_reward": 0.25850814274833084,
+      "mean_payoff": 0.04115001244410066
+    },
+    "raise_top_k": {
+      "n": 6,
+      "avg_reward": 0.40687187967777166,
+      "mean_payoff": 0.08357311576989875
+    },
+    "inject_memory": {
+      "n": 6,
+      "avg_reward": 3.5049763978548314,
+      "mean_payoff": 0.0860043839709722
+    },
+    "inject_rag": {
+      "n": 7,
+      "avg_reward": 0.4053832384209666,
+      "mean_payoff": 0.21746281362675646
+    },
+    "lower_top_k": {
+      "n": 7,
+      "avg_reward": 12.225516292136033,
+      "mean_payoff": 0.05477361986963853
+    },
+    "lower_temp": {
+      "n": 14,
+      "avg_reward": 18.146414165808853,
+      "mean_payoff": 0.02871974021528139
+    },
+    "use_groq": {
+      "n": 7,
+      "avg_reward": 0.4967679827036386,
+      "mean_payoff": 0.1972208101618105
+    },
+    "add_fewshot": {
+      "n": 8,
+      "avg_reward": 3.1977381568863756,
+      "mean_payoff": 0.27712397866997346
+    },
+    "raise_temp": {
+      "n": 13,
+      "avg_reward": 83.25959155484033,
+      "mean_payoff": 0.031617437292651346
+    },
+    "change_system": {
+      "n": 8,
+      "avg_reward": 3.309148336142929,
+      "mean_payoff": 0.2772731619811115
+    }
+  },
+  "baseline": 0.5634129777504502,
+  "improvement": -0.21793874631327725,
+  "total_reward_improvement": 0.545474231437173,
+  "timestamp": 1757192954,
+  "metrics": {
+    "best_total_reward": 0.545474231437173,
+    "best_score": 0.34547423143717293,
+    "avg_total_reward": 0.5014902824332443,
+    "steps_to_best": 24,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.545",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

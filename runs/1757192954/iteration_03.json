@@ -1,0 +1,102 @@
+{
+  "iteration": 3,
+  "operator": "raise_temp",
+  "plan": {
+    "engine": "groq",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.9129852254598663,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.31102668480446743,
+  "reward": 0.41102668480446747,
+  "reward_breakdown": {
+    "outcome_reward": 0.31102668480446743,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.41102668480446747
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.031617437292651346,
+      "plays": 13,
+      "ucb_score": 1.2023302111390946
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 10.52203344088834
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 1.6485306786527096
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.031617437292651346,
+        "plays": 13,
+        "ucb_score": 1.2023302111390946
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.02871974021528139,
+        "plays": 14,
+        "ucb_score": 1.1568467969214091
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 10.225337451700563
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 5.990484043055746
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.8755139676433146
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 19,
+        "ucb_score": 4.538652285430581
+      },
+      {
+        "operator": "use_groq",
+        "mean_payoff": 0.1090948462874346,
+        "plays": 5,
+        "ucb_score": 1.9968124726825494
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 2.2756761430845622
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.05477361986963853,
+        "plays": 7,
+        "ucb_score": 1.6501862035434858
+      }
+    ]
+  },
+  "output_preview": "- **Neural Architecture Search (NAS) pipelines** \u2013 e.g., Google AutoML, Microsoft NNI, or open\u2011source ENAS/ProxylessNAS that iteratively propose, train, and evaluate network topologies, feeding performance back to a controller for next generation designs.  \n- **Evolutionary Strategies for model weights** \u2013 DEAP or EvoTorch loops that mutate/populate weight matrices (or hyper\u2011networks) and select top performers, enabling \u201cself\u2011evolving\u201d optimization beyond gradient descent.  \n- **Meta\u2011learning (MAML/Reptile) frameworks** \u2013 PyTorch\u2011meta or higher\u2011order JAX code that continuously adapts a base model to new tasks with few\u2011shot updates, effectively rewriting its own update rules.  \n- **Low\u2011Rank Adaptation (LoRA) with dynamic rank selection** \u2013 LoRA modules that are automatically re\u2011ranked (e.g., via SVD on gradient statistics) during training to balance capacity and compute, then merged back into the base model.  \n- **Self\u2011modifying code generators** \u2013 GitHub Copilot/ChatGPT\u2011driven pipelines that generate, lint, and commit new source files, then trigger CI/CD to validate and integrate the changes.  \n- **Continuous Retraining & Data\u2011drift pipelines** \u2013 Airflow/Ray DAGs that monitor production metrics, label new data, and trigger incremental fine\u2011tuning (e.g., using Hugging Face `Trainer` with `accelerate`).  \n- **Hyper\u2011parameter optimization loops with Bayesian/Population\u2011based training** \u2013 Optuna, Ray Tune, or SigOpt that automatically adjust learning rates, batch sizes, or architecture knobs while training proceeds.  \n- **Program Synthesis via Genetic Programming** \u2013 DEAP or TinyGP scripts that evolve small utility functions (e.g., data\u2011augmentation policies) and replace them in the main training script after fitness evaluation.  \n- **Online Knowledge Distillation** \u2013 Teacher\u2011student setups where the student continuously becomes the new teacher after reaching a performance threshold, effectively evolving the distilled model over time.  \n- **Dynamic Graph Rewriting in JAX/TF\u2011AutoGraph** \u2013 Use `jax.jit` + `jax.make_jaxpr` to analyze and replace sub\u2011graphs on the fly (e.g., swapping a dense layer for a more efficient convolution when input shape changes).  \n- **Auto\u2011ML Ops with Model\u2011as\u2011Code (MLOps) templates** \u2013 Kedro or MLflow pipelines that version both data and model code, then automatically generate new pipeline versions when a performance regression is detected.  \n- **Neuro\u2011evolution of augmentations (AutoAugment + EA)** \u2013 Evolve augmentation policies alongside model weights; policies are stored as code snippets that get injected into the training loop each generation."
+}

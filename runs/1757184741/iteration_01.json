@@ -1,0 +1,21 @@
+{
+  "iteration": 1,
+  "operator": "raise_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.858893936458984,
+      "top_k": 29,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.416776865303972,
+  "reward": 25.29959424087876,
+  "output_preview": "<think>\nOkay, the user is asking about peptides for aging, specifically the \"Wolverine protocol\" and what studies exist. They want concise bullet points. \n\nFirst, I need to clarify that \"Wolverine pro..."
+}

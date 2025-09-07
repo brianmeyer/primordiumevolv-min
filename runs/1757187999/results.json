@@ -1,0 +1,100 @@
+{
+  "run_id": 24,
+  "task_class": "code",
+  "task": "Write a Python function that calculates prime numbers efficiently using sieve method",
+  "assertions": [
+    "def sieve_of_eratosthenes",
+    "return",
+    "efficient",
+    "prime numbers"
+  ],
+  "best_score": 0.5634129777504502,
+  "best_total_reward": 0.8634129777504502,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "groq"
+  },
+  "operator_stats": {
+    "toggle_web": {
+      "n": 17,
+      "avg_reward": 3.92991694670889
+    },
+    "change_nudge": {
+      "n": 8,
+      "avg_reward": 0.21234157995127945
+    },
+    "raise_top_k": {
+      "n": 3,
+      "avg_reward": 0.34072124923966207
+    },
+    "inject_memory": {
+      "n": 4,
+      "avg_reward": 5.035282712546836
+    },
+    "inject_rag": {
+      "n": 1,
+      "avg_reward": 0.31299453942470684
+    },
+    "lower_top_k": {
+      "n": 4,
+      "avg_reward": 21.033752094179736
+    },
+    "lower_temp": {
+      "n": 11,
+      "avg_reward": 22.95889410959349
+    },
+    "use_groq": {
+      "n": 2,
+      "avg_reward": 0.5913355703579581,
+      "mean_payoff": 0.4317064888752251
+    },
+    "add_fewshot": {
+      "n": 1,
+      "avg_reward": 22.28183412476471
+    },
+    "raise_temp": {
+      "n": 10,
+      "avg_reward": 108.09171866419065
+    },
+    "change_system": {
+      "n": 1,
+      "avg_reward": 23.233476704827915
+    }
+  },
+  "baseline": 0.44252098618857283,
+  "improvement": 0.12089199156187735,
+  "total_reward_improvement": 0.8634129777504502,
+  "timestamp": 1757187999,
+  "metrics": {
+    "best_total_reward": 0.8634129777504502,
+    "best_score": 0.5634129777504502,
+    "avg_total_reward": 0.86341297775045,
+    "steps_to_best": 8,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.863",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

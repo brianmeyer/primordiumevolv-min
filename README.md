@@ -20,14 +20,41 @@ make run      # http://localhost:8000
 ## Features
 - Chat + Stream Chat: With session memory; optional live token streaming.
 - Memory: FAISS vector search over conversations (cached in‑process for speed).
-- Meta‑Evolution: UCB1 bandit with total_reward system (outcome + process - cost) over operators (system, nudge, temp, memory, RAG, web, engine).
+- Meta‑Evolution: UCB1 bandit with advanced total_reward system (outcome + process - cost) featuring two-judge AI evaluation with tie-breaker over operators (system, nudge, temp, memory, RAG, web, engine).
 - Recipes + Analytics: Persists best recipes; operator stats tracked over time with reward breakdown.
 - RAG: Local vector search (FAISS + sentence‑transformers) over files in `data/`.
 - Web Search: Tavily (if key) with DDG fallback.
-- Groq: Dynamic model pick; health/models inventory; engine switching + judge/compare.
+- **Advanced AI Scoring**: Two-judge evaluation system with 10 rotating Groq models, automatic tie-breaker for disagreements, and 90/10 AI/semantic weighting for robust quality assessment.
 - Realtime: Async runs + SSE live updates; inspect full variant output.
 - Adaptive Chat: Simple thumbs‑based learning for temperature (opt‑in via buttons).
 - Hardened: GZip, structured errors, rate‑limit exemptions for streams.
+
+## Advanced AI Scoring System
+
+The system now features a sophisticated two-judge evaluation system for robust quality assessment:
+
+### **Two-Judge + Tie-Breaker Architecture**
+- **Initial Evaluation**: Two different Groq models independently score each response
+- **Disagreement Detection**: If judges differ by ≥0.3 points, automatic tie-breaker is triggered
+- **Final Decision**: Third judge reviews both evaluations and makes definitive judgment
+
+### **Model Pool & Rotation**
+Ten cutting-edge models with intelligent rotation for fair distribution:
+- `llama-3.3-70b-versatile` - Advanced reasoning capabilities
+- `openai/gpt-oss-120b` - Large-scale language understanding  
+- `openai/gpt-oss-20b` - Efficient high-quality evaluation
+- `llama-3.1-8b-instant` - Fast, reliable scoring
+- `groq/compound` - Multi-faceted analysis
+- `groq/compound-mini` - Lightweight evaluation
+- `meta-llama/llama-4-maverick-17b-128e-instruct` - Latest instruction-following
+- `meta-llama/llama-4-scout-17b-16e-instruct` - Exploration-focused evaluation
+- `qwen/qwen3-32b` - Advanced multilingual capabilities
+- `moonshotai/kimi-k2-instruct` - Specialized instruction understanding
+
+### **Scoring Methodology**
+- **90% AI Judgment**: Evaluates correctness, completeness, clarity, relevance, usefulness
+- **10% Semantic Similarity**: Ensures topical alignment with task requirements
+- **Robust Fallbacks**: Graceful degradation if AI models unavailable
 
 ## Groq Integration
 - Set `GROQ_API_KEY` and optional `GROQ_MODEL_ID` in `.env`.
@@ -40,10 +67,20 @@ make run      # http://localhost:8000
 - Live updates: `GET /api/meta/stream?run_id=<id>` streams Server-Sent Events with iteration, judge, and completion events.
 - UI shows a live "Latest Run" table with operator, engine, model, score, and latency per iteration.
 
+## Generation & Evaluation Policy
+
+- All generation is local via Ollama. The engine is enforced as `engine="ollama"` for meta-evolution.
+- Groq is used strictly in the evaluation layer (two-judge + optional tie-breaker) to score outputs.
+- Artifacts include judge metadata (per-judge scores, model ids, timing) under the evaluation block.
+
 ## M1 Upgrades (Enabled by Default)
 - **UCB1 Bandit Algorithm**: Default strategy with warm start and stratified exploration for optimal operator diversity.
-- **Total Reward System**: Three-component reward (outcome + process - cost) with intelligent promotion policy (Δ ≥ 0.05, cost ≤ 0.9×baseline).
-- **Enhanced Artifacts**: Each run generates `reward_breakdown` and `bandit_state` snapshots for full transparency.
+- **Advanced Total Reward System**: Three-component reward with sophisticated outcome evaluation:
+  - **Outcome Reward**: Two-judge AI evaluation (90%) + semantic similarity (10%) with automatic tie-breaker
+  - **Process Reward**: Structured reasoning, code quality, and methodology assessment  
+  - **Cost Penalty**: Resource efficiency (time, tokens, tool calls) vs baseline
+  - **Promotion Policy**: Δ ≥ 0.05, cost ≤ 0.9×baseline with detailed AI judgment metadata
+- **Enhanced Artifacts**: Each run generates `reward_breakdown` with detailed judge evaluations and `bandit_state` snapshots for full transparency.
 - Trajectory Logging: Writes `runs/{timestamp}/trajectory.json` with per‑iteration operator, engine, time, score, and total_reward.
 - Operator Masks per Task: Optional masks from `storage/operator_masks.json` (keys are task_class), supporting `framework_mask` (e.g., `["SEAL","ENGINE"]`) and `operators` allowlists.
 - Eval Suite + Gating: Safety probes run at end of run and write `runs/{timestamp}/eval_report.json`. Results include promotion criteria analysis.
@@ -138,8 +175,13 @@ The interface has been completely redesigned with human-centered design principl
 - SSE `iter` events now include `variant_id` and `output` (preview) to enable rating.
 - API: `POST /api/meta/rate`
   - Request: `{ "variant_id": number, "human_score": number (0.0–1.0), "feedback": string? }`
-  - Behavior: server converts `human_score` 0–1 to 1–10 and stores in `human_ratings` linked to the variant.
+  - Behavior: server stores 1–10 scores in `human_ratings` linked to the variant.
   - Use `GET /api/meta/variants/{variant_id}` to fetch the full response text for review.
+
+Preferences
+- ratings_mode: `off | prompted` (default `prompted`). When off, ratings UI is hidden and disabled.
+- reading_delay_ms: integer 0–8000 (default 2000). When prompted, delays panel display to allow reading first.
+- Preferences are stored in browser localStorage and recorded in run metadata.
 
 ### Tools
 - `POST /api/web/search` - Web search
@@ -181,6 +223,26 @@ curl -X POST http://localhost:8000/api/chat \
 
 # Stream chat tokens (SSE)
 # Frontend parses `data: {"token": "..."}` chunks and stops on `{ "done": true }`
+
+## Golden Set
+
+Deterministic micro-benchmarks to validate changes and measure Δ(total_reward) and costs.
+
+- Storage: `storage/golden/*.json` — one item per file with schema:
+  `{ id, task_class, task, assertions[], inputs?, expected?, seed, flags{web, rag_k} }`.
+- Endpoints:
+  - `GET /api/golden/list` — IDs and metadata.
+  - `POST /api/golden/run` — runs all or subset, returns KPI JSON.
+- Artifacts: `runs/<ts>/golden_kpis.json` with per-item results and aggregate summary.
+
+## Phase 4: Criticize–Edit–Test Loop
+
+Automated loop (allowlisted modules only) to propose minimal patches, test, and gate on Golden Set:
+- Critic generates a minimal patch plan when Golden KPIs regress.
+- Edit applies ≤50 LOC across ≤3 patches.
+- Test runs unit tests and Golden Set (≥3 items).
+- Decision gates: all tests pass; Δ(total_reward) ≥ 0.05; cost_penalty ≤ 0.9× baseline; artifact schema intact.
+- Persist `runs/<ts>/code_loop.json` with critic note, patch summary, KPIs before/after, decision.
 ```
 
 ## Meta-Evolution System
