@@ -558,20 +558,120 @@ async function loadAnalytics() {
     }
 }
 
-// Golden Set runner
+// Golden Set runner with streaming
 async function runGoldenSet() {
     try {
-        const res = await fetch('/api/golden/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-        const data = await res.json();
         const out = document.getElementById('goldenRunResult');
-        const agg = data.aggregate || {};
-        out.textContent = `Golden run complete: pass_rate ${(agg.pass_rate*100||0).toFixed(0)}%, reward ${(agg.avg_total_reward??0).toFixed(3)}, cost ${(agg.avg_cost_penalty??0).toFixed(3)}, steps ${(agg.avg_steps??0).toFixed(1)}`;
-        // Refresh analytics to incorporate new artifact
-        loadAnalytics();
+        const button = document.querySelector('button[onclick="runGoldenSet()"]');
+        
+        // Update UI to show it's running
+        out.textContent = '🏁 Starting Golden Set evaluation...';
+        if (button) {
+            button.disabled = true;
+            button.textContent = '🏁 Running...';
+        }
+        
+        // Start async golden run
+        const res = await fetch('/api/golden/run_async', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({}) 
+        });
+        
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+        }
+        
+        const data = await res.json();
+        if (!data.run_id) {
+            throw new Error('No run_id returned');
+        }
+        
+        // Start streaming
+        startGoldenStream(data.run_id, button, out);
+        
     } catch (e) {
         const out = document.getElementById('goldenRunResult');
+        const button = document.querySelector('button[onclick="runGoldenSet()"]');
         out.textContent = 'Golden run failed: ' + e.message;
+        if (button) {
+            button.disabled = false;
+            button.textContent = '🏁 Run Golden Set';
+        }
     }
+}
+
+function startGoldenStream(runId, button, outputElement) {
+    const eventSource = new EventSource(`/api/golden/stream?run_id=${runId}`);
+    let completed = 0;
+    let total = 0;
+    
+    eventSource.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('Golden Set event:', data);
+            
+            switch (data.event) {
+                case 'connected':
+                    outputElement.textContent = '📡 Connected to Golden Set stream...';
+                    break;
+                    
+                case 'started':
+                    total = data.total_tests || 0;
+                    outputElement.textContent = `🏁 Starting ${total} Golden Set tests...`;
+                    break;
+                    
+                case 'progress':
+                    completed = data.completed || 0;
+                    const percent = total > 0 ? ((completed / total) * 100).toFixed(0) : 0;
+                    outputElement.textContent = `🏁 Running test ${data.test_id} (${completed}/${total} - ${percent}%)`;
+                    break;
+                    
+                case 'test_complete':
+                    const result = data.result || {};
+                    const reward = (result.total_reward || 0).toFixed(3);
+                    outputElement.textContent = `✅ Test ${data.test_id} complete: reward ${reward} (${completed}/${total})`;
+                    break;
+                    
+                case 'completed':
+                    const agg = data.aggregate || {};
+                    outputElement.textContent = `✅ Golden Set complete: pass_rate ${(agg.pass_rate*100||0).toFixed(0)}%, reward ${(agg.avg_total_reward??0).toFixed(3)}, cost ${(agg.avg_cost_penalty??0).toFixed(3)}, steps ${(agg.avg_steps??0).toFixed(1)}`;
+                    eventSource.close();
+                    if (button) {
+                        button.disabled = false;
+                        button.textContent = '🏁 Run Golden Set';
+                    }
+                    // Refresh analytics
+                    loadAnalytics();
+                    break;
+                    
+                case 'error':
+                    outputElement.textContent = `❌ Golden Set error: ${data.message}`;
+                    eventSource.close();
+                    if (button) {
+                        button.disabled = false;
+                        button.textContent = '🏁 Run Golden Set';
+                    }
+                    break;
+                    
+                case 'keep-alive':
+                    // Just keep connection alive
+                    break;
+            }
+        } catch (e) {
+            console.error('Error parsing Golden Set event:', e);
+        }
+    };
+    
+    eventSource.onerror = function(event) {
+        console.error('Golden Set stream error:', event);
+        outputElement.textContent = '❌ Golden Set stream disconnected';
+        eventSource.close();
+        if (button) {
+            button.disabled = false;
+            button.textContent = '🏁 Run Golden Set';
+        }
+    };
 }
 
 function renderScoreChart(scoreProgression) {

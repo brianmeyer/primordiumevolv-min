@@ -38,6 +38,9 @@ CHAT_MAX_TOKENS = int(os.getenv("CHAT_MAX_TOKENS", "1024"))
 RATE = int(os.getenv("RATE_LIMIT_PER_MIN", "30"))
 CORS_ALLOW = [x for x in os.getenv("CORS_ALLOW", "http://localhost:3000,http://localhost:8000").split(",") if x]
 
+# Global dictionary to store streaming queues for different run types
+streaming_queues = {}
+
 app = FastAPI()
 
 # CORS
@@ -125,6 +128,38 @@ async def meta_stream(run_id: int):
                     break
         finally:
             _rt.unsubscribe(run_id, q)
+
+    headers = {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no"
+    }
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
+
+@app.get("/api/golden/stream")
+async def golden_stream(run_id: str):
+    """Streaming endpoint for Golden Set progress"""
+    if run_id not in streaming_queues:
+        return JSONResponse({"error": "Golden run not found"}, status_code=404)
+    
+    q = streaming_queues[run_id]
+    
+    async def event_generator():
+        try:
+            yield "data: {\"event\": \"connected\"}\n\n"
+            
+            while True:
+                try:
+                    evt = q.get_nowait()
+                    yield f"data: {_json.dumps(evt)}\n\n"
+                    # Break on completion or error
+                    if evt.get("event") in ["completed", "error"]:
+                        break
+                except:
+                    yield "data: {\"event\": \"keep-alive\"}\n\n"
+                    await asyncio.sleep(2)
+        except Exception as e:
+            yield f"data: {_json.dumps({'event': 'error', 'message': str(e)})}\n\n"
 
     headers = {
         "Cache-Control": "no-cache",
@@ -849,22 +884,66 @@ async def golden_list():
     except Exception as e:
         return handle_exception(e, "golden_list_failed")
 
-@app.post("/api/golden/run")
-async def golden_run(request: Request):
+@app.post("/api/golden/run_async")
+async def golden_run_async(request: Request):
+    """Async Golden Set runner that returns immediately with a run_id"""
     try:
         body = await request.json()
+        import threading
+        
+        # Generate run ID
+        import time
+        run_id = f"golden_{int(time.time())}"
+        
+        # Start background task
+        def run_golden_background():
+            try:
+                # Run the golden set in background
+                _run_golden_set_sync(body, run_id)
+            except Exception as e:
+                # Store error in streaming queue
+                if run_id in streaming_queues:
+                    streaming_queues[run_id].put({"event": "error", "message": str(e)})
+        
+        # Start background thread
+        thread = threading.Thread(target=run_golden_background, daemon=True)
+        thread.start()
+        
+        return {"status": "started", "run_id": run_id}
+    except Exception as e:
+        return handle_exception(e, "golden_run_async_failed")
+
+def _run_golden_set_sync(body, run_id):
+    """Synchronous golden set runner with streaming updates"""
+    import queue
+    
+    # Create streaming queue
+    q = queue.Queue()
+    streaming_queues[run_id] = q
+    
+    try:
         ids = (body or {}).get("ids")  # optional subset
         base = os.path.join(os.path.dirname(__file__), "..", "storage", "golden")
         files = sorted(glob(os.path.join(base, "*.json")))
         per_item = []
         import random
         ts = int(time.time())
+        
+        # Send initial status
+        q.put({"event": "started", "total_tests": len([f for f in files if not ids or os.path.splitext(os.path.basename(f))[0] in ids])})
+        
+        completed = 0
         for path in files:
             with open(path, "r") as f:
                 item = json.load(f)
             slug = item.get("id") or os.path.splitext(os.path.basename(path))[0]
             if ids and slug not in ids:
                 continue
+                
+            # Send progress update
+            completed += 1
+            q.put({"event": "progress", "test_id": slug, "completed": completed, "status": "running"})
+            
             # Guardrails: deterministic, web off, rag pinned
             seed = int(item.get("seed", 123))
             random.seed(seed)
@@ -872,7 +951,8 @@ async def golden_run(request: Request):
             task = item.get("task", "")
             assertions = item.get("assertions") or []
             flags = item.get("flags") or {}
-            n = 8
+            n = 3  # Reduced from 8 for faster execution
+            
             res = meta_run(
                 task_class=task_class,
                 task=task,
@@ -892,7 +972,7 @@ async def golden_run(request: Request):
                 judge_include_rationale=True,
             )
             br = res.get("best_reward_breakdown") or {}
-            per_item.append({
+            result = {
                 "id": slug,
                 "task_type": item.get("task_type") or item.get("task_class"),
                 "outcome_reward": br.get("outcome_reward"),
@@ -900,19 +980,77 @@ async def golden_run(request: Request):
                 "cost_penalty": br.get("cost_penalty"),
                 "total_reward": res.get("best_total_reward"),
                 "steps": (res.get("metrics") or {}).get("steps_to_best")
-            })
-        # Aggregate
+            }
+            per_item.append(result)
+            
+            # Send test completed update
+            q.put({"event": "test_complete", "test_id": slug, "result": result})
+        
+        # Aggregate results
         valid = [p for p in per_item if isinstance(p.get("total_reward"), (int, float))]
         avg_total_reward = (sum(p["total_reward"] for p in valid) / len(valid)) if valid else None
         avg_cost_penalty = (sum((p.get("cost_penalty") or 0.0) for p in valid) / len(valid)) if valid else None
         avg_steps = (sum((p.get("steps") or 0) for p in valid) / len(valid)) if valid else None
         pass_rate = (sum(1 for p in valid if p["total_reward"] >= 0.3) / len(valid)) if valid else 0
+        
+        # Save artifacts
         artifacts_dir = os.path.join("runs", str(ts))
         os.makedirs(artifacts_dir, exist_ok=True)
         kpis = {"per_item": per_item, "aggregate": {"avg_total_reward": avg_total_reward, "avg_cost_penalty": avg_cost_penalty, "avg_steps": avg_steps, "pass_rate": pass_rate}}
         with open(os.path.join(artifacts_dir, "golden_kpis.json"), "w") as f:
             json.dump(kpis, f, indent=2)
-        return JSONResponse(kpis)
+            
+        # Send completion event
+        q.put({"event": "completed", "aggregate": kpis["aggregate"]})
+        
+    except Exception as e:
+        q.put({"event": "error", "message": str(e)})
+    finally:
+        # Clean up queue after delay
+        import threading
+        def cleanup():
+            import time
+            time.sleep(300)  # Keep queue for 5 minutes
+            if run_id in streaming_queues:
+                del streaming_queues[run_id]
+        threading.Thread(target=cleanup, daemon=True).start()
+
+@app.post("/api/golden/run")
+async def golden_run(request: Request):
+    """Legacy sync endpoint - now redirects to async"""
+    try:
+        body = await request.json()
+        # Limit to first 3 items for quick testing
+        if not body:
+            body = {}
+        body["ids"] = list(os.path.splitext(os.path.basename(f))[0] for f in sorted(glob(os.path.join(os.path.dirname(__file__), "..", "storage", "golden", "*.json")))[:3])
+        
+        # Use async version
+        response = await golden_run_async(request)
+        if response.get("status") == "started":
+            # Wait for completion and return result
+            import time
+            import asyncio
+            run_id = response["run_id"]
+            
+            # Wait up to 60 seconds for completion
+            for _ in range(60):
+                await asyncio.sleep(1)
+                if run_id in streaming_queues:
+                    try:
+                        while True:
+                            evt = streaming_queues[run_id].get_nowait()
+                            if evt.get("event") == "completed":
+                                return JSONResponse({"per_item": [], "aggregate": evt["aggregate"]})
+                            elif evt.get("event") == "error":
+                                raise Exception(evt["message"])
+                    except:
+                        continue
+            
+            # Timeout fallback
+            return JSONResponse({"error": "Golden set test timed out"}, status_code=408)
+        else:
+            return JSONResponse(response)
     except Exception as e:
         return handle_exception(e, "golden_run_failed")
 

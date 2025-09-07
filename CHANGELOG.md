@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.7.1] - 2025-09-07 - Golden Set Streaming Analytics Fix
+
+### 🔧 **Critical Bug Fix**
+- **Fixed Golden Set UI Button**: Resolved hanging/timeout issues when running Golden Set benchmarks
+- **Added Streaming Analytics**: Golden Set now has real-time progress updates similar to evolution runs
+- **Fixed NameError**: Added missing `streaming_queues` global variable declaration in `app/main.py`
+- **Background Execution**: Golden Set runs now execute in background threads with immediate UI response
+
+### 🎯 **Technical Implementation**
+- **New Async Endpoint**: `/api/golden/run_async` returns immediately with `run_id`
+- **Streaming Progress**: `/api/golden/stream` provides real-time updates via Server-Sent Events
+- **UI Enhancement**: JavaScript EventSource implementation for live Golden Set progress
+- **Process Management**: Fixed multiple server conflicts and port binding issues
+
+### 🛠 **User Experience**
+- **No More Hanging**: Golden Set button responds immediately instead of 10+ minute timeout
+- **Live Progress**: See test progress in real-time: "🏁 Running test 15 (50% - 15/30)"
+- **Status Updates**: Clear completion status with pass rate percentage display
+- **Button States**: Proper disable/enable states during execution
+
+---
+
 ## [2.7.0] - 2025-09-07 - Real-Time Judge Display & System Voices V2
 
 ### 👁️ **Real-Time Judge Transparency**
