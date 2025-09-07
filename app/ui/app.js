@@ -469,13 +469,11 @@ async function loadAnalytics() {
         const data = await response.json();
         
         const overviewDiv = document.getElementById('analyticsOverview');
-        const chartsDiv = document.getElementById('analyticsCharts');
         const errorDiv = document.getElementById('analyticsError');
         
         // Hide error, show content
         errorDiv.classList.add('hidden');
         overviewDiv.classList.remove('hidden');
-        chartsDiv.classList.remove('hidden');
         
         // Update overview stats
         document.getElementById('totalRuns').textContent = data.basic_stats.total_runs || 0;
@@ -549,14 +547,168 @@ async function loadAnalytics() {
                 }
             }
         }
-        
+        // Voices panel (if provided)
+        if (data.voices && Array.isArray(data.voices)) {
+            const el = document.getElementById('voicesChart');
+            if (el) {
+                let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+                data.voices.forEach(v => {
+                    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface);border-radius:4px">
+                        <span style="max-width:60%">${v.system}</span>
+                        <div style="display:flex;gap:12px">
+                            <span>Uses: ${v.uses}</span>
+                            <span>Reward: ${(v.avg_total_reward??0).toFixed(3)}</span>
+                            <span>Cost: ${(v.avg_cost_penalty??0).toFixed(3)}</span>
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+                el.innerHTML = html;
+            }
+        }
+
+        // Thresholds panel
+        if (data.thresholds) {
+            const th = data.thresholds;
+            const elD = document.getElementById('thDelta'); if (elD) elD.textContent = th.delta_reward_min ?? '-';
+            const elC = document.getElementById('thCost'); if (elC) elC.textContent = th.cost_ratio_max ?? '-';
+            const elP = document.getElementById('thPass'); if (elP) elP.textContent = th.golden_pass_rate_target ?? '-';
+        }
+
     } catch (error) {
         console.error('Failed to load analytics:', error);
         document.getElementById('analyticsError').classList.remove('hidden');
         document.getElementById('analyticsOverview').classList.add('hidden');
-        document.getElementById('analyticsCharts').classList.add('hidden');
     }
 }
+
+// Memory Analytics Dashboard
+async function loadMemoryAnalytics() {
+    try {
+        const response = await fetch('/api/meta/analytics/memory');
+        const data = await response.json();
+        
+        // Update memory analytics
+        const memoryOverview = document.getElementById('memoryOverview');
+        const memoryRecentRuns = document.getElementById('memoryRecentRuns');
+        const memoryError = document.getElementById('memoryError');
+        
+        if (!data.enabled) {
+            // Show disabled message
+            memoryError.classList.remove('hidden');
+            memoryError.innerHTML = `<p class="text-muted">🧠 Memory system is disabled. Enable with FF_MEMORY=1 in your environment.</p>`;
+            memoryOverview.classList.add('hidden');
+            memoryRecentRuns.classList.add('hidden');
+            return;
+        }
+        
+        // Hide error, show content
+        memoryError.classList.add('hidden');
+        memoryOverview.classList.remove('hidden');
+        memoryRecentRuns.classList.remove('hidden');
+        
+        const analytics = data.analytics || {};
+        const recentRuns = data.recent_runs || [];
+        
+        // Update overview statistics
+        document.getElementById('memoryHitRate').textContent = 
+            analytics.hit_rate ? `${(analytics.hit_rate * 100).toFixed(1)}%` : '0%';
+        document.getElementById('memoryAvgRewardLift').textContent = 
+            analytics.avg_reward_lift ? `+${(analytics.avg_reward_lift * 100).toFixed(1)}%` : 'N/A';
+        document.getElementById('memoryStoreSize').textContent = 
+            analytics.store_size || '0';
+        document.getElementById('memoryPrimerTokensP50').textContent = 
+            analytics.primer_tokens_p50 || '0';
+        document.getElementById('memoryPrimerTokensP95').textContent = 
+            analytics.primer_tokens_p95 || '0';
+        document.getElementById('memoryTotalRuns').textContent = 
+            analytics.total_runs || '0';
+        
+        // Render by-task-class breakdown
+        if (analytics.by_task_class && analytics.by_task_class.length > 0) {
+            let taskClassHTML = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">';
+            analytics.by_task_class.forEach(tc => {
+                const hitRate = tc.hit_rate ? `${(tc.hit_rate * 100).toFixed(1)}%` : '0%';
+                const avgLift = tc.avg_lift ? `+${(tc.avg_lift * 100).toFixed(1)}%` : 'N/A';
+                taskClassHTML += `
+                    <div class="result-card" style="text-align:center;padding:12px">
+                        <h5 style="margin:0;color:var(--accent)">${tc.task_class}</h5>
+                        <div style="font-size:0.9em;color:var(--muted)">Runs: ${tc.runs_count}</div>
+                        <div>Hit Rate: ${hitRate}</div>
+                        <div>Avg Lift: ${avgLift}</div>
+                    </div>
+                `;
+            });
+            taskClassHTML += '</div>';
+            document.getElementById('memoryTaskClassBreakdown').innerHTML = taskClassHTML;
+        } else {
+            document.getElementById('memoryTaskClassBreakdown').innerHTML = 
+                '<p class="text-muted">No task class data available</p>';
+        }
+        
+        // Render recent runs table
+        if (recentRuns.length > 0) {
+            let runsHTML = `
+                <table style="width:100%;border-collapse:collapse">
+                    <thead>
+                        <tr style="background:var(--accent);color:white">
+                            <th style="padding:8px;text-align:left">Run ID</th>
+                            <th style="padding:8px;text-align:left">Task Class</th>
+                            <th style="padding:8px;text-align:center">Hits</th>
+                            <th style="padding:8px;text-align:center">Primer Tokens</th>
+                            <th style="padding:8px;text-align:center">Store Size</th>
+                            <th style="padding:8px;text-align:left">Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            recentRuns.forEach(run => {
+                const createdDate = new Date(run.created_at).toLocaleDateString();
+                const memoryUsed = run.used_memory ? '✅' : '❌';
+                runsHTML += `
+                    <tr style="border-bottom:1px solid var(--border)">
+                        <td style="padding:6px">${run.run_id}</td>
+                        <td style="padding:6px">${run.task_class}</td>
+                        <td style="padding:6px;text-align:center">${run.memory_hits}</td>
+                        <td style="padding:6px;text-align:center">${run.memory_primer_tokens}</td>
+                        <td style="padding:6px;text-align:center">${run.memory_store_size}</td>
+                        <td style="padding:6px;font-size:0.9em">${createdDate}</td>
+                    </tr>
+                `;
+            });
+            
+            runsHTML += '</tbody></table>';
+            document.getElementById('memoryRecentRunsTable').innerHTML = runsHTML;
+        } else {
+            document.getElementById('memoryRecentRunsTable').innerHTML = '<p class="text-muted">No recent memory runs</p>';
+        }
+        
+    } catch (error) {
+        console.error('Failed to load memory analytics:', error);
+        const memoryError = document.getElementById('memoryError');
+        memoryError.classList.remove('hidden');
+        memoryError.innerHTML = `<p style="color:var(--danger)">❌ Error loading memory analytics: ${error.message}</p>`;
+        document.getElementById('memoryOverview').classList.add('hidden');
+        document.getElementById('memoryRecentRuns').classList.add('hidden');
+    }
+}
+
+// Tab switching for Analytics
+function selectAnalyticsTab(name) {
+    const tabs = ['overview','runs','operators','voices','judges','golden','costs','thresholds','memory'];
+    tabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        if (el) el.classList.toggle('hidden', t !== name);
+    });
+    if (name === 'runs') {
+        loadEvolutionHistory();
+    } else if (name === 'memory') {
+        loadMemoryAnalytics();
+    }
+}
+
+window.selectAnalyticsTab = selectAnalyticsTab;
 
 // Golden Set runner with streaming
 async function runGoldenSet() {

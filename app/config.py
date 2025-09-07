@@ -42,6 +42,22 @@ GOLDEN_PASS_RATE_TARGET = float(os.getenv("GOLDEN_PASS_RATE_TARGET", "0.8"))
 # System voices (generation) feature flag
 FF_SYSTEMS_V2 = os.getenv("FF_SYSTEMS_V2", "0") == "1"
 
+# Memory system feature flag and configuration
+FF_MEMORY = os.getenv("FF_MEMORY", "0") == "1"
+MEMORY_K = int(os.getenv("MEMORY_K", "5"))
+MEMORY_REWARD_FLOOR = float(os.getenv("MEMORY_REWARD_FLOOR", "0.6"))
+MEMORY_PRIMER_TOKENS_MAX = int(os.getenv("MEMORY_PRIMER_TOKENS_MAX", "800"))
+MEMORY_DECAY_DAYS = int(os.getenv("MEMORY_DECAY_DAYS", "30"))
+MEMORY_EMBEDDER = os.getenv("MEMORY_EMBEDDER", "sentence-transformers/all-MiniLM-L6-v2")
+MEMORY_TASK_CLASS_FUZZY = os.getenv("MEMORY_TASK_CLASS_FUZZY", "1") == "1"
+MEMORY_REWARD_WEIGHT = float(os.getenv("MEMORY_REWARD_WEIGHT", "0.3"))
+MEMORY_TIME_DECAY = os.getenv("MEMORY_TIME_DECAY", "1") == "1"
+MEMORY_POLLUTION_GUARD = os.getenv("MEMORY_POLLUTION_GUARD", "1") == "1"
+MEMORY_MIN_CONFIDENCE = float(os.getenv("MEMORY_MIN_CONFIDENCE", "0.5"))
+MEMORY_BASELINE_REWARD = float(os.getenv("MEMORY_BASELINE_REWARD", "0.5"))
+MEMORY_STORE_MAX_SIZE = int(os.getenv("MEMORY_STORE_MAX_SIZE", "50000"))
+MEMORY_INJECTION_MODE = os.getenv("MEMORY_INJECTION_MODE", "system_prepend")
+
 # Reward blending configuration (now standard)
 REWARD_ALPHA = float(os.getenv("REWARD_ALPHA", "1.0"))  # base score weight
 REWARD_BETA_PROCESS = float(os.getenv("REWARD_BETA_PROCESS", "0.2"))  # process improvement weight

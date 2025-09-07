@@ -12,7 +12,11 @@ from app.groq_client import available as groq_available
 from app.judge import judge_pair
 from app.ollama_client import MODEL_ID as OLLAMA_MODEL_ID
 from app.evolve.loop import score_output, stitch_context
-from app.memory import query_memory
+# Legacy memory import removed - using new episodic memory system
+from app.memory.store import get_memory_store, Experience
+from app.memory.retriever import build_memory_primer
+from app.memory.embed import get_embedding
+from app.memory.metrics import get_memory_metrics_tracker
 from app.tools.rag import query as rag_query  
 from app.tools.web_search import search as web_search
 from app.utils.logging import (
@@ -20,7 +24,7 @@ from app.utils.logging import (
     log_operator_selection, log_generation_timing
 )
 from app import realtime
-from app.config import FF_SYSTEMS_V2
+from app.config import FF_SYSTEMS_V2, FF_MEMORY, MEMORY_K, MEMORY_REWARD_FLOOR, MEMORY_INJECTION_MODE
 
 # Expanded system voices (FF_SYSTEMS_V2)
 VOICES_V2 = {
@@ -183,6 +187,46 @@ def meta_run(
     # Get task baseline once before the loop (used for cost penalty calculation)
     task_baseline = get_default_baseline(task)
     
+    # Memory system integration
+    memory_used = False
+    memory_hits = 0
+    memory_primer_tokens = 0
+    memory_primer = ""
+    
+    if FF_MEMORY:
+        try:
+            memory_store = get_memory_store()
+            memory_metrics_tracker = get_memory_metrics_tracker()
+            
+            # Pre-run memory retrieval
+            query_embedding = get_embedding(task)
+            experiences = memory_store.search(
+                query_embedding=query_embedding,
+                task_class=task_class, 
+                k=MEMORY_K,
+                reward_floor=MEMORY_REWARD_FLOOR
+            )
+            
+            memory_hits = len(experiences)
+            memory_used = memory_hits > 0
+            
+            if experiences:
+                memory_primer, memory_primer_tokens = build_memory_primer(experiences)
+                
+            # Stream memory update
+            if hasattr(realtime, 'stream_event'):
+                realtime.stream_event(run_id, "memory.update", {
+                    "hits": memory_hits,
+                    "primer_tokens": memory_primer_tokens,
+                    "store_size": memory_store.count()
+                })
+                
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Memory system error during pre-run: {e}")
+            memory_used = False
+            memory_hits = 0
+    
     # Evolution loop
     for i in range(n):
         try:
@@ -224,6 +268,10 @@ def meta_run(
             
             # Gather contexts based on plan
             context = {"task": task}
+            
+            # Add memory primer if available
+            if FF_MEMORY and memory_primer and MEMORY_INJECTION_MODE == "system_prepend":
+                context["memory_primer"] = memory_primer
             
             if plan.get("use_memory") and session_id:
                 try:
@@ -640,6 +688,55 @@ def meta_run(
         realtime.publish(run_id, {"type": "done", "run_id": run_id, "result": final_results})
     except Exception:
         pass
+
+    # Memory system post-run integration
+    if FF_MEMORY and best_output and best_total_reward != float('-inf'):
+        try:
+            # Store successful run as experience
+            experience = Experience.create(
+                task_class=task_class,
+                input_text=task,
+                plan_json=best_recipe or {},
+                operator_used=operator_sequence[-1] if operator_sequence else "unknown",
+                output_text=best_output,
+                reward=best_total_reward,
+                confidence_score=best_reward_breakdown.get("confidence", 0.8) if best_reward_breakdown else 0.8,
+                judge_ai=best_reward_breakdown.get("outcome_reward", 0.0) if best_reward_breakdown else 0.0,
+                judge_semantic=0.0,  # Could be enhanced with semantic scoring
+                tokens_in=len(task.split()) * 1.3,  # Rough estimation
+                tokens_out=len(best_output.split()) * 1.3,
+                latency_ms=sum(getattr(op, 'latency_ms', 0) for op in operator_sequence) if operator_sequence else 0
+            )
+            
+            memory_store.add(experience)
+            
+            # Determine lift source attribution
+            reward_delta = best_total_reward - baseline_total_reward
+            lift_source = "memory" if memory_used and reward_delta > 0.05 else "none"
+            
+            # Stream memory result
+            if hasattr(realtime, 'stream_event'):
+                realtime.stream_event(run_id, "memory.result", {
+                    "reward": best_total_reward,
+                    "reward_delta": reward_delta,
+                    "lift_source": lift_source
+                })
+            
+            # Record memory metrics
+            memory_metrics_tracker.record_run_metrics(
+                run_id=run_id,
+                task_class=task_class,
+                memory_hits=memory_hits,
+                memory_primer_tokens=memory_primer_tokens,
+                memory_store_size=memory_store.count(),
+                used_memory=memory_used,
+                lift_source=lift_source,
+                reward_delta=reward_delta
+            )
+            
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Memory system error during post-run: {e}")
 
     # Optional post-run Phase 4 loop (auto) with overlap safeguards
     try:

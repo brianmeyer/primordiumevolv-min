@@ -176,6 +176,7 @@ The interface has been completely redesigned with human-centered design principl
 ### Memory System
 - `POST /api/memory/build` - Build vector index from all messages
 - `POST /api/memory/query` - Query conversation history semantically
+- `GET /api/meta/analytics/memory` - Memory system analytics and metrics
 
 ### Meta-Evolution System
 - `POST /api/meta/run` - Trigger self-evolution cycle with bandit optimization
@@ -254,9 +255,37 @@ Deterministic micro-benchmarks to validate changes and measure Δ(total_reward) 
   - `per_item`: `{ id, task_type, outcome_reward, process_reward, cost_penalty, total_reward, steps }`
   - `aggregate`: `{ avg_total_reward, avg_cost_penalty, avg_steps, pass_rate }`
 
+## Episodic Memory System ("Memento Memory")
+
+Advanced episodic memory system that learns from past evolution runs to improve future performance through semantic similarity search and evolutionary priming.
+
+### Core Features
+- **Pre-run Retrieval**: Searches for similar past cases using HuggingFace embeddings before each evolution run
+- **Evolutionary Primer Injection**: Injects relevant past experiences as evolutionary hints into prompts
+- **Multi-factor Scoring**: Combines semantic similarity + reward scores + time decay for optimal experience selection
+- **Performance Attribution**: Tracks reward lift from memory usage to validate system effectiveness
+- **Safety Features**: Pollution guards, LRU eviction, and confidence thresholds prevent memory corruption
+
+### Configuration
+Enable with `FF_MEMORY=1` in `.env`. Key settings:
+- `MEMORY_K=5` - Number of experiences to retrieve per run
+- `MEMORY_REWARD_FLOOR=0.6` - Minimum reward threshold for storing experiences  
+- `MEMORY_PRIMER_TOKENS_MAX=800` - Maximum tokens for memory primer injection
+- `MEMORY_DECAY_DAYS=30` - Time decay period for experience relevance
+- `MEMORY_EMBEDDER=sentence-transformers/all-MiniLM-L6-v2` - HuggingFace embedding model
+- `HUGGING_FACE_API_TOKEN=<token>` - Required for embedding API access
+
+### Memory Analytics
+The Memory tab in Analytics provides comprehensive insights:
+- **Hit Rate**: Percentage of runs that successfully used memory
+- **Reward Lift**: Average performance improvement from memory usage  
+- **Store Metrics**: Current memory store size and primer token distribution
+- **Task Class Breakdown**: Memory performance segmented by task type
+- **Recent Runs**: Detailed view of memory usage in recent evolution runs
+
 ## Analytics UI (Tabbed)
 
-Open the Analytics panel to explore metrics across seven tabs:
+Open the Analytics panel to explore metrics across eight tabs:
 
 - Overview: KPI tiles (Total Runs, Avg Reward/Score, improvement) + mini trend + task performance.
 - Runs: Recent runs list (replaces the old “Evolution History” panel) with refresh; drill‑down via `/api/meta/runs/{id}`.
@@ -266,6 +295,7 @@ Open the Analytics panel to explore metrics across seven tabs:
 - Golden: “🏁 Run Golden Set” streaming button and per‑task_type summary; streams via `/api/golden/stream`.
 - Costs: Evaluation latency p50/p90 and Golden average cost_penalty.
 - Thresholds: Current Phase‑4 thresholds (delta_reward_min, cost_ratio_max, pass_rate_target).
+- **Memory**: Hit rates, reward lift, store metrics, and recent memory usage when `FF_MEMORY=1`.
 
 Streaming behavior:
 - Evolution runs stream live in the “🧬 Evolution in Progress” section during a run (`/api/meta/stream`).

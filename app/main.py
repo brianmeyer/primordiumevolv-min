@@ -31,6 +31,7 @@ import time
 from glob import glob
 from app.config import FF_CODE_LOOP
 from app import code_loop
+import asyncio
 
 load_dotenv()
 PORT = int(os.getenv("PORT", "8000"))
@@ -101,8 +102,6 @@ async def groq_models():
 @app.get("/api/meta/stream")
 async def meta_stream(run_id: int):
     """Server-Sent Events stream for a run's live updates."""
-    import asyncio
-    import json as _json
     from app import realtime as _rt
 
     q = _rt.subscribe(run_id)
@@ -117,14 +116,14 @@ async def meta_stream(run_id: int):
                     # Non-blocking get with timeout
                     try:
                         evt = q.get_nowait()
-                        yield f"data: {_json.dumps(evt)}\n\n"
+                        yield f"data: {json.dumps(evt)}\n\n"
                     except:
                         # No event available, send keep-alive and wait
                         yield ": keep-alive\n\n" 
                         await asyncio.sleep(5)
                         
                 except Exception as e:
-                    yield f"data: {_json.dumps({'error': str(e)})}\n\n"
+                    yield f"data: {json.dumps({'error': str(e)})}\n\n"
                     break
         finally:
             _rt.unsubscribe(run_id, q)
@@ -151,7 +150,7 @@ async def golden_stream(run_id: str):
             while True:
                 try:
                     evt = q.get_nowait()
-                    yield f"data: {_json.dumps(evt)}\n\n"
+                    yield f"data: {json.dumps(evt)}\n\n"
                     # Break on completion or error
                     if evt.get("event") in ["completed", "error"]:
                         break
@@ -159,7 +158,7 @@ async def golden_stream(run_id: str):
                     yield "data: {\"event\": \"keep-alive\"}\n\n"
                     await asyncio.sleep(2)
         except Exception as e:
-            yield f"data: {_json.dumps({'event': 'error', 'message': str(e)})}\n\n"
+            yield f"data: {json.dumps({'event': 'error', 'message': str(e)})}\n\n"
 
     headers = {
         "Cache-Control": "no-cache",
@@ -701,6 +700,33 @@ async def human_rate_variant(body: HumanRatingRequest):
     except Exception as e:
         return handle_exception(e, "human_rating_failed")
 
+@app.get("/api/meta/analytics/memory")
+async def get_memory_analytics():
+    """Get comprehensive memory system analytics."""
+    try:
+        from app.memory.metrics import get_memory_metrics_tracker
+        from app.config import FF_MEMORY
+        
+        # Return empty analytics if memory is disabled
+        if not FF_MEMORY:
+            return JSONResponse({
+                "enabled": False,
+                "message": "Memory system is disabled (FF_MEMORY=0)"
+            })
+        
+        tracker = get_memory_metrics_tracker()
+        analytics = tracker.get_analytics(days_back=30)
+        recent_runs = tracker.get_recent_runs(limit=20)
+        
+        return JSONResponse({
+            "enabled": True,
+            "analytics": analytics,
+            "recent_runs": recent_runs
+        })
+        
+    except Exception as e:
+        return handle_exception(e, "memory_analytics_failed")
+
 @app.get("/api/meta/analytics")
 async def get_analytics():
     """Get comprehensive analytics showing system improvement over time."""
@@ -1030,7 +1056,6 @@ async def golden_run(request: Request):
         if response.get("status") == "started":
             # Wait for completion and return result
             import time
-            import asyncio
             run_id = response["run_id"]
             
             # Wait up to 60 seconds for completion
