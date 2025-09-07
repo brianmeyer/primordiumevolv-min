@@ -226,24 +226,44 @@ curl -X POST http://localhost:8000/api/chat \
 
 ## Golden Set
 
-Deterministic micro-benchmarks to validate changes and measure Δ(total_reward) and costs.
+Deterministic micro-benchmarks to validate changes and measure Δ(total_reward) and costs across six task types.
 
 - Storage: `storage/golden/*.json` — one item per file with schema:
-  `{ id, task_class, task, assertions[], inputs?, expected?, seed, flags{web, rag_k} }`.
+  `{ id, task_type, task_class, task, assertions[], inputs?, expected?, seed, flags{web, rag_k} }`.
+- Task types (coverage ≥3–5 items each): Code & Programming, Data Analysis, Creative Writing, Business Strategy, Research & Facts, General Task.
+
 - Endpoints:
   - `GET /api/golden/list` — IDs and metadata.
   - `POST /api/golden/run` — runs all or subset, returns KPI JSON.
-- Artifacts: `runs/<ts>/golden_kpis.json` with per-item results and aggregate summary.
+- Artifacts: `runs/<ts>/golden_kpis.json` with per‑item and aggregate summary:
+  - `per_item`: `{ id, task_type, outcome_reward, process_reward, cost_penalty, total_reward, steps }`
+  - `aggregate`: `{ avg_total_reward, avg_cost_penalty, avg_steps, pass_rate }`
 
-## Phase 4: Criticize–Edit–Test Loop
+## Phase 4: AlphaEvolve‑lite (Criticize → Edit → Test → Decide)
 
-Automated loop (allowlisted modules only) to propose minimal patches, test, and gate on Golden Set:
-- Critic generates a minimal patch plan when Golden KPIs regress.
-- Edit applies ≤50 LOC across ≤3 patches.
-- Test runs unit tests and Golden Set (≥3 items).
-- Decision gates: all tests pass; Δ(total_reward) ≥ 0.05; cost_penalty ≤ 0.9× baseline; artifact schema intact.
-- Persist `runs/<ts>/code_loop.json` with critic note, patch summary, KPIs before/after, decision.
-```
+Safe, automated improvement loop on allowlisted files, gated by the Golden Set and unit tests.
+
+- Enable: set `FF_CODE_LOOP=1` (auto‑invokes after each meta run completes) or trigger via the existing Phase‑4 endpoint.
+- Modes: `CODE_LOOP_MODE=live|dry_run` (default `live`). Dry‑run produces a plan + KPIs without patching.
+- Safety: queue + global lock (at‑most‑one active), idempotency (per `source_run_id`), hard timeout (`CODE_LOOP_TIMEOUT_SECONDS`, default 600s), and rate limit (`CODE_LOOP_MAX_PER_HOUR`, default 3).
+- Allowlist + caps: edits limited to reward tuning (via `storage/tuning.json`), `storage/*.json` (Golden Set), and `tests/*`; ≤50 LOC per patch, ≤3 patches per loop; auto‑revert on failure.
+- Acceptance gates (ALL must pass):
+  - Unit tests pass (`pytest -q`).
+  - `Δ(total_reward)_aggregate ≥ PHASE4_DELTA_REWARD_MIN` (default 0.05).
+  - `avg_cost_penalty_after ≤ PHASE4_COST_RATIO_MAX × avg_cost_penalty_before` (default 0.9).
+  - Artifact schema intact (iteration/trajectory/eval/golden parse and expected fields present).
+- Determinism & costs: seeds pinned; `WEB=false`, `rag_k` pinned for Golden runs; model id and RAG index hash logged; evaluation latency is included in `cost_penalty`.
+- Artifacts: `runs/<ts>/code_loop.json` with `{ loop_id, source_run_id, mode, critic, patch { unified_diff_snippet, git_commit }, tests, golden_kpis_before_after, thresholds, context, decision }`.
+
+### Configuration (thresholds)
+
+- `PHASE4_DELTA_REWARD_MIN` (float, default `0.05`)
+- `PHASE4_COST_RATIO_MAX` (float, default `0.9`)
+- `GOLDEN_PASS_RATE_TARGET` (float, default `0.80`)
+- `CODE_LOOP_TIMEOUT_SECONDS` (int, default `600`)
+- `CODE_LOOP_MAX_PER_HOUR` (int, default `3`)
+
+Thresholds are surfaced in `/api/meta/analytics` and embedded in `code_loop.json`.
 
 ## Meta-Evolution System
 

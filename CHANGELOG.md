@@ -262,3 +262,24 @@
 - Old API endpoints remain functional
 - Previous configurations still work
 - Technical users can access advanced features through collapsible sections
+## [2.6.0] - 2025-09-07 - Phase 4 (AlphaEvolve‑lite) Completed
+
+### ✅ Loop Orchestration & Safety
+- Auto‑invocation behind `FF_CODE_LOOP` after meta runs; non‑blocking with queue + global lock and idempotency per `source_run_id`.
+- Rate limit and hard timeout with configurable envs; `live` and `dry_run` modes.
+
+### 🧪 Tests & Guardrails
+- Added unit tests for reward math, UCB behavior, loop controls, and artifact integrity.
+- Enforced allowlist with tiny JSON tuning patches; auto‑revert on failure; diff snippet and optional git hash recorded.
+
+### 🏁 Golden Set
+- Expanded to ≥3–5 items per task type (≈30+ total); deterministic seeds; web off; rag_k pinned.
+- Endpoints: `GET /api/golden/list`, `POST /api/golden/run`; artifacts written to `runs/<ts>/golden_kpis.json`.
+
+### 📊 Analytics Deepening
+- Judges: tie‑breaker rate and eval latency p50/p90; operators: coverage & mean total_reward; Golden trends by task_type; thresholds surfaced.
+- UI panels: Judges, Operators, Golden Set, Costs.
+
+### 🛡 Policy & Rewards
+- Local‑only generation (engine="ollama"); Groq used for evaluation only (two‑judge + tie‑breaker) with metadata.
+- Bandit uses `total_reward`; artifacts include `reward_breakdown` and `bandit_state`.
