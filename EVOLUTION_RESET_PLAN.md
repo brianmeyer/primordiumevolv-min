@@ -97,19 +97,19 @@ primordiumevolv-min/
       - model: "llama-3.3-70b-versatile"
         description: "Advanced reasoning capabilities"
         role: "primary"
-        weight: 0.20
+        weight: 0.18
       - model: "openai/gpt-oss-120b"
         description: "Large-scale language understanding"
         role: "primary" 
-        weight: 0.15
+        weight: 0.14
       - model: "openai/gpt-oss-20b"
         description: "Efficient high-quality evaluation"
         role: "primary"
-        weight: 0.15
+        weight: 0.14
       - model: "llama-3.1-8b-instant"
         description: "Fast, reliable scoring"
         role: "primary"
-        weight: 0.15
+        weight: 0.14
       - model: "groq/compound"
         description: "Multi-faceted analysis"
         role: "primary"
@@ -117,15 +117,15 @@ primordiumevolv-min/
       - model: "groq/compound-mini"
         description: "Lightweight evaluation"
         role: "secondary"
-        weight: 0.08
+        weight: 0.10
       - model: "meta-llama/llama-4-maverick-17b-128e-instruct"
         description: "Latest instruction-following"
         role: "secondary"
-        weight: 0.07
+        weight: 0.08
       - model: "meta-llama/llama-4-scout-17b-16e-instruct"
         description: "Exploration-focused evaluation"
         role: "secondary"
-        weight: 0.05
+        weight: 0.07
       - model: "qwen/qwen3-32b"
         description: "Advanced multilingual capabilities"
         role: "tiebreaker"
@@ -155,6 +155,7 @@ primordiumevolv-min/
 - Create `scripts/reset_evolution.py` with comprehensive data handling:
   - **Full Data Backup**: `backups/{timestamp}/`
     - Judge history tables and metadata
+    - Meta runs and evolution variants (meta_runs, variants tables)
     - Bandit arm statistics and payoffs  
     - Human ratings and feedback data
     - Recipe evolution chains

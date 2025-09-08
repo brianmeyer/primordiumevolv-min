@@ -1,0 +1,40 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-07T22:32:47.640182+00:00",
+  "unix_timestamp": 1757284367.6401868,
+  "data": {
+    "run_id": 67,
+    "task_class": "code",
+    "task": "Write a simple script that automates data cleanup and summarizes results in a table.",
+    "config": {
+      "n": 15,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.3,
+      "use_bandit": true,
+      "bandit_algorithm": "ucb",
+      "framework_mask": [
+        "SEAL",
+        "SAMPLING",
+        "WEB"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

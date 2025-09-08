@@ -1,0 +1,106 @@
+{
+  "run_id": 79,
+  "task_class": "general",
+  "task": "Create a to-do list with 5 items for preparing a presentation.",
+  "assertions": [
+    "- ",
+    "5 items"
+  ],
+  "best_score": 0.4404651685869825,
+  "best_total_reward": 0.5014411685869825,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5506686410313444,
+      "top_k": 31,
+      "max_tokens": 4096
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 8,
+      "avg_reward": 0.6764623119639971
+    },
+    "inject_rag": {
+      "n": 15,
+      "avg_reward": 0.6315053891765547,
+      "mean_payoff": 0.033429411239132165
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 6,
+      "avg_reward": 0.6063565682126298
+    },
+    "change_nudge": {
+      "n": 7,
+      "avg_reward": 0.6778310272277557
+    },
+    "lower_temp": {
+      "n": 11,
+      "avg_reward": 0.6293388498547311,
+      "mean_payoff": 0.044909513224039195
+    },
+    "inject_memory": {
+      "n": 9,
+      "avg_reward": 0.604409205068973
+    },
+    "lower_top_k": {
+      "n": 8,
+      "avg_reward": 0.7363836547162345
+    },
+    "raise_top_k": {
+      "n": 6,
+      "avg_reward": 0.5929744818362432,
+      "mean_payoff": 0.07300228836241682
+    }
+  },
+  "baseline": 0.4681012303700206,
+  "improvement": -0.027636061783038124,
+  "total_reward_improvement": 0.5014411685869825,
+  "timestamp": 1757287265,
+  "metrics": {
+    "best_total_reward": 0.5014411685869825,
+    "best_score": 0.4404651685869825,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.039023999999999996,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.501",
+        "cost efficiency: 0.039 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.4404651685869825,
+    "process_reward": 0.1,
+    "cost_penalty": 0.039023999999999996,
+    "total_reward": 0.5014411685869825,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

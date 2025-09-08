@@ -1,0 +1,105 @@
+{
+  "run_id": 45,
+  "task_class": "analysis",
+  "task": "Filter rows where age > 30 from a sample CSV and count them. Assume data is provided inline.",
+  "assertions": [
+    "filter",
+    "> 30",
+    "count"
+  ],
+  "best_score": 0.3095998815522997,
+  "best_total_reward": 0.46937188155229975,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5731024046078352,
+      "top_k": 45,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 7,
+      "avg_reward": 0.6775600395085769
+    },
+    "inject_rag": {
+      "n": 5,
+      "avg_reward": 0.5907004202437122
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 3,
+      "avg_reward": 0.6427303168941426
+    },
+    "change_nudge": {
+      "n": 3,
+      "avg_reward": 0.5618268740907474
+    },
+    "lower_temp": {
+      "n": 5,
+      "avg_reward": 0.6330103304049066
+    },
+    "inject_memory": {
+      "n": 5,
+      "avg_reward": 0.6309151305362253
+    },
+    "lower_top_k": {
+      "n": 3,
+      "avg_reward": 0.6834995923569522
+    },
+    "raise_top_k": {
+      "n": 3,
+      "avg_reward": 0.5483751584072415,
+      "mean_payoff": 0.1564572938507666
+    }
+  },
+  "baseline": 0.5837527520084135,
+  "improvement": -0.27415287045611375,
+  "total_reward_improvement": 0.46937188155229975,
+  "timestamp": 1757279364,
+  "metrics": {
+    "best_total_reward": 0.46937188155229975,
+    "best_score": 0.3095998815522997,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.040228,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.469",
+        "cost efficiency: 0.040 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.3095998815522997,
+    "process_reward": 0.2,
+    "cost_penalty": 0.040228,
+    "total_reward": 0.46937188155229975,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

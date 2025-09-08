@@ -1,0 +1,100 @@
+{
+  "iteration": 0,
+  "operator": "lower_top_k",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 25,
+      "num_predict": 512
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.4140544632044072,
+  "reward": 0.7140544632044072,
+  "reward_breakdown": {
+    "outcome_reward": 0.4140544632044072,
+    "process_reward": 0.30000000000000004,
+    "cost_penalty": 0.0,
+    "total_reward": 0.7140544632044072,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.06491404210949157,
+      "plays": 11,
+      "ucb_score": 1.3671413779547232
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.1338214032274565
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.0222150680043045
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9437833024666087
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 14,
+        "ucb_score": 1.766165645372694
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.9438817978705822
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8339656947458933
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 17,
+        "ucb_score": 1.6757120290837375
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.99696545783297
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9536460527680461
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.06491404210949157,
+        "plays": 11,
+        "ucb_score": 1.3671413779547232
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, let's see. I need to create a Python function that uses the Sieve of Eratosthenes to find all primes up to N. The user wants it efficient and concise. Hmm, the Sieve of Eratosthenes works by iteratively marking the multiples of each prime starting from 2. The key is to optimize it to avoid unnecessary checks.\n\nFirst, I should remember the standard steps. Initialize a boolean list of length N+1, where index 0 and 1 are False (since 0 and 1 aren't primes). Then start from 2, mark all multiples as False. But to make it efficient, once a number is marked as non-prime, we can skip it in the loop. Also, the square root optimization: we only need to check up to sqrt(N), because any composite number larger than sqrt(N) would have a factor less than or equal to sqrt(N).\n\nWait, the user wants the function to be precise and directly usable. So the function should return a list of primes up to N. Let me think about edge cases. If N is less than 2, return empty list. For N=2, return [2].\n\nLet me outline the steps:\n\n1. If N < 2, return [].\n2. Create a list `is_prime` of length N+1, initialized to True.\n3. Set is_prime[0] = is_prime[1] = False.\n4. Iterate from 2 to sqrt(N) (integer part). For each prime i, mark multiples of i starting from i*i as False.\n5. Collect all indices where is_prime[i] is True into the result list.\n\nWait, but the standard sieve does start checking from i*i to avoid redundant checks. Like, for i=2, mark 4,6,8,...; for i=3, mark 9,12,... etc. So the loop runs from 2 to sqrt(N), and for each i, if is_prime[i] is True, then mark multiples from i*i.\n\nAlso, the list can be optimized by using a list of booleans. The time complexity is O(N log log N), which is efficient for the sieve.\n\nLet me write the code step by step.\n\nFunction definition: def sieve(n):\n\nif n < 2:\n    return []\n\nis_prime = [True] * (n + 1)\nis_prime[0] = False\nis_prime[1] = False\n\nfor"
+}

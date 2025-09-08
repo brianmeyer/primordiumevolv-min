@@ -1,0 +1,100 @@
+{
+  "iteration": 1,
+  "operator": "inject_rag",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.30225533216768485,
+  "reward": 0.4863913321676849,
+  "reward_breakdown": {
+    "outcome_reward": 0.30225533216768485,
+    "process_reward": 0.25,
+    "cost_penalty": 0.06586399999999999,
+    "total_reward": 0.4863913321676849,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.024319566608384243,
+      "plays": 20,
+      "ucb_score": 1.0140508230564071
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.908130986642365
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.9037001514045455
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.830511181048845
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 17,
+        "ucb_score": 1.6602995910339968
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 1.8220730187464964
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 15,
+        "ucb_score": 1.7075330722392947
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.024319566608384243,
+        "plays": 20,
+        "ucb_score": 1.0140508230564071
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.022169498060678
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.028247775603465388,
+        "plays": 13,
+        "ucb_score": 1.2558583126852088
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 1.8781111463761089
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user wants a concise daily checklist for tracking system experiments and evaluating results. They provided some context about RAG systems, CSQA test sets, data splits, and documentation requirements. \n\nHmm, the context seems messy with some random text fragments and incomplete tables. But I see key elements: they're working with RAG systems, using in-house data splits (train/validation/test), and have specific documentation needs around data lineage, ontology health, and application debugging. \n\nThe user is a senior engineer who needs something practical. They emphasized \"precise, directly usable output\" and \"bullet points\" - so I should avoid fluff. The constraints say no explanations, just the checklist.\n\nLet me extract actionable items from the context:\n- Must track experiments (they mention RAG experiments)\n- Evaluate results (with CSQA test set being their benchmark)\n- Data freshness checks (applications need fresh/correct data)\n- Ontology changes require migration strategies\n- Debugging applications is critical\n\nI'll structure it as a daily checklist with clear, executable steps. Should focus on what they actually do each day - not theoretical concepts. \n\n*Pivots to practical items*: \nFirst, experiment tracking - they need to log what they ran. \nSecond, results evaluation - since they use in-house splits, check validation metrics daily. \nThird, data health - their docs mention \"data lineage\" and \"health checks\" so that's daily. \nFourth, ontology impact - they specifically want to know affected apps and migration plans. \nFifth, debugging - must be part of daily routine.\n\n*Avoids the messy context parts*: The random numbers (15-20) and incomplete tables don't help here. I'll ignore those. Focus on what's actionable.\n\n*Checks for precision*: \n- No markdown as per constraints \n- Strict bullet points \n- Each item starts with action verb \n- Directly ties to their context (e.g., \"validate against in-house splits\" references their training data)\n\n*Final check*: \nIs this actually usable tomorrow? Yes - a dev could implement this in their daily workflow without extra tools. Short enough to remember? 5 items max. \n\nDone. Output is clean.\n</think>\n\n- Log experiment ID, parameters, and run time for each RAG system test  \n- Validate results against in-house training/validation splits (Etr/Rtr)  \n- Verify data freshness and correctness in applications (Workshop, Quiver, etc.)  \n- Check ontology impact on affected applications and document migration strategies  \n- Resolve critical debugging issues in applications within 24 hours"
+}

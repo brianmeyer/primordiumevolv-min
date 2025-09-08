@@ -1,0 +1,100 @@
+{
+  "iteration": 4,
+  "operator": "add_fewshot",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": "Example: Analyze this data pattern.\nPattern shows 20% increase in usage during peak hours, suggesting need for scaling."
+  },
+  "score": 0.42512627947293785,
+  "reward": 0.48558627947293775,
+  "reward_breakdown": {
+    "outcome_reward": 0.42512627947293785,
+    "process_reward": 0.25,
+    "cost_penalty": 0.18954000000000001,
+    "total_reward": 0.48558627947293775,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.03735279072868752,
+      "plays": 13,
+      "ucb_score": 1.258220966874548
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9761610900311046
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.9592358428343117
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.8837269883196808
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.027223636286431888,
+        "plays": 17,
+        "ucb_score": 1.0948418855804158
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.03735279072868752,
+        "plays": 13,
+        "ucb_score": 1.258220966874548
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.036053043851333615,
+        "plays": 15,
+        "ucb_score": 1.1726194620846124
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.02083802424016389,
+        "plays": 19,
+        "ucb_score": 1.0307037877488945
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.060927776693704055,
+        "plays": 8,
+        "ucb_score": 1.6172354401167481
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.8854301934714108
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.9366532829090537
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are given a context that says: \"Show me how to set up a safe retry loop for an API call with exponential backoff.\"\n The examples provided are about a data pattern (20% increase in usage during peak hours) but that's not directly relevant to the retry loop.\n\n Constraints: Respond in bullet points.\n\n As a concise senior engineer, I will provide precise, directly usable steps for setting up a safe retry loop with exponential backoff for an API call.\n\n Steps to consider:\n 1. Define the maximum number of retries and the initial backoff time.\n 2. Implement exponential backoff with jitter to avoid thundering herd.\n 3. Handle the retry logic in a way that the API call is retried only if the error is transient (e.g., network issues, 5xx errors).\n 4. Ensure the retry loop doesn't run indefinitely (with a max retry count).\n\n Important: We don't want to retry on non-transient errors (like 400s, 404s, etc.) because that would be incorrect.\n\n Let's write the bullet points:\n\n - Define a maximum retry count (e.g., 3) and a base backoff time (e.g., 100ms).\n - For each retry attempt (starting from 0), calculate the backoff time as: `backoff = base * (2 ** retry_count) + random.uniform(0, base)`. This adds jitter to avoid synchronized retries.\n - On each retry, check the error status code: only retry on 5xx errors (or specific transient errors) and avoid retrying on 4xx (client errors) or other non-transient errors.\n - Implement a retry loop that breaks after the maximum retry count is reached.\n - Use a separate function for the API call that can be wrapped with the retry logic (e.g., using a library like `tenacity` in Python, or manual implementation).\n\n However, note: the user asked for a safe retry loop. We must be cautious to not retry too aggressively.\n\n Since the user wants concise and directly usable, I'll write the steps without code examples (unless necessary) but in bullet points.\n\n But note: the constraint says \"Respond in bullet points\". So I'll write:\n\n - Set a maximum retry count (e.g., 3) to prevent infinite loops.\n - Start with a base backoff time (e.g., 100ms) and apply exponential backoff with jitter: `backoff = base * (2 ** attempt) + random.uniform(0, base)`.\n - Only retry on network errors (5xx status codes) or specific transient errors (e.g., connection errors).\n - Implement a loop that attempts the API call, and if it fails with a transient error, wait for the calculated backoff time before retrying.\n - Break the loop after the maximum retries to avoid overwhelming the server.\n\n However, the context says \"Examples\" but the example provided is about data pattern (which we can ignore because it's not relevant to the retry loop).\n\n Let me make sure it's concise and directly usable.\n\n Alternative: If the user is using a specific language, but the question doesn't specify. I'll assume general Python (since it's common) but the problem says \"directly usable\" without language? Actually, the problem doesn't specify language. So I'll write in a way that's language-agnostic as much as possible, but note: backoff calculations are language-independent.\n\n But the problem says: \"precise, directly usable output\". So I'll write in bullet points without code.\n\n Final bullet points:\n\n - Define maximum retries (e.g., 3) and base backoff time (e.g., 100ms).\n - For each retry attempt (starting at 0):\n     - Calculate backoff time: `base * 2^attempt + random(0, base)`\n - Only retry on transient errors (e.g., HTTP 5xx, network timeouts).\n - Exit loop after max retries to prevent indefinite waiting.\n - Avoid retrying on client errors (e.g., 4xx) or non-transient errors.\n\n However, the problem says \"safe retry loop\". We must be safe from too many retries and from overwhelming the server.\n\n Let me write the bullets:\n\n - Set a maximum retry count (e.g., 3) to avoid indefinite retries.\n - Initialize with a base backoff time (e.g., 100ms) and apply exponential backoff with jitter: `backoff = base * (2 ** retry_count) + random.uniform(0, base)`.\n - Only retry when the error is transient (e.g., HTTP status 5xx, connection errors).\n - Implement a loop that waits for the computed backoff time before retrying after a transient error.\n - Break the loop after the maximum retries to prevent overwhelming the server.\n\n This is concise and directly usable.\n\n But note: the problem says \"exponential backoff\" and we are doing that.\n\n I"
+}

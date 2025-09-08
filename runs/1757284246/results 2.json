@@ -1,0 +1,103 @@
+{
+  "run_id": 66,
+  "task_class": "business",
+  "task": "Outline a market entry plan for launching a meal-kit in a mid-size city.",
+  "assertions": [
+    "market entry",
+    "plan"
+  ],
+  "best_score": 0.5677748018785904,
+  "best_total_reward": 0.6177748018785905,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Provide step-by-step reasoning.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 28,
+      "max_tokens": 4096
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 8,
+      "avg_reward": 0.6764623119639971
+    },
+    "inject_rag": {
+      "n": 13,
+      "avg_reward": 0.6403791953534268,
+      "mean_payoff": 0.04752113860604542
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 5,
+      "avg_reward": 0.6376916598191331
+    },
+    "change_nudge": {
+      "n": 6,
+      "avg_reward": 0.6716418660094107
+    },
+    "lower_temp": {
+      "n": 9,
+      "avg_reward": 0.64006905250751
+    },
+    "inject_memory": {
+      "n": 9,
+      "avg_reward": 0.604409205068973,
+      "mean_payoff": 0.06256459407361446
+    },
+    "lower_top_k": {
+      "n": 7,
+      "avg_reward": 0.7492009077714813
+    },
+    "raise_top_k": {
+      "n": 4,
+      "avg_reward": 0.655187784138755
+    }
+  },
+  "baseline": 0.5731654502773751,
+  "improvement": -0.00539064839878467,
+  "total_reward_improvement": 0.6177748018785905,
+  "timestamp": 1757284246,
+  "metrics": {
+    "best_total_reward": 0.6177748018785905,
+    "best_score": 0.5677748018785904,
+    "avg_total_reward": null,
+    "steps_to_best": 1,
+    "cost_penalty_avg": 0.12805200000000003,
+    "promotion": {
+      "eligible": false,
+      "reasons": [
+        "cost too high: 0.128 > 0.090"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.5677748018785904,
+    "process_reward": 0.25,
+    "cost_penalty": 0.2,
+    "total_reward": 0.6177748018785905,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

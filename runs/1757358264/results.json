@@ -1,0 +1,108 @@
+{
+  "run_id": 109,
+  "task_class": "code",
+  "task": "Show me how to set up a safe retry loop for an API call with exponential backoff.",
+  "assertions": [],
+  "best_score": 0.39371683520742434,
+  "best_total_reward": 0.5594168352074244,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Add a short checklist at the end.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 13,
+      "avg_reward": 0.5944624816647529,
+      "mean_payoff": 0.03735279072868752
+    },
+    "inject_rag": {
+      "n": 19,
+      "avg_reward": 0.6086713220238962,
+      "mean_payoff": 0.02083802424016389
+    },
+    "raise_temp": {
+      "n": 12,
+      "avg_reward": 0.5527736232341334,
+      "mean_payoff": 0.042645549216663324
+    },
+    "toggle_web": {
+      "n": 8,
+      "avg_reward": 0.45726697714269593,
+      "mean_payoff": 0.060927776693704055
+    },
+    "change_system": {
+      "n": 11,
+      "avg_reward": 0.5735776326967074,
+      "mean_payoff": 0.042525634238535816
+    },
+    "change_nudge": {
+      "n": 12,
+      "avg_reward": 0.6259625935898339,
+      "mean_payoff": 0.0466180696006187
+    },
+    "lower_temp": {
+      "n": 17,
+      "avg_reward": 0.5867853181404796,
+      "mean_payoff": 0.027223636286431888
+    },
+    "inject_memory": {
+      "n": 15,
+      "avg_reward": 0.5646898575679896,
+      "mean_payoff": 0.036053043851333615
+    },
+    "lower_top_k": {
+      "n": 13,
+      "avg_reward": 0.6505006092943655,
+      "mean_payoff": 0.035792858353577955
+    },
+    "raise_top_k": {
+      "n": 12,
+      "avg_reward": 0.5483258094091172,
+      "mean_payoff": 0.036636464002561216
+    }
+  },
+  "baseline": 0.6788969487452675,
+  "improvement": -0.28518011353784317,
+  "total_reward_improvement": 0.5594168352074244,
+  "timestamp": 1757358264,
+  "metrics": {
+    "best_total_reward": 0.5594168352074244,
+    "best_score": 0.39371683520742434,
+    "avg_total_reward": null,
+    "steps_to_best": 6,
+    "cost_penalty_avg": 0.15396,
+    "promotion": {
+      "eligible": false,
+      "reasons": [
+        "cost too high: 0.154 > 0.090"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.39371683520742434,
+    "process_reward": 0.35,
+    "cost_penalty": 0.18430000000000002,
+    "total_reward": 0.5594168352074244,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

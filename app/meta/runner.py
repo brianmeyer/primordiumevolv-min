@@ -289,7 +289,7 @@ def meta_run(
             if plan.get("use_memory") and session_id:
                 try:
                     memory_results = query_memory(task, k=memory_k)
-                    memory_snippets = [f"{r['role']}: {r['content'][:200]}" for r in memory_results[:memory_k]]
+                    memory_snippets = [f"{r['role']}: {r['content'][:500]}" for r in memory_results[:memory_k]]
                     context["memory_context"] = stitch_context([], memory_snippets, [])
                 except Exception:
                     context["memory_context"] = ""
@@ -297,7 +297,7 @@ def meta_run(
             if plan.get("use_rag"):
                 try:
                     rag_results = rag_query(task, k=rag_k)
-                    rag_snippets = [r["chunk"][:200] for r in rag_results[:rag_k]]
+                    rag_snippets = [r["chunk"][:500] for r in rag_results[:rag_k]]
                     context["rag_context"] = stitch_context(rag_snippets, [], [])
                 except Exception:
                     context["rag_context"] = ""
@@ -305,7 +305,7 @@ def meta_run(
             if plan.get("use_web"):
                 try:
                     web_results = web_search(task, top_k=EVO_DEFAULTS["web_k"])
-                    web_snippets = [f"{r['title']}: {r['snippet'][:100]}" for r in web_results]
+                    web_snippets = [f"{r['title']}: {r['snippet'][:300]}" for r in web_results]
                     context["web_context"] = stitch_context([], [], web_snippets)
                 except Exception:
                     context["web_context"] = ""
@@ -322,8 +322,17 @@ def meta_run(
             prompt_len = len(execution["prompt"])
             system_len = len(execution.get("system", ""))
             options = execution.get("options", {})
+            
+            # DEBUG: Log options immediately after ops.apply
+            print(f"[DEBUG] Options from ops.apply: {options}")
+            
+            # CRITICAL FIX: Add max_tokens for evolution (META_MAX_TOKENS from env)
+            # This is needed because options comes from plan["params"] which doesn't have max_tokens
+            meta_max_tokens = int(os.getenv("META_MAX_TOKENS", "2048"))
+            options["max_tokens"] = meta_max_tokens
+            
             print(f"[EVOLUTION DEBUG] Iteration {i}: Prompt length={prompt_len}, System length={system_len}, Total={prompt_len+system_len}")
-            print(f"[EVOLUTION DEBUG] Options: {options}")
+            print(f"[EVOLUTION DEBUG] Options after adding max_tokens: {options}")
             print(f"[EVOLUTION DEBUG] First 500 chars of prompt: {execution['prompt'][:500]}")
             
             # Generate output via selected engine with timing (no local token cap)
@@ -392,19 +401,51 @@ def meta_run(
                 judge_info = {}
                 if reward_breakdown.get("outcome_metadata"):
                     outcome_meta = reward_breakdown["outcome_metadata"]
-                    if outcome_meta.get("groq_metadata") and outcome_meta["groq_metadata"].get("judge_results"):
-                        judges = outcome_meta["groq_metadata"]["judge_results"]
-                        judge_info = {
-                            "judges": [{"model": j.get("model", "unknown"), "score": j.get("score", 0)} for j in judges if j.get("score") is not None],
-                            "tie_breaker_used": outcome_meta["groq_metadata"].get("needed_tie_breaker", False),
-                            "final_score": outcome_meta["groq_metadata"].get("final_score", score)
-                        }
+                    print(f"[JUDGE DEBUG] outcome_meta keys: {list(outcome_meta.keys()) if outcome_meta else 'None'}")
+                    if outcome_meta.get("groq_metadata"):
+                        groq_meta = outcome_meta["groq_metadata"]
+                        print(f"[JUDGE DEBUG] groq_metadata keys: {list(groq_meta.keys())}")
+                        print(f"[JUDGE DEBUG] method: {groq_meta.get('method')}")
+                        print(f"[JUDGE DEBUG] judge_results present: {bool(groq_meta.get('judge_results'))}")
+                        if groq_meta.get("judge_results"):
+                            judges = groq_meta["judge_results"]
+                            print(f"[JUDGE DEBUG] judge_results length: {len(judges)}")
+                            print(f"[JUDGE DEBUG] judge_results content: {judges}")
+                            judge_info = {
+                                "judges": [{"model": j.get("model", "unknown"), "score": j.get("score", 0)} for j in judges if j.get("score") is not None],
+                                "tie_breaker_used": groq_meta.get("needed_tie_breaker", False),
+                                "final_score": groq_meta.get("final_score", score)
+                            }
+                            print(f"[JUDGE DEBUG] Final judge_info: {judge_info}")
+                        else:
+                            print("[JUDGE DEBUG] No judge_results in groq_metadata, falling back to semantic")
+                            judge_info = {
+                                "judges": [{"model": "semantic_fallback", "score": score}],
+                                "tie_breaker_used": False,
+                                "final_score": score
+                            }
                     else:
+                        print("[JUDGE DEBUG] No groq_metadata found")
+                        # For ollama-only runs, still provide judge structure
                         judge_info = {
-                            "judges": [],
+                            "judges": [{"model": "ollama", "score": score}],
                             "tie_breaker_used": False,
                             "final_score": score
                         }
+                    else:
+                        # For ollama-only runs, still provide judge structure
+                        judge_info = {
+                            "judges": [{"model": "ollama", "score": score}],
+                            "tie_breaker_used": False,
+                            "final_score": score
+                        }
+                else:
+                    # Fallback for engines without groq metadata
+                    judge_info = {
+                        "judges": [{"model": plan.get("engine", "ollama"), "score": score}],
+                        "tie_breaker_used": False,
+                        "final_score": score
+                    }
                 realtime.publish(run_id, {
                     "type": "iter_score_done",
                     "run_id": run_id,

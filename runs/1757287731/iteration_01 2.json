@@ -1,0 +1,94 @@
+{
+  "iteration": 1,
+  "operator": "change_system",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a careful analyst. Trace reasoning in brief steps and confirm assumptions are valid.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.6081535968132152,
+  "reward": 0.7885575968132152,
+  "reward_breakdown": {
+    "outcome_reward": 0.6081535968132152,
+    "process_reward": 0.2,
+    "cost_penalty": 0.019595999999999992,
+    "total_reward": 0.7885575968132152,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.11265108525903075,
+      "plays": 7,
+      "ucb_score": 1.708063668932878
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.11265108525903075,
+        "plays": 7,
+        "ucb_score": 1.708063668932878
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.1954298866210795
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.205302446059976
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8429615845093483
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.0871291132269656
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.04323492806118757,
+        "plays": 11,
+        "ucb_score": 1.3159338921462118
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 16,
+        "ucb_score": 1.6953179841224588
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.1131394096655325
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.228755474380072
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user is asking about the capital of France. This seems straightforward, but I need to be careful as a meticulous analyst. \n\nFirst, I recall that Paris is universally recognized as the capital of France. But to be thorough, I should verify this isn't a trick question. The user specified \"careful analyst\" so I'll trace reasoning step by step.\n\nHmm... possible angles to check: \n- Historical context: France has had many capitals over time (like Paris since ancient times, but other cities briefly), but currently it's Paris.\n- Current administrative status: France's government institutions are based in Paris - presidency, parliament, etc.\n- International consensus: All major sources (Wikipedia, UN, governments) list Paris as capital.\n- Common misconceptions: Some might confuse it with other French territories, but the question specifies \"France\" (the country).\n\nWait - the user wants bullet points with constraints. I should avoid extra text. Also must confirm assumptions: \nAssumption 1: \"France\" refers to the sovereign country, not French departments or overseas territories. \nThis seems valid because in standard contexts, \"France\" means the nation-state. \nAssumption 2: The capital hasn't changed recently. \nNo, Paris has been capital since 1870s when France was unified, and it's still current. \n\n*Double-checking*: \n- France's constitution says \"Paris\" as capital. \n- The French government website lists Paris as capital. \n- Even if there were historical shifts (like Paris being capital of France since 13th century), the modern capital is unambiguously Paris. \n\nNo red flags here. User didn't specify any special context like \"which French region\" so standard answer applies. \n\nFinal bullet points should be minimal but precise. I'll list: \n- The capital is Paris\n- Why: Historical, administrative, international recognition\n- Assumptions: France = nation-state, no recent changes\n\n*Self-review*: Am I missing anything? Like... is there any country that calls itself \"France\" with different capital? No, France is clearly the French Republic. \n\nOkay, response ready.\n</think>\n\n- **Capital identification**: Paris is the capital city of France.  \n- **Reasoning step**: France's government institutions (e.g., National Assembly, \u00c9lys\u00e9e Palace), historical continuity (Paris has been the capital since the 13th century), and international consensus (all major governmental and academic sources) confirm this.  \n- **Assumption validation**:  \n  - *France refers to the sovereign nation-state*: Valid, as the question specifies \"France\" (the country), not departments or overseas territories.  \n  - *No recent capital changes*: Valid, as Paris remains the undisputed capital under current French constitutional and administrative frameworks."
+}

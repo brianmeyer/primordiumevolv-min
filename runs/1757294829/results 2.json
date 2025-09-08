@@ -1,0 +1,100 @@
+{
+  "run_id": 98,
+  "task_class": "code",
+  "task": "Write a simple script that automates data cleanup and summarizes results in a table.",
+  "assertions": [],
+  "best_score": 0.32992285457043724,
+  "best_total_reward": 0.5271388545704373,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 10,
+      "avg_reward": 0.65949029074891
+    },
+    "inject_rag": {
+      "n": 16,
+      "avg_reward": 0.6400517503864518
+    },
+    "raise_temp": {
+      "n": 8,
+      "avg_reward": 0.59261332672835
+    },
+    "toggle_web": {
+      "n": 3,
+      "avg_reward": 0.5033899542338864,
+      "mean_payoff": 0.1757129515234791
+    },
+    "change_system": {
+      "n": 8,
+      "avg_reward": 0.6068244984971182,
+      "mean_payoff": 0.0534873727359938
+    },
+    "change_nudge": {
+      "n": 9,
+      "avg_reward": 0.6723750334401382
+    },
+    "lower_temp": {
+      "n": 12,
+      "avg_reward": 0.624445096280936
+    },
+    "inject_memory": {
+      "n": 12,
+      "avg_reward": 0.5871779429463514
+    },
+    "lower_top_k": {
+      "n": 9,
+      "avg_reward": 0.7207082246125894
+    },
+    "raise_top_k": {
+      "n": 10,
+      "avg_reward": 0.5878585006045236
+    }
+  },
+  "baseline": 0.6788969487452675,
+  "improvement": -0.3489740941748303,
+  "total_reward_improvement": 0.5271388545704373,
+  "timestamp": 1757294829,
+  "metrics": {
+    "best_total_reward": 0.5271388545704373,
+    "best_score": 0.32992285457043724,
+    "avg_total_reward": null,
+    "steps_to_best": 4,
+    "cost_penalty_avg": 0.13001200000000002,
+    "promotion": {
+      "eligible": false,
+      "reasons": [
+        "cost too high: 0.130 > 0.090"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.32992285457043724,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0027840000000000087,
+    "total_reward": 0.5271388545704373,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

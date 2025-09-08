@@ -1,0 +1,105 @@
+{
+  "run_id": 57,
+  "task_class": "code",
+  "task": "Write a Python function reverse_string(s) that returns the reversed string and explain in one sentence.",
+  "assertions": [
+    "def reverse_string",
+    "[::-1] or reversed",
+    "returns correct for 'hello'"
+  ],
+  "best_score": 0.6788969487452675,
+  "best_total_reward": 0.9661902820786009,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 7,
+      "avg_reward": 0.6775600395085769
+    },
+    "inject_rag": {
+      "n": 9,
+      "avg_reward": 0.624498270844041
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 4,
+      "avg_reward": 0.6426614755943793
+    },
+    "change_nudge": {
+      "n": 5,
+      "avg_reward": 0.6546040392170613
+    },
+    "lower_temp": {
+      "n": 7,
+      "avg_reward": 0.6378466436126862
+    },
+    "inject_memory": {
+      "n": 6,
+      "avg_reward": 0.6142101628555207
+    },
+    "lower_top_k": {
+      "n": 6,
+      "avg_reward": 0.7454064469752302,
+      "mean_payoff": 0.16103171367976682
+    },
+    "raise_top_k": {
+      "n": 4,
+      "avg_reward": 0.655187784138755
+    }
+  },
+  "baseline": 0.6756256613332956,
+  "improvement": 0.0032712874119719126,
+  "total_reward_improvement": 0.9661902820786009,
+  "timestamp": 1757281435,
+  "metrics": {
+    "best_total_reward": 0.9661902820786009,
+    "best_score": 0.6788969487452675,
+    "avg_total_reward": null,
+    "steps_to_best": 1,
+    "cost_penalty_avg": 0.012706666666666666,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.966",
+        "cost efficiency: 0.013 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.6788969487452675,
+    "process_reward": 0.30000000000000004,
+    "cost_penalty": 0.012706666666666666,
+    "total_reward": 0.9661902820786009,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

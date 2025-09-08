@@ -1,0 +1,100 @@
+{
+  "iteration": 9,
+  "operator": "change_system",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return minimal, directly usable code or config.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.3217419766238939,
+  "reward": 0.467781976623894,
+  "reward_breakdown": {
+    "outcome_reward": 0.3217419766238939,
+    "process_reward": 0.30000000000000004,
+    "cost_penalty": 0.15396,
+    "total_reward": 0.467781976623894,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.042525634238535816,
+      "plays": 11,
+      "ucb_score": 1.375028668188535
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.042525634238535816,
+        "plays": 11,
+        "ucb_score": 1.375028668188535
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0466180696006187,
+        "plays": 12,
+        "ucb_score": 1.322392595471912
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.042645549216663324,
+        "plays": 12,
+        "ucb_score": 1.3184200750879567
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.027223636286431888,
+        "plays": 17,
+        "ucb_score": 1.0990886324591416
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.03735279072868752,
+        "plays": 13,
+        "ucb_score": 1.263077307724671
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.036053043851333615,
+        "plays": 15,
+        "ucb_score": 1.177140469375644
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.02083802424016389,
+        "plays": 19,
+        "ucb_score": 1.0347208081416697
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.060927776693704055,
+        "plays": 8,
+        "ucb_score": 1.6234260843066066
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.036636464002561216,
+        "plays": 12,
+        "ucb_score": 1.3124109898738545
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.035792858353577955,
+        "plays": 13,
+        "ucb_score": 1.2615173753495617
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are to show how to set up a safe retry loop for an API call with exponential backoff.\n Constraints: Respond in bullet points.\n\n We'll focus on a minimal, directly usable code snippet (in Python) that demonstrates the concept.\n\n Steps:\n 1. We'll use the `tenacity` library for simplicity and robustness (it handles backoff and retries).\n 2. Alternatively, we can write a simple loop without external libraries, but the problem says \"minimal, directly usable code or config\".\n 3. Since the problem says \"safe retry loop\", we want to avoid common pitfalls (like too many retries, too fast backoff).\n\n However, note: The problem says \"Return minimal, directly usable code or config\". So we have two options:\n   a) A code snippet (with minimal dependencies) that does the job.\n   b) A configuration for a library (like tenacity) but the problem says \"code or config\".\n\n Since the problem is about a safe retry loop, and we want it to be minimal, I'll choose a code snippet that uses the `tenacity` library because it's the standard for this.\n\n But note: The problem says \"minimal\". So if we don't want to add a dependency, we can do a simple loop.\n\n However, the problem says \"safe retry loop with exponential backoff\". Without a library, we have to code it.\n\n Let's do two options? But the problem says \"minimal, directly usable code or config\". And we are to return in bullet points.\n\n I think the expected answer is a code snippet that is minimal and safe.\n\n Considering the constraints of the problem (respond in bullet points) and the need for minimalism, I'll provide a code snippet that uses the `tenacity` library because it's the most common and safe way.\n\n But note: The problem says \"safe\". The `tenacity` library is designed for this.\n\n Alternatively, if we are to avoid external libraries, we can write a simple exponential backoff loop.\n\n However, the problem says \"directly usable code\". So I'll choose the `ten`tenacity approach because it's standard and safe.\n\n Steps for tenacity:\n   - Install tenacity: `pip install tenacity`\n   - Then use it.\n\n But the problem says \"minimal, directly usable code\". So we write a small example.\n\n However, the problem says \"Respond in bullet points\". So:\n\n Option 1 (using tenacity):\n   - Install tenacity: `pip install tenacity`\n   - Use the following code:\n\n But note: The problem says \"minimal, directly usable code\". So we can write the code without the install step? Actually, the code is the code.\n\n Let's write:\n\n   from tenacity import retry, stop_after_attempt, wait_exponential\n\n   @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10))\n   def call_api():\n        # Your API call code here\n\n However, the problem says \"exponential backoff\", and tenacity's `wait_exponential` does that.\n\n But note: The problem says \"safe\". We set a max retry (3 attempts) and a max wait (10 seconds) to avoid infinite loops.\n\n Alternatively, without a library? The problem says \"minimal\". But the problem doesn't specify language? However, the context is Python (most common for such patterns).\n\n Since the problem says \"directly usable\", I'll write a minimal code snippet without external dependencies? But the problem doesn't specify.\n\n However, the problem says \"a safe retry loop\", so we have to be careful.\n\n Let me think: the problem says \"return minimal, directly usable code or config\". So I'll write a code snippet that is minimal and uses a library that is standard (tenacity) because it's the best practice.\n\n But note: the problem says \"safe\". Tenacity is safe.\n\n Alternatively, we can do a simple exponential backoff loop without a library? It's a bit long but safe.\n\n Considering the constraints (minimal and directly usable) and that the problem doesn't specify the language, but the context of the assistant being a senior engineer in a Python context (given the common practice), I'll write the tenacity version.\n\n However, the problem says \"Respond in bullet points\". So:\n\n - Use the `tenacity` library for exponential backoff and retrying with safe defaults.\n   - Install: `pip install tenacity`\n   - Code example:\n\n     from tenacity import retry, stop_after_attempt, wait_exponential\n\n     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10))\n     def call_api():\n         # Your API call here\n\n But note: the problem says \"minimal\". So we can also write a non-library version? \n\n However, the problem says \"directly usable\". The non-library version is longer and less safe ("
+}

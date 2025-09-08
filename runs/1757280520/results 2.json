@@ -1,0 +1,106 @@
+{
+  "run_id": 53,
+  "task_class": "business",
+  "task": "Create a brief SWOT analysis for a small cafe including all four sections.",
+  "assertions": [
+    "Strengths",
+    "Weaknesses",
+    "Opportunities",
+    "Threats"
+  ],
+  "best_score": 0.4630302838076139,
+  "best_total_reward": 0.5772862838076138,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Provide step-by-step reasoning.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 28,
+      "max_tokens": 4096
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 7,
+      "avg_reward": 0.6775600395085769
+    },
+    "inject_rag": {
+      "n": 9,
+      "avg_reward": 0.624498270844041,
+      "mean_payoff": 0.0641429204230682
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 4,
+      "avg_reward": 0.6426614755943793
+    },
+    "change_nudge": {
+      "n": 4,
+      "avg_reward": 0.604680301443679
+    },
+    "lower_temp": {
+      "n": 7,
+      "avg_reward": 0.6378466436126862
+    },
+    "inject_memory": {
+      "n": 6,
+      "avg_reward": 0.6142101628555207
+    },
+    "lower_top_k": {
+      "n": 5,
+      "avg_reward": 0.7012496799545561
+    },
+    "raise_top_k": {
+      "n": 3,
+      "avg_reward": 0.5483751584072415
+    }
+  },
+  "baseline": 0.5731654502773751,
+  "improvement": -0.11013516646976118,
+  "total_reward_improvement": 0.5772862838076138,
+  "timestamp": 1757280520,
+  "metrics": {
+    "best_total_reward": 0.5772862838076138,
+    "best_score": 0.4630302838076139,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.085744,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.577",
+        "cost efficiency: 0.086 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.4630302838076139,
+    "process_reward": 0.2,
+    "cost_penalty": 0.085744,
+    "total_reward": 0.5772862838076138,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

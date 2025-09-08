@@ -1,0 +1,94 @@
+{
+  "iteration": 2,
+  "operator": "raise_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.9837093188165466,
+      "top_k": 17,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.5534682129974133,
+  "reward": 0.6534682129974133,
+  "reward_breakdown": {
+    "outcome_reward": 0.5534682129974133,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.6534682129974133,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.09335260185677333,
+      "plays": 7,
+      "ucb_score": 1.6802127986450732
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.3203614782142035
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.1099559181329556,
+        "plays": 8,
+        "ucb_score": 1.5943277124055788
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.09335260185677333,
+        "plays": 7,
+        "ucb_score": 1.6802127986450732
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8364295911300867
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.079586616955243
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.06955425997521983,
+        "plays": 10,
+        "ucb_score": 1.3972167543259872
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 15,
+        "ucb_score": 1.7155372764399326
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.1782065701820423
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.2207554489888577
+      }
+    ]
+  },
+  "output_preview": "<think>\nHmm, the user is asking about the year the United States declared independence. They want a concise response in bullet points as a senior engineer would provide. \n\nThis is a straightforward historical fact - the United States declared independence on July 4, 1776 with the signing of the Declaration of Independence. The user specifically wants just the year, not the full date. \n\nI recall that while the Continental Congress approved it on July 4, 1776, the actual declaration was formalized later that year. But for most historical purposes, 1776 is universally accepted as the year of independence declaration. \n\nThe user emphasized \"precise, directly usable output\" and \"concise senior engineer\" style. So I shouldn't overcomplicate it - just give the year in bullet points as requested. No extra explanations since they want direct output. \n\nAlso noting they said \"respond in bullet points\" - so I'll format it as a single bullet point containing just the year. Keeping it minimal per their constraints. \n\n*checks historical accuracy* Yes, definitely 1776. No controversy here. Will respond with: \u2022 1776\n</think>\n\n\u2022 1776"
+}

@@ -1,0 +1,100 @@
+{
+  "iteration": 5,
+  "operator": "change_nudge",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Add a short checklist at the end.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.39371683520742434,
+  "reward": 0.5594168352074244,
+  "reward_breakdown": {
+    "outcome_reward": 0.39371683520742434,
+    "process_reward": 0.35,
+    "cost_penalty": 0.18430000000000002,
+    "total_reward": 0.5594168352074244,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.0466180696006187,
+      "plays": 12,
+      "ucb_score": 1.3183662448721774
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9772875244285215
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0466180696006187,
+        "plays": 12,
+        "ucb_score": 1.3183662448721774
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.884801001376857
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.027223636286431888,
+        "plays": 17,
+        "ucb_score": 1.0957058213254678
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.03735279072868752,
+        "plays": 13,
+        "ucb_score": 1.2592089151960257
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.036053043851333615,
+        "plays": 15,
+        "ucb_score": 1.1735391919187426
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.02083802424016389,
+        "plays": 19,
+        "ucb_score": 1.0315209891515273
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.060927776693704055,
+        "plays": 8,
+        "ucb_score": 1.618494832059157
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.886504206528587
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.9376815721240785
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are going to create a safe retry loop for an API call with exponential backoff.\n Steps:\n 1. Import necessary modules (time for sleep, random for jitter to avoid thundering herd)\n 2. Define a function for the retry loop.\n 3. The loop will attempt to call the API up to a maximum number of times.\n 4. On each retry, we calculate the wait time using exponential backoff (with optional jitter).\n 5. We will handle exceptions and sleep for the calculated time before retrying.\n\n Important: We want to avoid infinite loops and handle specific exceptions.\n\n Checklist for the solution:\n - [ ] Define a maximum number of retries\n - [ ] Calculate the wait time (exponential backoff) with jitter (optional)\n - [ ] Handle the exception and retry only if it's a transient error (we'll assume we want to retry on specific exceptions)\n - [ ] Avoid retrying on permanent errors (like network errors that we can't fix by retrying)\n - [: We'll use a try-except block inside the loop to catch exceptions and then retry.\n\n However, note: The problem doesn't specify which exceptions to retry on. We'll assume we want to retry on network-related errors and temporary errors (like 5xx) but that's complex.\n\n Since the problem is about a safe retry loop with exponential backoff, we'll design it to retry on any exception (for the purpose of this example) but in practice we should specify.\n\n But the problem says: \"safe retry loop\". So we'll design it to be safe by having:\n   - A maximum number of retries\n   - Exponential backoff with jitter\n\n Let's write a function that does:\n\n   def safe_api_call(api_function, max_retries=3, base_delay=0.5, jitter=0.1, *args, **kwargs):\n        for retry in range(max_retries):\n            try:\n                return api_function(*args, **kwargs)\n            except Exception as e:\n                if retry == max_retries - 1:\n                    # Last try, re-raise\n                    raise\n                # Calculate delay: base_delay * (2 ** retry) + random jitter\n                delay = base_delay * (2 ** retry) + random.uniform(0, jitter)\n                time.sleep(delay)\n                # We don't want to retry on the same exception? But for simplicity, we'll retry on any exception.\n                # In practice, we might want to check the exception type.\n\n        # If we get here, we've exhausted retries\n        raise Exception(\"All retries failed\")\n\n However, note: The problem doesn't specify the exception types. We'll assume that we want to retry on any exception that is not permanent.\n\n But to be safe and more precise, we can make the retry condition configurable. However, the problem asks for a concise solution.\n\n Let me adjust: We'll create a function that takes a list of exception types to retry on.\n\n But the problem says: \"concise\". So we'll do a simple version.\n\n Alternatively, we can do:\n\n   We'll create a function that retries on any exception (but note: we don't want to retry on some permanent errors) - that's beyond the scope.\n\n Since the problem is about setting up a safe retry loop, we'll design it to be safe by having a max_retries and exponential backoff.\n\n Proposed solution:\n\n   We'll use the `tenacity` library? But the problem says \"short\" and we don't want to require an external library.\n\n   The problem says: \"directly usable output\". So we'll write a simple function without external libraries (except standard ones).\n\n   Steps for the function without external libraries:\n\n     - Import time, random\n     - Define the function\n\n   However, note: The problem doesn't specify the language? But the context is Python (since the user is likely a Python engineer). We'll assume Python.\n\n   Let's write in Python.\n\n   But the problem says: \"concise senior engineer\". So we'll be concise.\n\n   I'll write a function that does:\n\n        def safe_retry(api_call, max_retries=3, base_delay=0.5, jitter=0.1):\n            for retry in range(max_retries):\n                try:\n                    return api_call()\n                except Exception as e:\n                    if retry == max_retries - 1:\n                        raise  # last try fails, re-raise\n                    time.sleep(base_delay * (2 ** retry) + random.uniform(0, jitter))\n            raise Exception(\"All retries failed\")\n\n   However, the above function has a problem: it retries on any exception. In production, we might want to avoid retrying on certain exceptions (like if the exception is an OOM). But for the purpose of this problem, we'll assume that the API call might throw any exception and we want to retry on transient ones.\n\n   But note: The problem says \"safe\". So we can add a note:"
+}

@@ -1,0 +1,68 @@
+{
+  "run_id": 103,
+  "task_class": "code",
+  "task": "Write a simple script that automates data cleanup and summarizes results in a table.",
+  "assertions": [],
+  "best_score": -Infinity,
+  "best_total_reward": -Infinity,
+  "best_recipe": null,
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 10,
+      "avg_reward": 0.65949029074891
+    },
+    "inject_rag": {
+      "n": 17,
+      "avg_reward": 0.6282007943707641
+    },
+    "raise_temp": {
+      "n": 8,
+      "avg_reward": 0.59261332672835
+    },
+    "toggle_web": {
+      "n": 3,
+      "avg_reward": 0.5033899542338864
+    },
+    "change_system": {
+      "n": 8,
+      "avg_reward": 0.6068244984971182
+    },
+    "change_nudge": {
+      "n": 9,
+      "avg_reward": 0.6723750334401382
+    },
+    "lower_temp": {
+      "n": 12,
+      "avg_reward": 0.624445096280936
+    },
+    "inject_memory": {
+      "n": 12,
+      "avg_reward": 0.5871779429463514
+    },
+    "lower_top_k": {
+      "n": 10,
+      "avg_reward": 0.688457579248057
+    },
+    "raise_top_k": {
+      "n": 10,
+      "avg_reward": 0.5878585006045236
+    }
+  },
+  "baseline": 0.6788969487452675,
+  "improvement": 0,
+  "total_reward_improvement": -Infinity,
+  "timestamp": 1757342729,
+  "metrics": {
+    "best_total_reward": -Infinity,
+    "best_score": -Infinity,
+    "avg_total_reward": null,
+    "steps_to_best": 10,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": false,
+      "reasons": [
+        "insufficient total_reward improvement: -inf < 0.05"
+      ]
+    }
+  }
+}

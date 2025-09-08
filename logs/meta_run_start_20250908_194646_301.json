@@ -1,0 +1,40 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-08T19:46:46.301837+00:00",
+  "unix_timestamp": 1757360806.3018408,
+  "data": {
+    "run_id": 111,
+    "task_class": "other",
+    "task": "Create a simple troubleshooting guide for when model outputs don’t improve across iterations.",
+    "config": {
+      "n": 2,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.3,
+      "use_bandit": true,
+      "bandit_algorithm": "ucb",
+      "framework_mask": [
+        "SEAL",
+        "SAMPLING",
+        "WEB"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

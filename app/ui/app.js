@@ -414,12 +414,16 @@ function showEvolutionResults(result) {
     
     const baseline = (result && typeof result.baseline === 'number') ? result.baseline : 0.1;
     const bestScore = (result && typeof result.best_score === 'number') ? result.best_score : 0;
-    const improvement = (result && typeof result.improvement === 'number') ? ((result.improvement / Math.max(baseline, 0.1)) * 100).toFixed(1) : '0.0';
+    let improvementStr = '0.0';
+    if (result && typeof result.improvement === 'number') {
+        const pct = (result.improvement / Math.max(baseline, 0.1)) * 100;
+        improvementStr = `${pct > 0 ? '+' : ''}${pct.toFixed(1)}`;
+    }
     
     const resultsHTML = `
         <div class="result-card">
             <div class="result-score">${toFixedSafe(bestScore, 3)}</div>
-            <div class="result-improvement">+${improvement}% improvement</div>
+            <div class="result-improvement">${improvementStr}% improvement</div>
             <div class="text-center text-muted">
                 Best strategy: ${(result && result.best_recipe && result.best_recipe.system) ? result.best_recipe.system : 'Default system'} 
                 ${(result && result.best_recipe && result.best_recipe.use_web) ? '+ Web Research' : ''}

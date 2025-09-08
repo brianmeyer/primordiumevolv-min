@@ -1,0 +1,100 @@
+{
+  "iteration": 1,
+  "operator": "toggle_web",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "score": 0.3684702135496324,
+  "reward": 0.48742221354963244,
+  "reward_breakdown": {
+    "outcome_reward": 0.3684702135496324,
+    "process_reward": 0.30000000000000004,
+    "cost_penalty": 0.18104800000000001,
+    "total_reward": 0.48742221354963244,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.060927776693704055,
+      "plays": 8,
+      "ucb_score": 1.613390588745097
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9727221504189463
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.9559569425674441
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.8804480880528132
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.027223636286431888,
+        "plays": 17,
+        "ucb_score": 1.09220433929913
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.871116076571476
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 14,
+        "ucb_score": 1.739948163371844
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 18,
+        "ucb_score": 1.655465911250424
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.060927776693704055,
+        "plays": 8,
+        "ucb_score": 1.613390588745097
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.8821512932045432
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.933513974909925
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are to show how to set up a safe retry loop for an API call with exponential backoff in a web context (using C# and HttpClient).\n We are constrained to bullet points and must be precise and directly usable.\n\n Steps:\n 1. We'll use Polly for retry policy (as mentioned in context).\n 2. We create a policy that uses exponential backoff with a maximum number of retries and a jitter.\n 3. We apply this policy to an HttpClient.\n\n Important: The context mentions adding a policy via AddPolicyHandler in the HttpClient.\n\n Let's break it down:\n\n - We define a retry policy with exponential backoff (using `Polly.Policy`).\n - We set the retry count (e.g., 3) and the delay (e as the base, e.g., 100ms, and we can add jitter).\n - We wrap the HttpClient with this policy.\n\n Note: We must handle the case where the HttpClient is created and then we add the policy.\n\n Example code structure:\n\n   // In Program.cs or a similar place\n   var handler = new HttpClient();\n   // Add the retry policy to the HttpClient\n\n However, the context says: \"The AddPolicyHandler () method is what adds policies to the HttpClient objects\"\n\n So:\n\n   var retryPolicy = Policy\n      .Handle<HttpRequestException>() // or other exceptions you want to retry on\n      .Or<TimeoutException>()\n      .WaitAndRetryAsync(\n          retryCount: 3,\n          sleepDurationProvider: retryAttempt => TimeSpan.FromMilliseconds(Math.Pow(2, retryAttempt) * 100), // 100ms base, exponential\n          onRetry: (exception, retryCount, context) => \n          {\n              // Optional: log retry attempt\n          }\n      );\n\n   // Then add this policy to the HttpClient\n   handler.AddPolicyHandler(retryPolicy);\n\n But note: The above is for async. The context says \"HTTP call\", so we are doing async.\n\n However, the context says: \"Implement HTTP call retries with exponential backoff\"\n\n Let's write the bullet points:\n\n - Create a retry policy using Polly with exponential backoff: \n      Policy.Handle<HttpRequestException>().WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromMilliseconds(Math.Pow(2, retryAttempt) * 100));\n\n - Add the policy to your HttpClient instance using `AddPolicyHandler` (the policy must be of type `IHttpPolicyHandler`).\n\n But note: The context says: \"AddPolicyHandler () method\". Actually, in Polly for HttpClient, we use `AddPolicyHandler` for the policy that we have.\n\n However, the standard way is to create an `HttpClientPolicy` and then add it to the HttpClient.\n\n Alternatively, we can use the Polly's `HttpClient` extension methods.\n\n Since the context mentions: \"The AddPolicyHandler () method\", we can do:\n\n   var client = new HttpClient();\n   var policy = Policy\n        .Handle<HttpRequestException>()\n        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromMilliseconds(Math.Pow(2, retryAttempt) * 100));\n\n   // Then, we need to add this policy as a handler to the client. But note: the policy we created is a `IPolicy` but for HttpClient we use the `AddPolicyHandler` method? \n\n Actually, the correct way in Polly is:\n\n   var client = new HttpClient();\n   client.AddPolicyHandler(new PolicyHandler(policy));\n\n But wait, the context says: \"AddPolicyHandler () method\" - so we are to use the `AddPolicyHandler` method of the HttpClient.\n\n However, the standard Polly documentation says: \n\n   \"To add a policy handler to an HttpClient, use the AddPolicyHandler method of the HttpClient.\"\n\n   But note: the `AddPolicyHandler` method is an extension method that takes a `IPolicy` (the retry policy in this case).\n\n   Actually, the `AddPolicyHandler` method is for the `HttpClient` class? \n\n   Let me recall: In Polly, we have:\n\n        var httpClient = new HttpClient();\n        httpClient.AddPolicyHandler(policy);\n\n   But that's not exactly. The `AddPolicyHandler` method is actually for the `HttpClient` class? \n\n   Alternatively, we can use the `HttpClient` extension method from Polly: \n\n        var httpClient = new HttpClient();\n        httpClient = httpClient.AddPolicyHandler(policy);\n\n   However, the context says: \"The AddPolicyHandler () method is what adds policies to the HttpClient objects\"\n\n   So I think we are to write:\n\n        var httpClient = new HttpClient();\n        var policy = Policy\n            .Handle<HttpRequestException>()\n            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromMilliseconds(Math.Pow(2, retryAttempt) * 100));\n        httpClient.AddPolicyHandler(policy);\n\n   But wait, the `AddPolicyHandler` method in the `HttpClient` class (from Polly) is actually an extension method? \n\n   According to Polly:"
+}

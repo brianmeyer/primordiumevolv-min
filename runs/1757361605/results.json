@@ -1,0 +1,68 @@
+{
+  "run_id": 112,
+  "task_class": "other",
+  "task": "Create a simple troubleshooting guide for when model outputs don\u2019t improve across iterations.",
+  "assertions": [],
+  "best_score": -Infinity,
+  "best_total_reward": -Infinity,
+  "best_recipe": null,
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 13,
+      "avg_reward": 0.5944624816647529
+    },
+    "inject_rag": {
+      "n": 20,
+      "avg_reward": 0.6025573225310856
+    },
+    "raise_temp": {
+      "n": 12,
+      "avg_reward": 0.5527736232341334
+    },
+    "toggle_web": {
+      "n": 8,
+      "avg_reward": 0.45726697714269593
+    },
+    "change_system": {
+      "n": 11,
+      "avg_reward": 0.5735776326967074
+    },
+    "change_nudge": {
+      "n": 12,
+      "avg_reward": 0.6259625935898339
+    },
+    "lower_temp": {
+      "n": 17,
+      "avg_reward": 0.5867853181404796
+    },
+    "inject_memory": {
+      "n": 15,
+      "avg_reward": 0.5646898575679896
+    },
+    "lower_top_k": {
+      "n": 13,
+      "avg_reward": 0.6505006092943655
+    },
+    "raise_top_k": {
+      "n": 13,
+      "avg_reward": 0.5343946765964966
+    }
+  },
+  "baseline": 0.38282906970841846,
+  "improvement": 0,
+  "total_reward_improvement": -Infinity,
+  "timestamp": 1757361605,
+  "metrics": {
+    "best_total_reward": -Infinity,
+    "best_score": -Infinity,
+    "avg_total_reward": null,
+    "steps_to_best": 2,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": false,
+      "reasons": [
+        "insufficient total_reward improvement: -inf < 0.05"
+      ]
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "iteration": 1,
+  "operator": "raise_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.8899538556986768,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.30591538517878003,
+  "reward": 0.34157938517878006,
+  "reward_breakdown": {
+    "outcome_reward": 0.30591538517878003,
+    "process_reward": 0.2,
+    "cost_penalty": 0.164336,
+    "total_reward": 0.34157938517878006,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.031052671379889096,
+      "plays": 11,
+      "ucb_score": 1.3409449461032856
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.0618170552141972
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.0302541237204075
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.031052671379889096,
+        "plays": 11,
+        "ucb_score": 1.3409449461032856
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 15,
+        "ucb_score": 1.7384563392799222
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.951546736748747
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 1.795163139522754
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 17,
+        "ucb_score": 1.6818777033613816
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 2.7319099934435527
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.023789739893948805,
+        "plays": 11,
+        "ucb_score": 1.3336820146173454
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 2.000676843422031
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are writing a concise script that automates data cleanup and summarizes results in a table.\n Constraints: Respond in bullet points.\n\n We assume the following:\n - The script will take a CSV file as input (or a data source, but we'll assume CSV for simplicity).\n - We'll clean the data by handling missing values, converting to appropriate types, and then summarize in a table.\n\n Steps in the script (in bullet points):\n\n 1. Import necessary libraries (pandas for data manipulation and tabulate for pretty printing, or just pandas to print in a table).\n 2. Read the CSV file.\n 3. Clean data: \n    a. Drop rows with missing values (or handle missing values by filling with mean/median for numeric, or mode for categorical).\n    b. Convert columns to appropriate data types (e.g., numeric, categorical).\n 4. Perform the required summarization (e.g., count, mean, std, min, max for numeric; count, unique, etc. for categorical).\n 5. Print the summary table.\n\n However, note: the problem says \"summarizes results in a table\". We don't know the exact summary, so we'll do a basic one (like descriptive statistics).\n\n But to be simple, let's do:\n\n   - For each numeric column: mean, std, min, max\n   - For each categorical column: count, unique count\n\n Alternatively, we can do a simple summary that the user can adjust.\n\n Since the problem is to write a simple script, we'll write a script that:\n\n   - Cleans by removing rows with missing values (for simplicity, we assume the data might have missing values)\n   - Then computes basic statistics.\n\n However, the problem says \"data cleanup\", so we'll focus on that.\n\n Let's write in bullet points of what the script does (the steps and key commands):\n\n - Step 1: Import pandas as pd.\n - Step : Read the CSV file: df = pd.read_csv('data.csv')\n - Step: Clean data by dropping rows with missing values: df_clean = df.dropna()\n - Step: Convert columns to appropriate types (if needed) - but for simplicity we skip this step? Or if the data is messy, we might do a bit of conversion. However, the problem says \"simple\", so we'll skip type conversion unless required by the problem. Alternatively, we can do: \n        df_clean = df_clean.apply(pd.to_numeric, errors='coerce')   # but this might not be safe.\n\n Since the problem doesn't specify the data, we'll keep it simple: only dropna.\n\n - Step: Compute summary statistics for numeric columns and count for categorical? But the problem says \"summarizes results in a table\". We can do:\n\n        summary = df_clean.describe(include='all')\n\n    However, describe() by default does for numeric and for object it does count, unique, top, freq.\n\n - Step: Print the table in a pretty format.\n\n But note: the problem says \"summarizes results in a table\". We can output the summary table to the console.\n\n Alternatively, we can write to a CSV, but the problem says \"summarizes results in a table\", so we output to console.\n\n Let's write the script in the form of bullet points of the steps and the code.\n\n However, the problem says: \"Respond in bullet points\". So we return:\n\n   - [Step 1]: ...\n   - [Step 2]: ...\n\n But note: the problem says \"Write a simple script\", so we are to describe the script in bullet points.\n\n Alternatively, we can write the script as code? But the problem says: \"Respond in bullet points\".\n\n Clarification: the user says \"Respond in bullet points\". So we are to write the response as bullet points.\n\n How about:\n\n   - Install pandas and openpyxl (if needed for Excel, but we are using CSV) -> but the problem says simple, so we skip install? \n     Instead, we assume pandas is installed.\n\n   - Here's the script:\n\n        import pandas as pd\n\n        # Read the data\n        df = pd.read_csv('input.csv')\n\n        # Clean: drop rows with any missing values\n        df_clean = df.dropna()\n\n        # Generate summary statistics\n        summary = df_clean.describe()\n\n        # Print summary in a table\n        print(summary)\n\n   But that's not in bullet points? The problem says: \"Respond in bullet points\".\n\n So we break down the script into bullet points:\n\n   - Step 1: Import pandas library.\n   - Step 2: Read the CSV file into a DataFrame.\n   - Step 3: Drop rows containing missing values to clean the data.\n   - Step 4: Compute descriptive statistics for the cleaned data.\n   - Step 5: Print the descriptive statistics table to the console.\n\n However, the problem says \"simple script\", so we don't need to go into too much detail.\n\n Let's write:\n\n   -"
+}

@@ -1,0 +1,56 @@
+{
+  "run_id": 35,
+  "task_class": "code",
+  "task": "Write a simple Python function that calculates the factorial of a number",
+  "assertions": [],
+  "best_score": -Infinity,
+  "best_total_reward": -Infinity,
+  "best_recipe": null,
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 2,
+      "avg_reward": 0.5999271681839151
+    },
+    "inject_rag": {
+      "n": 1,
+      "avg_reward": 0.3781513379193942
+    },
+    "raise_temp": {
+      "n": 1,
+      "avg_reward": 0.5317864032772007
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 1,
+      "avg_reward": 0.3884058449148782
+    },
+    "change_nudge": {
+      "n": 1,
+      "avg_reward": 0.42262688215499
+    },
+    "lower_temp": {
+      "n": 1,
+      "avg_reward": 0.5406433001174457
+    }
+  },
+  "baseline": 0.5634129777504502,
+  "improvement": 0,
+  "total_reward_improvement": -Infinity,
+  "timestamp": 1757261175,
+  "metrics": {
+    "best_total_reward": -Infinity,
+    "best_score": -Infinity,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": false,
+      "reasons": [
+        "insufficient total_reward improvement: -inf < 0.05"
+      ]
+    }
+  }
+}

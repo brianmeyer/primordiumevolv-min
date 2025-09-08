@@ -3,10 +3,16 @@ from functools import lru_cache
 from dotenv import load_dotenv
 from typing import List
 import requests.adapters
+import threading
 
 load_dotenv()
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL_ID = os.getenv("MODEL_ID", "qwen3:4b")
+OLLAMA_TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT", "180"))
+
+# Global lock to serialize Ollama requests
+# Ollama can only handle one request at a time effectively
+_ollama_lock = threading.Lock()
 
 # Connection pooling for better performance
 _session = None
@@ -23,6 +29,7 @@ def _get_session():
         )
         _session.mount("http://", adapter)
         _session.mount("https://", adapter)
+        
     return _session
 
 class OllamaError(RuntimeError):
@@ -36,8 +43,8 @@ def _get(url: str):
 
 def _post(url: str, payload: dict):
     session = _get_session()
-    # Reduce timeout to avoid long hangs when Ollama is unreachable
-    r = session.post(url, json=payload, timeout=60)
+    # Use configurable timeout
+    r = session.post(url, json=payload, timeout=OLLAMA_TIMEOUT)
     r.raise_for_status()
     return r.json()
 
@@ -48,6 +55,14 @@ def models_list() -> List[str]:
         return [m.get("name", "") for m in data.get("models", [])]
     except Exception as e:
         raise OllamaError(f"Failed to query Ollama tags: {e}")
+
+def clear_cache():
+    """Clear all caches and reset session for clean startup."""
+    global _session
+    if _session:
+        _session.close()
+        _session = None
+    models_list.cache_clear()
 
 def validate_model(model_id: str) -> str:
     available = models_list()
@@ -68,11 +83,26 @@ def generate(prompt: str, system: str | None = None, options: dict | None = None
         payload["system"] = system
     if options:
         payload["options"] = options
-    try:
-        out = _post(f"{OLLAMA_HOST}/api/generate", payload)
-        return out.get("response", "")
-    except Exception as e:
-        raise OllamaError(f"Ollama generate failed: {e}")
+        print(f"[OLLAMA CLIENT] Options being sent: {options}")
+    
+    import time
+    wait_start = time.time()
+    
+    # Use lock to serialize Ollama requests
+    with _ollama_lock:
+        wait_time = time.time() - wait_start
+        if wait_time > 0.1:  # Log if we had to wait
+            print(f"[OLLAMA] Waited {wait_time:.1f}s for lock")
+        
+        try:
+            # Don't use shared session - create a new one for each request to avoid threading issues
+            import requests as req
+            r = req.post(f"{OLLAMA_HOST}/api/generate", json=payload, timeout=OLLAMA_TIMEOUT)
+            r.raise_for_status()
+            out = r.json()
+            return out.get("response", "")
+        except Exception as e:
+            raise OllamaError(f"Ollama generate failed: {e}")
 
 def stream_generate(prompt: str, system: str | None = None, options: dict | None = None):
     payload = {"model": MODEL_ID, "prompt": prompt, "stream": True}
@@ -80,28 +110,26 @@ def stream_generate(prompt: str, system: str | None = None, options: dict | None
         payload["system"] = system
     if options:
         payload["options"] = options
-    session = _get_session()
-    try:
-        with session.post(f"{OLLAMA_HOST}/api/generate", json=payload, stream=True, timeout=600) as r:
-            r.raise_for_status()
-            for line in r.iter_lines(decode_unicode=True):
-                if not line:
-                    continue
-                try:
-                    data = requests.json.loads(line)  # type: ignore
-                except Exception:
-                    import json as _json
-                    data = _json.loads(line)
-                token = data.get("response")
-                if token:
-                    yield token
-            return
-    except Exception as e:
-        raise OllamaError(f"Ollama stream failed: {e}")
+    
+    # Use lock to serialize Ollama requests
+    with _ollama_lock:
+        # Don't use shared session - create a new one for each request to avoid threading issues
+        import requests as req
+        try:
+            with req.post(f"{OLLAMA_HOST}/api/generate", json=payload, stream=True, timeout=600) as r:
+                r.raise_for_status()
+                for line in r.iter_lines(decode_unicode=True):
+                    if not line:
+                        continue
+                    try:
+                        data = requests.json.loads(line)  # type: ignore
+                    except Exception:
+                        import json as _json
+                        data = _json.loads(line)
+                    token = data.get("response")
+                    if token:
+                        yield token
+                return
+        except Exception as e:
+            raise OllamaError(f"Ollama stream failed: {e}")
 
-def chat(messages: list[dict]) -> str:
-    try:
-        out = _post(f"{OLLAMA_HOST}/api/chat", {"model": MODEL_ID, "messages": messages, "stream": False})
-        return out.get("message", {}).get("content", "")
-    except Exception as e:
-        raise OllamaError(f"Ollama chat failed: {e}")

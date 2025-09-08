@@ -987,7 +987,21 @@ async def get_analytics():
             }
         except Exception:
             pass
-        return JSONResponse(cleaned_analytics)
+        # Final sanitize pass to remove any non-finite values added during augmentation
+        cleaned_analytics = clean_value(cleaned_analytics)
+        try:
+            return JSONResponse(cleaned_analytics)
+        except Exception:
+            # As a last resort, return a degraded but valid shape
+            return JSONResponse({
+                "basic_stats": {"total_runs": 0, "first_run": None, "latest_run": None, "overall_avg_score": None, "timespan_days": 0},
+                "improvement_trend": {"early_avg_score": None, "recent_avg_score": None, "improvement": 0},
+                "reward_analytics": {"avg_total_reward": None, "avg_outcome_reward": None, "avg_process_reward": None, "avg_cost_penalty": None, "total_variants_with_rewards": 0, "reward_progression": [], "top_operators_by_reward": []},
+                "score_progression": [],
+                "top_operators": [],
+                "task_performance": [],
+                "_degraded": True
+            })
     except Exception as e:
         return handle_exception(e, "analytics_failed")
 

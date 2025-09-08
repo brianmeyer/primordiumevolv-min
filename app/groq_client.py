@@ -128,3 +128,11 @@ def generate(prompt: str, system: str | None = None, options: dict | None = None
     out = chat_complete(msgs, model_id=None, temperature=(options or {}).get("temperature"), max_tokens=(options or {}).get("max_tokens"))
     # return (output, resolved_model_id)
     return out, (GROQ_MODEL_ID_ENV or pick_model())
+
+def clear_cache():
+    """Clear all caches and reset session for clean startup."""
+    global _session, _cache
+    if _session:
+        _session.close()
+        _session = None
+    _cache = {"models": None, "fetched_at": 0.0}

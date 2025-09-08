@@ -1,0 +1,89 @@
+{
+  "run_id": 45,
+  "trajectory": [
+    {
+      "i": 2,
+      "op": "raise_top_k",
+      "groups": [
+        "SAMPLING"
+      ],
+      "engine": "ollama",
+      "time_ms": 35057,
+      "score": 0.3095998815522997,
+      "reward": 0.46937188155229975,
+      "reward_breakdown": {
+        "outcome_reward": 0.3095998815522997,
+        "process_reward": 0.2,
+        "cost_penalty": 0.040228,
+        "total_reward": 0.46937188155229975,
+        "outcome_metadata": {
+          "method": "fallback_semantic",
+          "groq_error": "name 'judge_results' is not defined"
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.1564572938507666,
+          "plays": 3,
+          "ucb_score": 2.3742277821607227
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 3,
+            "ucb_score": 2.860500805204099
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 3,
+            "ucb_score": 2.7795973624007035
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 6,
+            "ucb_score": 2.1708273553502857
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.0,
+            "plays": 5,
+            "ucb_score": 2.350887963791857
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 7,
+            "ucb_score": 2.129431630468513
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.0,
+            "plays": 5,
+            "ucb_score": 2.348792763923176
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.0,
+            "plays": 5,
+            "ucb_score": 2.3085780536306624
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.1564572938507666,
+            "plays": 3,
+            "ucb_score": 2.3742277821607227
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.0,
+            "plays": 3,
+            "ucb_score": 2.9012700806669085
+          }
+        ]
+      }
+    }
+  ]
+}

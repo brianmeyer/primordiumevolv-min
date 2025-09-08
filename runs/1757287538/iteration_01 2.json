@@ -1,0 +1,94 @@
+{
+  "iteration": 1,
+  "operator": "raise_top_k",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 30,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.3815777227387375,
+  "reward": 0.5815777227387375,
+  "reward_breakdown": {
+    "outcome_reward": 0.3815777227387375,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.5815777227387375,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.08308253181981964,
+      "plays": 7,
+      "ucb_score": 1.6632177615602584
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.3130976836071158
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.2579662569681944
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.3093679193454006
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.04755115058076586,
+        "plays": 12,
+        "ucb_score": 1.2543993670060987
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.073655753493995
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 1.9979574903173445
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 15,
+        "ucb_score": 1.7109432493571237
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.08308253181981964,
+        "plays": 7,
+        "ucb_score": 1.6632177615602584
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.2144648183312476
+      }
+    ]
+  },
+  "output_preview": "<think>\nHmm, the user is asking for the chemical formula of water. They want a concise response as a senior engineer would give it, and they specified to respond in bullet points. \n\nFirst, I recall that water's chemical formula is H\u2082O - that's basic chemistry. Since they want it precise and directly usable, I shouldn't overcomplicate it. \n\nThe constraints say \"bullet points\" but for a single formula, a single bullet point makes sense. I'll just state it cleanly without extra fluff. \n\nUser seems technical - probably a student or professional who needs quick reference. No need for explanations like \"why\" or \"how\" since they said \"precise, directly usable output\". \n\nI'll format it as: \u2022 H\u2082O \n\nThat's exactly what they need. No markdown, just plain text bullet point as instructed. Keeping it to one line maintains conciseness.\n</think>\n\n\u2022 H\u2082O"
+}

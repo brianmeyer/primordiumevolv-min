@@ -1,0 +1,104 @@
+{
+  "run_id": 80,
+  "task_class": "general",
+  "task": "Translate 'Good morning' into Spanish (two words).",
+  "assertions": [
+    "Buenos d\u00edas",
+    "Spanish"
+  ],
+  "best_score": 0.45926871849863227,
+  "best_total_reward": 0.7092687184986323,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5506686410313444,
+      "top_k": 31,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": "Example: Write a function to reverse a string.\ndef reverse_string(s): return s[::-1]",
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 9,
+      "avg_reward": 0.6801074682456232,
+      "mean_payoff": 0.07880763538873692
+    },
+    "inject_rag": {
+      "n": 15,
+      "avg_reward": 0.6315053891765547
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 6,
+      "avg_reward": 0.6063565682126298
+    },
+    "change_nudge": {
+      "n": 7,
+      "avg_reward": 0.6778310272277557
+    },
+    "lower_temp": {
+      "n": 11,
+      "avg_reward": 0.6293388498547311
+    },
+    "inject_memory": {
+      "n": 9,
+      "avg_reward": 0.604409205068973
+    },
+    "lower_top_k": {
+      "n": 8,
+      "avg_reward": 0.7363836547162345
+    },
+    "raise_top_k": {
+      "n": 6,
+      "avg_reward": 0.5929744818362432
+    }
+  },
+  "baseline": 0.4681012303700206,
+  "improvement": -0.008832511871388338,
+  "total_reward_improvement": 0.7092687184986323,
+  "timestamp": 1757287394,
+  "metrics": {
+    "best_total_reward": 0.7092687184986323,
+    "best_score": 0.45926871849863227,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.709",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.45926871849863227,
+    "process_reward": 0.25,
+    "cost_penalty": 0.0,
+    "total_reward": 0.7092687184986323,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

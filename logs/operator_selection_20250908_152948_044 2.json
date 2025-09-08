@@ -1,0 +1,11 @@
+{
+  "artifact_type": "operator_selection",
+  "timestamp": "2025-09-08T15:29:48.044864+00:00",
+  "unix_timestamp": 1757345388.044868,
+  "data": {
+    "run_id": 106,
+    "iteration": 2,
+    "operator": "inject_memory",
+    "selection_method": "ucb"
+  }
+}

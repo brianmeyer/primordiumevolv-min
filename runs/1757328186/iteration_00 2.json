@@ -1,0 +1,100 @@
+{
+  "iteration": 0,
+  "operator": "inject_rag",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "max_tokens": 4096
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.30771883145309487,
+  "reward": 0.4385854981197616,
+  "reward_breakdown": {
+    "outcome_reward": 0.30771883145309487,
+    "process_reward": 0.2,
+    "cost_penalty": 0.06913333333333334,
+    "total_reward": 0.4385854981197616,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.02579914694822127,
+      "plays": 17,
+      "ucb_score": 1.0644597639614266
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.120919521715703
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.099877511145024
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.106708349946935
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8606985059385963
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.013738049273261
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8234313526040116
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.02579914694822127,
+        "plays": 17,
+        "ucb_score": 1.0644597639614266
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.975896773549207
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9421062591288747
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.148210702317475
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are to write a simple Python function that prints \"hello world\"\n The context provided seems to be a bit fragmented and irrelevant to the task (it mentions paper tape, machines, etc.), so we ignore it.\n Constraints: Respond in bullet points.\n\n However, note: the user asks for a concise senior engineer's response. We are to return precise, directly usable output.\n\n Since the instruction says \"Respond in bullet points\", we will output a bullet point list.\n\n But the task is to write a Python function. We have to be precise.\n\n Let's write the function:\n\n Option: \n   def hello_world():\n       print(\"hello world\")\n\n However, the context says: \"RAG Context\" and the fragmented text. We ignore that.\n\n But note: the user says \"Return precise, directly usable output\". So we output the code as a bullet point.\n\n But the problem says: \"Respond in bullet points\". So we do:\n\n - def hello_world():\n     print(\"hello: world\")\n\n Wait, that's a typo. Let me correct.\n\n Actually, the string is \"hello world\" (with space).\n\n We write:\n\n - def hello_world():\n     print(\"hello world\")\n\n However, the problem says: \"simple Python function\". This is simple.\n\n But note: the context has some irrelevant text. We ignore.\n\n Alternatively, we can output without the function definition? The problem says \"function\".\n\n Since the constraints say: \"Respond in bullet points\", we output:\n\n - Here's a simple Python function that prints \"hello world\":\n\n   def hello_world():\n       print(\"hello world\")\n\n But the problem says: \"precise, directly usable output\". So we don't want extra text? \n\n However, the instruction says: \"Respond in bullet points\". So we do:\n\n - def hello_world():\\n    print(\"hello world\")\n\n But note: the user might be expecting just the code? However, the problem says: \"Respond in bullet points\".\n\n Let me think: the user says \"Write a simple Python function ...\". So we are to output the function.\n\n Since the response must be in bullet points, and we are a senior engineer, we can do:\n\n - `def hello_world(): print(\"hello world\")`\n\n But that's a bit of a string. Alternatively, we can output the code block as a string in a bullet.\n\n However, the problem says: \"concise\". So we write:\n\n - `def hello_world(): print(\"hello world\")`\n\n But the problem says: \"directly usable output\". If someone copies this code, it will work.\n\n However, note: the problem says \"a simple Python function\". The above is a function that prints \"hello world\".\n\n But the context has a note: \"RAG Context\" with some fragmented text. We ignore.\n\n Let me write the response as:\n\n - `def hello_world(): print(\"hello world\")`\n\n But the problem says: \"Respond in bullet points\". So we have one bullet point.\n\n However, the problem says: \"Return precise, directly usable output\". So we output exactly the code as a string in a bullet.\n\n Alternatively, we can output without the bullet? But the problem says \"Respond in bullet points\".\n\n I think the expected response is:\n\n - [code]\n\n So:\n\n - def hello_world():\\n    print(\"hello world\")\n\n But to be more concise (as per the problem: concise senior engineer), we can write it in one line? \n\n The problem says: \"simple\". The simplest is one line.\n\n So:\n\n - def hello_world(): print(\"hello world\")\n\n However, the problem says: \"precise, directly usable output\". This is a string that can be run.\n\n But note: the problem says \"Respond in bullet points\". So we output one bullet point.\n\n Let's do:\n\n - def hello_world(): print(\"hello world\")\n\n But wait, the problem says: \"a simple Python function\". This is a function.\n\n However, the context has the phrase: \"A MACHINE THAT CONTAINS ALLOTHER MACHINES\" and other text. We ignore.\n\n So the answer is:\n\n - def hello_world(): print(\"hello world\")\n\n But the problem says: \"Return precise, directly usable output\". So we output that.\n\n However, the problem says: \"Respond in bullet points\". So we output:\n\n * def hello_world(): print(\"hello world\")\n\n But the problem says: \"bullet points\", so we use asterisks? The problem says: \"Respond in bullet points\", meaning we use markdown bullet.\n\n But the problem says: \"concise senior engineer\". So I think we output:\n\n - def hello_world(): print(\"hello world\")\n\n But to be safe, we output without extra text.\n\n However, the problem says: \"Return precise, directly usable output\". So we return the code.\n\n I think the best is to output:\n\n - `def hello_world(): print(\"hello world\")`\n\n But the problem says: \"directly usable output\". If we output the string without the backticks, it might be confusing.\n\n Alternatively, we can output without the backticks? The problem says \"directly usable\", meaning if someone copies it they can run it.\n\n Since it's a code snippet, we can output it as a code block? But the problem says: \"bullet points\".\n\n Given the constraints, I will output a single bullet point with the code.\n\n Let me write:\n\n * `def hello_world(): print(\"hello world\")`\n\n But the problem says: \"RAG Context\" has some text that we ignore.\n\n So, final decision: one bullet point with the code in backticks (to denote code) as a string.\n\n However, the problem says: \"precise, directly usable output\". So we don't want to add extra spaces? \n\n But the problem says: \"concise\". So we do:\n\n - `def hello_world(): print(\"hello world\")`\n\n But note: the problem says \"hello world\" (with space). We have that.\n\n Alternatively, to be extra precise and avoid any trailing space, we write:\n\n - `def hello_world(): print(\"hello world\")`\n\n I think that's the answer.\n\n However, the problem says: \"a simple Python function\". This is a function.\n\n But note: the problem says \"prints hello world\". This function does that.\n\n Let's write it.\n</think>\n\n- `def hello_world(): print(\"hello world\")`"
+}

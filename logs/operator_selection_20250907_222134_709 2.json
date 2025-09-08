@@ -1,0 +1,11 @@
+{
+  "artifact_type": "operator_selection",
+  "timestamp": "2025-09-07T22:21:34.709516+00:00",
+  "unix_timestamp": 1757283694.709528,
+  "data": {
+    "run_id": 61,
+    "iteration": 1,
+    "operator": "lower_temp",
+    "selection_method": null
+  }
+}

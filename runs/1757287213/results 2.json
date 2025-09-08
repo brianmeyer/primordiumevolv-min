@@ -1,0 +1,107 @@
+{
+  "run_id": 78,
+  "task_class": "general",
+  "task": "Summarize: 'Local generation with rigorous evaluation improves reliability.' in under 15 words including 'local'.",
+  "assertions": [
+    "summary",
+    "local",
+    "under 15"
+  ],
+  "best_score": 0.4681012303700206,
+  "best_total_reward": 0.6681012303700207,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5506686410313444,
+      "top_k": 31,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 8,
+      "avg_reward": 0.6764623119639971
+    },
+    "inject_rag": {
+      "n": 14,
+      "avg_reward": 0.6407956906472385,
+      "mean_payoff": 0.04615786639048509
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 6,
+      "avg_reward": 0.6063565682126298
+    },
+    "change_nudge": {
+      "n": 7,
+      "avg_reward": 0.6778310272277557
+    },
+    "lower_temp": {
+      "n": 10,
+      "avg_reward": 0.642872270293761,
+      "mean_payoff": 0.06681012303700207
+    },
+    "inject_memory": {
+      "n": 9,
+      "avg_reward": 0.604409205068973
+    },
+    "lower_top_k": {
+      "n": 8,
+      "avg_reward": 0.7363836547162345
+    },
+    "raise_top_k": {
+      "n": 5,
+      "avg_reward": 0.6239666321685917,
+      "mean_payoff": 0.09981640485758776
+    }
+  },
+  "baseline": 0.4466628833295063,
+  "improvement": 0.021438347040514283,
+  "total_reward_improvement": 0.6681012303700207,
+  "timestamp": 1757287213,
+  "metrics": {
+    "best_total_reward": 0.6681012303700207,
+    "best_score": 0.4681012303700206,
+    "avg_total_reward": null,
+    "steps_to_best": 1,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.668",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.4681012303700206,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.6681012303700207,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

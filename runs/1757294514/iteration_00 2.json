@@ -1,0 +1,100 @@
+{
+  "iteration": 0,
+  "operator": "raise_top_k",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 43,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.22066295124875843,
+  "reward": 0.4003918401376474,
+  "reward_breakdown": {
+    "outcome_reward": 0.22066295124875843,
+    "process_reward": 0.30000000000000004,
+    "cost_penalty": 0.12027111111111113,
+    "total_reward": 0.4003918401376474,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.04003918401376474,
+      "plays": 10,
+      "ucb_score": 1.3865308465432076
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.2417506438695636
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.091701868113417
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.09803677100462
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8536181913809517
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.099434302918902
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.88481212277529
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 16,
+        "ucb_score": 1.7045468763914111
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 3.5023623926181515
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.04003918401376474,
+        "plays": 10,
+        "ucb_score": 1.3865308465432076
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.1400350592858683
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are writing a simple function to add two numbers.\n Constraints: Respond in bullet points.\n\n Since the instruction says \"Respond in bullet points\", I will write the function in a concise way and then present the bullet points as the response.\n\n However, note: the user says \"Write a simple function\", so we are to provide the function code.\n\n But the constraint says: \"Respond in bullet points\". So we have to present the response as bullet points.\n\n Let me think: the user wants the function in bullet points? Or the response should be in bullet points?\n\n The instruction: \"Respond in bullet points\" means the entire response should be in bullet points.\n\n Since it's a function, we can do:\n\n * Define a function that takes two arguments and returns their sum.\n\n However, the problem says: \"simple function\". We can write in Python? The problem doesn't specify language, but in engineering context, Python is common.\n\n But note: the user says \"concise senior engineer\". So we write in a standard language.\n\n I choose Python.\n\n Steps:\n 1. Create a function named `add` that takes two parameters.\n 2. Return the sum.\n\n Example:\n\n But the response must be in bullet points.\n\n How about:\n\n * Here's a simple Python function to add two numbers:\n\n    def add(a, b):\n        return a + b\n\n However, the user says \"bullet points\", so we can have one bullet point for the function.\n\n But the instruction says: \"Respond in bullet points\". So we write:\n\n - [function code]\n\n But the problem says: \"simple function\", so we don't need to overcomplicate.\n\n Let me write:\n\n * Define a function `add` that returns the sum of two numbers.\n\n However, the user wants the function code.\n\n Since the problem says \"Write a simple function\", I think they want the code.\n\n So I'll write:\n\n * `def add(a, b): return a + b`\n\n But to be precise and in bullet points, we can have:\n\n - Function: `add(a, b)` returns `a + b`\n\n However, the problem says \"precise, directly usable output\". So the code is the output.\n\n Let me do:\n\n * `def add(a, b): return a + b`\n\n But note: the user says \"bullet points\", so we have one bullet point.\n\n Alternatively, we can write:\n\n * Simple function in Python:\n   ```python\n   def add(a, b):\n       return a + b\n   ```\n\n But the problem says \"concise\", so we can avoid the extra newlines and just write the function in one line? However, the function is simple.\n\n Since the constraint says \"Respond in bullet points\", I'll write one bullet point with the function code.\n\n However, the problem says: \"Return precise, directly usable output\". So the output should be the function definition.\n\n I think the best is:\n\n * `def add(a, b): return a + b`\n\n But to be safe and directly usable, we can write without the function body being a multi-line? The problem says simple.\n\n Alternatively, we can write in a way that it's one line.\n\n But note: the problem says \"simple function\", so we don't have to worry about style.\n\n Let me write:\n\n * `add = lambda a, b: a + b`   -> but this is a lambda, and the problem says \"function\", so it's acceptable but maybe they want a named function.\n\n The problem says \"simple\", so both are simple.\n\n However, the instruction says \"senior engineer\", so they might prefer named functions.\n\n I'll go with the named function.\n\n Final decision: one bullet point with the function definition.\n\n But the problem says: \"Respond in bullet points\" (plural). So maybe multiple bullet points? But the instruction says \"bullet points\" (plural) but in the context, it might be one.\n\n However, to be safe and follow the constraint of \"bullet points\", I'll write one bullet point.\n\n Alternatively, we can write:\n\n * Function definition: `def add(a, b): return a + b`\n\n But the problem says \"concise\".\n\n Let me write without the text:\n\n * def add(a, b): return a + b\n\n But to be precise and in a way that it's directly usable, we can write it as a string? No, the user wants the function.\n\n Since the output is to be directly usable, we write the code.\n\n I think the response should be:\n\n - def add(a, b): return a + b\n\n However, the problem says \"bullet points\", so we use a dash.\n\n But note: the user said \"bullet points\" meaning the response should be in bullet points. In markdown, bullet points are with dashes.\n\n So:\n\n - def add(a, b): return a + b\n\n But to make it more clear, we can add a short description? The problem says \"precise\", so maybe without description.\n\n Alternatively, the problem says \"simple function\", so we don't need extra words.\n\n Let's do:\n\n - `def add(a, b): return a + b`\n\n The backticks are for code.\n\n However, the problem says \"concise\", so we avoid extra words.\n\n I think that's it.\n\n But note: the problem says \"Return precise, directly usable output\". So the output is the code.\n\n So I'll output one bullet point with the code.\n\n However, the constraint says \"Respond in bullet points\" (plural) but we have one bullet point. That's acceptable.\n\n Alternatively, we can write:\n\n * A simple function to add two numbers:\n\n   def add(a, b):\n       return a + b\n\n But the problem says \"concise\", so we can do without the newline and indentation? Actually, in one line is more concise.\n\n But in Python, the function is usually written with a newline for readability? However, the problem says \"simple\" and \"concise\".\n\n I choose one line:\n\n * `def add(a, b): return a + b`\n\n But note: the problem says \"directly usable\". So the code must be runnable.\n\n This code is runnable.\n\n Let's write it.\n\n Final response in bullet point:\n\n - `def add(a, b): return a + b`\n\n However, the problem says \"bullet points\" (plural) but we are using one. I think it's acceptable.\n\n Alternatively, if they want multiple bullet points, we can break it into two? But the problem says \"simple function\", so one bullet point is enough.\n\n I think we go with one.\n\n But the problem says: \"Respond in bullet points\". So we write one bullet point.\n\n Let me write:\n\n - `def add(a, b): return a + b`\n\n But to be safe and in the spirit of the problem, we do exactly that.\n\n However, note: the problem says \"simple function to add two numbers\". We are doing that.\n\n So I output:\n\n- `def add(a, b): return a + b`\n\n But without the quotes? The user wants the code as code.\n\n In the response, we use backticks to denote code.\n\n Alternatively, we can write without backticks? But the problem says \"directly usable output\". The code without backticks is also directly usable? Actually, in a code context, we don't need backticks if we are writing the code.\n\n However, the problem says \"precise, directly usable output\". The output should be the function code.\n\n Since it's a code snippet, I think we present it as code.\n\n But the instruction says: \"Respond in bullet points\". So we write:\n\n * `def add(a, b): return a + b`\n\n But the bullet point in markdown is with a dash and then a space.\n\n Let me format as:\n\n - `def add(a, b): return a + b`\n\n Yes.\n\n However, the problem says \"concise senior engineer\". So we don't add extra text.\n\n So the response is:\n\n- `def add(a, b): return a + b`\n\n But note: the problem says \"Constraints: Respond in bullet points\". So we have one bullet point.\n\n I think that's it.\n\n But wait: the problem says \"simple function\". We are writing a function that takes two numbers and returns their sum.\n\n This is simple.\n\n Let's output.\n</think>\n\n- `def add(a, b): return a + b`"
+}

@@ -2,6 +2,7 @@ import os
 import sqlite3
 import time
 import json
+import math
 from typing import List, Dict, Optional
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "storage", "meta.db")
@@ -172,6 +173,19 @@ def init_db():
         except sqlite3.OperationalError:
             pass  # Index already exists
     
+    # Normalize legacy non-finite values that break JSON encoding
+    try:
+        # Coerce any -Inf/Inf/NaN textual or non-finite representations to NULL
+        for col in ("best_score", "best_total_reward", "total_reward_improvement"):
+            try:
+                c.execute(f"UPDATE runs SET {col} = NULL WHERE CAST({col} AS TEXT) IN ('-Inf','-inf','Inf','inf','NaN','nan')")
+            except Exception:
+                pass
+        c.commit()
+    except Exception:
+        # Best-effort; do not fail init
+        pass
+    
     c.commit()
     c.close()
 
@@ -244,6 +258,13 @@ def save_run_finish(run_id: int, best_variant_id: int, best_score: float, operat
     try:
         c.execute("BEGIN TRANSACTION")
         operator_names_json = json.dumps(operator_names) if operator_names else None
+        # Sanitize non-finite values to avoid JSON encoding failures downstream
+        if isinstance(best_score, float) and (math.isinf(best_score) or math.isnan(best_score)):
+            best_score = None
+        if isinstance(best_total_reward, float) and (math.isinf(best_total_reward) or math.isnan(best_total_reward)):
+            best_total_reward = None
+        if isinstance(total_reward_improvement, float) and (math.isinf(total_reward_improvement) or math.isnan(total_reward_improvement)):
+            total_reward_improvement = None
         c.execute(
             "UPDATE runs SET finished_at = ?, best_variant_id = ?, best_score = ?, operator_names_json = ?, best_total_reward = ?, total_reward_improvement = ? WHERE id = ?",
             (time.time(), best_variant_id, best_score, operator_names_json, best_total_reward, total_reward_improvement, run_id)

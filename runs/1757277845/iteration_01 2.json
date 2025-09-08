@@ -1,0 +1,94 @@
+{
+  "iteration": 1,
+  "operator": "lower_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5236530440471714,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.5937808944804277,
+  "reward": 0.7937808944804277,
+  "reward_breakdown": {
+    "outcome_reward": 0.5937808944804277,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.7937808944804277,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.26459363149347587,
+      "plays": 3,
+      "ucb_score": 2.22771079827905
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 1,
+        "ucb_score": 3.788624518998158
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 2.8809168652743837
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 2.936211063144177
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.26459363149347587,
+        "plays": 3,
+        "ucb_score": 2.22771079827905
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 2.3124871264946343
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 1,
+        "ucb_score": 3.864158096625373
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 2.8748803032428216
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 1,
+        "ucb_score": 3.812147718999169
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.39040100272265355,
+        "plays": 2,
+        "ucb_score": 2.794718684684072
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, let's see. I need to compute the mean and median for the list [1,2,3,4,5]. \n\nFirst, the mean. The mean is the average, so I add all the numbers and divide by the count. Let's add them up: 1+2 is 3, plus 3 is 6, plus 4 is 10, plus 5 is 15. So total sum is 15. There are 5 numbers, so 15 divided by 5 is 3. So the mean is 3.\n\nNow the median. The median is the middle value when the list is ordered. Since the list is already in order, and there are 5 elements (odd count), the median is the third number. Let's count: first is 1, second 2, third 3. So median is 3.\n\nWait, that's interesting. Both mean and median are 3 here. Let me double-check. For the list [1,2,3,4,5], sorted, yes. The median for odd n is the (n+1)/2 th term. So (5+1)/2 = 3rd term, which is 3. Mean is (1+2+3+4+5)/5 = 15/5 = 3. Yep, correct.\n\nSo the answer should be mean: 3, median: 3.\n</think>\n\n- Mean: 3\n- Median: 3"
+}

@@ -1,0 +1,100 @@
+{
+  "iteration": 11,
+  "operator": "toggle_web",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null
+  },
+  "score": 0.2540588376365661,
+  "reward": 0.18971483763656607,
+  "reward_breakdown": {
+    "outcome_reward": 0.2540588376365661,
+    "process_reward": 0.1,
+    "cost_penalty": 0.16434400000000002,
+    "total_reward": 0.18971483763656607,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.1331308588432871,
+      "plays": 7,
+      "ucb_score": 1.7899817521661348
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.03184820592400394,
+        "plays": 10,
+        "ucb_score": 1.4180691182945044
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.03525992086025107,
+        "plays": 11,
+        "ucb_score": 1.3569697012354158
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.031052671379889096,
+        "plays": 11,
+        "ucb_score": 1.3527624517550538
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.016348401508670424,
+        "plays": 16,
+        "ucb_score": 1.1122522573205358
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.01535224165749958,
+        "plays": 12,
+        "ucb_score": 1.2807930139753583
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.018318911319330253,
+        "plays": 14,
+        "ucb_score": 1.1898894134029048
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.027189952977106774,
+        "plays": 18,
+        "ucb_score": 1.0604180169411794
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.1331308588432871,
+        "plays": 7,
+        "ucb_score": 1.7899817521661348
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.023789739893948805,
+        "plays": 11,
+        "ucb_score": 1.3454995202691136
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.03271420887877174,
+        "plays": 12,
+        "ucb_score": 1.2981549811966304
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user wants a concise script for data cleanup and summarization. They mentioned specific web contexts about using Python and Pandas. Let me recall the key points from the context: raw data is messy, incomplete, inconsistent. The script should automate cleaning and output a summary table.\n\nFirst, I need to outline the steps. The user said \"simple\" so I shouldn't overcomplicate. Basic cleaning steps: handle missing values, fix data types, maybe standardize strings. Then summarize with Pandas.\n\nWait, the constraints say respond in bullet points. But the user asked for a script output. Hmm, they want the script itself in bullet points? Wait, no. The instruction says: \"Return precise, directly usable output.\" And \"Respond in bullet points.\"\n\nWait, the user's instruction: \"Write a simple script... Respond in bullet points.\" So I need to write the script as bullet points? Or just the key steps?\n\nWait, the example response in the context shows bullet points. Let me think.\n\nThe user says: \"Respond in bullet points.\" So the answer should be bullet points listing the script steps or the code?\n\nWait, the user is a senior engineer who wants precise output. They want the script written concisely in bullet points.\n\nWait, the context mentions that the script should do data cleaning and summarize in a table.\n\nSo the script steps:\n\n1. Import necessary libraries (Pandas)\n2. Load data (assuming CSV)\n3. Clean data: handle missing values, convert types, remove duplicates, etc.\n4. Summarize with descriptive stats or tables.\n\nBut the user wants it simple. Let me think of a minimal example.\n\nFor example:\n\n- Read CSV\n- Drop missing values\n- Convert columns to correct types\n- Summarize stats\n\nBut need to make it a script. The user probably expects code in bullet points.\n\nWait, the assistant is supposed to return precise, directly usable output. So the bullet points should be the code steps.\n\nWait, but the user said \"Write a simple script...\" so the output should be the script code, but in bullet points.\n\nWait, the problem says \"Respond in bullet points.\" So the answer should be bullet points of the script's commands.\n\nLet me draft.\n\nFirst, the script would be:\n\nimport pandas as pd\n\ndf = pd.read_csv('data.csv')\ndf.dropna(inplace=True)\ndf['column'] = df['column'].astype(str)\ndf = df.drop_duplicates()\nsummary = df.describe()\nprint(summary)\n\nBut the user wants it simple, so maybe the columns are generic.\n\nWait, the problem says \"summarizes results in a table\". So the summary table should be printed.\n\nBut in the context, they mention using Pandas. So the script should be minimal.\n\nWait, the user is a senior engineer, so they might want the code as bullet points. But the instruction says \"Respond in bullet points.\" So the answer should be a list of bullet points that are the script's key steps.\n\nWait, no. Wait, the user says: \"Return precise, directly usable output.\" So the output should be the script code itself, but formatted as bullet points.\n\nFor example:\n\n- import pandas as pd\n- df = pd.read_csv('input.csv')\n- df.dropna(inplace=True)\n- ... etc.\n\nYes, that makes sense.\n\nSo the bullet points would be the lines of code.\n\nBut the user wants it concise. Let me think of the minimal steps.\n\nThe context says \"simple example\". So maybe:\n\n- Import Pandas\n- Load data from CSV\n- Handle missing values\n- Convert data types\n- Remove duplicates\n- Generate summary table\n\nBut the user wants the exact script.\n\nLet me check the web context: \"Writing a Simple Data Cleaning Script - apxml.com\" mentions raw data being messy. So the script should do basic cleaning.\n\nA simple script could be:\n\nRead CSV, drop NA, convert to string, drop duplicates, then describe.\n\nBut the summary table is the describe output.\n\nWait, the user says \"summarizes results in a table\". So the output is a table, which in Pandas is the describe() output.\n\nSo the script steps:\n\n1. Import pandas\n2. Read CSV\n3. Drop missing values\n4. Convert a column to string (example)\n5. Drop duplicates\n6. Print describe() output\n\nBut the user wants it simple, so maybe skip some steps.\n\nWait, the answer should be bullet points of the code. Let me write it.\n\nThe user said \"precise, directly usable output\". So the bullet points are the code lines.\n\nSo:\n\n- `import pandas as pd`\n- `df = pd.read_csv('data.csv')`\n- `df.dropna(inplace=True)`\n- `df['column'] = df['column'].astype(str)`\n- `df = df.drop_duplicates()`\n- `print(df.describe())`\n\nBut the user might not have a specific column. So maybe use a generic column name"
+}

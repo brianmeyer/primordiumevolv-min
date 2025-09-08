@@ -1,0 +1,100 @@
+{
+  "iteration": 0,
+  "operator": "raise_top_k",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 52,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.3306090828450501,
+  "reward": 0.36722108284505006,
+  "reward_breakdown": {
+    "outcome_reward": 0.3306090828450501,
+    "process_reward": 0.2,
+    "cost_penalty": 0.163388,
+    "total_reward": 0.36722108284505006,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.028247775603465388,
+      "plays": 13,
+      "ucb_score": 1.2549192102931368
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.9071100747088314
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.9027227026447486
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8295337322890481
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 17,
+        "ucb_score": 1.6594783698150959
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 1.8211339163544245
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 15,
+        "ucb_score": 1.7066588154907234
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 19,
+        "ucb_score": 1.6233373680157734
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.0209723727050686
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.028247775603465388,
+        "plays": 13,
+        "ucb_score": 1.2549192102931368
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 1.877172043984037
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are drafting a daily checklist for tracking system experiments and evaluating results.\n The response must be in bullet points, concise and directly usable.\n As a senior engineer, I focus on practical, actionable items that cover the key aspects of experiment tracking and evaluation.\n\n Key elements to consider:\n 1. Experiment identification and context\n 2. Setup and environment details\n 3. Execution and monitoring\n 4. Result collection and analysis\n 5. Documentation and next steps\n\n We want to avoid fluff and ensure each bullet point is a specific, actionable step.\n\n Let's structure the checklist for a daily basis:\n\n - Start with what we are tracking (experiment name, purpose)\n - Then what we did (setup, execution)\n - Then what we observed (results)\n - Then what we learned and next steps\n\n But note: the constraint says \"daily\", so we want to capture the day's experiments.\n\n Proposed bullet points:\n\n * [Experiment Name]: Brief description of the experiment (e.g., \"Feature X rollout to staging\")\n * [Environment]: Specific environment (e.g., staging, production, dev) and version\n * [Start Time]: When the experiment started (timestamp)\n * [End Time]: When the experiment ended (timestamp) [optional but good for duration]\n * [Key Metrics]: List of metrics tracked (e.g., error rate, response time, user count)\n * [Baseline Metric]: Value of the metric before experiment (for comparison)\n * [Experiment Result]: Observed metric value after experiment\n * [Anomaly Flag]: Any anomalies (e.g., \"Yes\" or \"No\", with brief note if yes)\n * [Conclusion]: 1-2 sentence summary of what the experiment showed (e.g., \"Rollout reduced errors by 15%\")\n * [Action Items]: Specific, actionable next steps (e.g., \"Deploy to production\", \"Investigate anomaly in metric Y\")\n\n However, note the constraint: \"precise, directly usable output\". We must be concise.\n\n Let's try to make it even more concise and focused on what the engineer does daily.\n\n Alternative approach: A checklist that the engineer marks off as they go.\n\n Example:\n\n - [ ] Experiment name: __________\n - [ ] Environment: __________\n - [ ] Start time: __________\n - [ ] End time: __________\n - [ ] Key metrics: __________\n - [ ] Baseline: __________\n - [ ] Result: __________\n - [ ] Anomaly: __________\n - [ ] Conclusion: __________\n - [ ] Next steps: __________\n\n But the problem says: \"draft a daily checklist to track\". So it's a template for the day.\n\n However, the instruction says: \"Respond in bullet points\". So we can write the checklist as bullet points without the [ ].\n\n But note: the user wants a checklist to be used daily. So we can write:\n\n * Experiment Name: [fill]\n * Environment: [fill]\n * Start Time: [fill]\n * End Time: [fill]\n * Key Metrics: [list]\n * Baseline: [value]\n * Experiment Result: [value]\n * Anomaly: [yes/no, brief note]\n * Conclusion: [1-2 sentences]\n * Next Steps: [specific actions]\n\n However, the user said \"concise\". So we can make it a bit shorter.\n\n Let me think of the most critical ones for a daily experiment:\n\n - Name\n - Environment\n - Start/End time (to know duration)\n - Key metrics (at least one)\n - Result (the outcome)\n - Anomaly (if any)\n - Action (for next day)\n\n But the problem says \"evaluate results\", so we need to have the evaluation.\n\n After consideration, here is a concise checklist:\n\n * [Experiment Name] - e.g., \"API v2 rollout\"\n * [Environment] - e.g., \"staging\"\n * [Start Time] - e.g., \"09:00\"\n * [End Time] - e: e.g., \"10:30\"\n * [Key Metric] - e.g., \"error_rate\"\n * [Baseline] - e.g., \"0.5%\"\n * [Result] - e.g., \"0.3%\"\n * [Anomaly?] - e.g., \"No\"\n * [Conclusion] - e.g., \"Rollout reduced errors by 40%\"\n * [Next Step] - e.g., \"Deploy to production\"\n\n But note: the user said \"daily checklist\", so we want it to be a list of items that the engineer checks off each day.\n\n However, the problem doesn't specify if it's a template to fill or a list of what to do. Since it's a \"checklist\", I think it's the latter.\n\n But the instruction says: \"Draft a daily checklist to track system experiments and evaluate results\".\n\n I think the output should be a set of bullet points that describe the checklist items (like the template).\n\n Let me write in the"
+}

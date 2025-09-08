@@ -1,0 +1,94 @@
+{
+  "iteration": 0,
+  "operator": "inject_rag",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5731024046078352,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.5317409964548865,
+  "reward": 0.7317409964548864,
+  "reward_breakdown": {
+    "outcome_reward": 0.5317409964548865,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.7317409964548864,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.10453442806498378,
+      "plays": 7,
+      "ucb_score": 1.5750425295471622
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.8889685452567715
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.808065102453376
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.1909570873865865
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.24613154637808
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.1480681409907554
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 2.370843780548808
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.10453442806498378,
+        "plays": 7,
+        "ucb_score": 1.5750425295471622
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.7946133867698704
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 2.644554106087639
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are given x = [1, 2, 3, 4] and y = [2, 4, 6, 8]\n We can compute the slope (m) of the line that best fits these points (if linear) using the formula for the slope in a simple linear regression.\n\n However, note that these points lie exactly on a straight line: y = 2x.\n\n Let's verify:\n   When x=1, y=2 -> 2 = 2*1 -> true.\n   When x=2, y=4 -> 4 = 2*2 -> true.\n   When x=3, y=6 -> 6 = 2*3 -> true.\n   When x=4, y=8 -> 8 = 2*4 -> true.\n\n Therefore, there is a perfect linear relationship.\n\n The slope is 2.\n\n We can also compute the slope using the formula for two points (but here we have multiple points that are collinear):\n\n   m = (y2 - y1) / (x2 - x1)\n\n But since all points are on the same line, we can take any two points.\n\n   m = (4 - 2) / (2 - 1) = 2/1 = 2\n\n So the slope is 2.\n\n Response in bullet points:\n\n- A perfect linear relationship exists between x and y.\n- Slope = 2\n</think>\n\n- A perfect linear relationship exists between x and y.\n- Slope = 2"
+}

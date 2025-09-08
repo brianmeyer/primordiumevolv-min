@@ -1,0 +1,94 @@
+{
+  "iteration": 1,
+  "operator": "inject_memory",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.3967554486550067,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": true,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.4536638193262885,
+  "reward": 0.5536638193262885,
+  "reward_breakdown": {
+    "outcome_reward": 0.4536638193262885,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.5536638193262885,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.06920797741578606,
+      "plays": 8,
+      "ucb_score": 1.511234864016669
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 2.461727423363186
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.336751088324806
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.26773602626631
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.0988301183627254
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.11848919856488
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.06920797741578606,
+        "plays": 8,
+        "ucb_score": 1.511234864016669
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8196729173251378
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 2.694521764476373
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.2907924941077162
+      }
+    ]
+  },
+  "output_preview": "<think>\nHmm, the user wants me to summarize a specific paragraph in one sentence as bullet points. They've specified I should be a concise senior engineer and return precise, directly usable output.\n\nLooking at the paragraph: 'PrimordiumEvolv introduces a self-evolving system that blends local generation with rigorous evaluation to steadily improve.' \n\nI need to distill this into one tight sentence while following their constraints. The key elements are: \n- It's called PrimordiumEvolv\n- It's a self-evolving system\n- It combines local generation with rigorous evaluation\n- The purpose is steady improvement\n\nAs a senior engineer, I should focus on technical precision without fluff. The phrase \"blends\" implies integration, and \"steadily improve\" suggests continuous optimization. \n\nI'll craft a single bullet point that captures all essentials: name, mechanism (local generation + evaluation), and outcome (steady improvement). Must avoid adding interpretation since they want directly usable output.\n\nUser seems experienced - they used precise terms like \"self-evolving\" and \"rigorous evaluation\" - so I won't oversimplify. They're probably evaluating my technical accuracy, so I'll be strict about the one-sentence constraint.\n\nFinal output will be just one bullet point as requested. No extra text since they want concise response.\n</think>\n\n- PrimordiumEvolv delivers a self-evolving system that integrates local generation with rigorous evaluation for continuous improvement."
+}

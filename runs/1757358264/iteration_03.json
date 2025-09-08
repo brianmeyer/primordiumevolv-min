@@ -1,0 +1,100 @@
+{
+  "iteration": 3,
+  "operator": "inject_rag",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.345922460563114,
+  "reward": 0.3959224605631139,
+  "reward_breakdown": {
+    "outcome_reward": 0.345922460563114,
+    "process_reward": 0.25,
+    "cost_penalty": 0.2,
+    "total_reward": 0.3959224605631139,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.02083802424016389,
+      "plays": 19,
+      "ucb_score": 1.0298794564865235
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9750248278002651
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.9581524593056334
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.8826436047910025
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.027223636286431888,
+        "plays": 17,
+        "ucb_score": 1.0939704122312122
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8732181238121515
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.036053043851333615,
+        "plays": 15,
+        "ucb_score": 1.1716917078580944
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.02083802424016389,
+        "plays": 19,
+        "ucb_score": 1.0298794564865235
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.060927776693704055,
+        "plays": 8,
+        "ucb_score": 1.6159650603225368
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.8843468099427327
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.9356160221506005
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are given a context that seems to be a mix of text from different sources (RAG context, some technical content about smart contracts, and then a fragment of a paper about game theory). However, the user's request is very specific: \"Show me how to set up a safe retry loop for an API call with exponential backoff.\"\n\nThe context provided doesn't seem to be directly relevant to the API retry question. The context has some fragmented text that appears to be from a technical document (about smart contracts, vending machines, and then some game theory). But the user is asking for a practical implementation.\n\nGiven the constraints: \n- Respond in bullet points.\n- Be concise and directly usable.\n\nWe ignore the context because it doesn't help with the API retry question. We focus on the task.\n\nWe'll describe a safe retry loop with exponential backoff in bullet points.\n\nKey points for exponential backoff retry loop:\n1. Start with a small initial delay (e.g., 100ms).\n2. After each failure, double the delay (exponentially) but cap it to avoid excessive delays (e.g., max 30 seconds).\n3. Limit the number of retries to avoid infinite loops (e.g., 5 retries).\n4. Use a backoff multiplier (e.g., 2) and a maximum backoff time (e.g., 30 seconds).\n5. Include a jitter (optional) to avoid synchronized retries.\n6. Handle the exception and retry only if the error is transient (e.g., network issues, 429, 500).\n\nBut note: the user wants a \"safe\" retry loop. So we emphasize safety: avoid too many retries, avoid too long delays, handle transient errors.\n\nWe'll write in bullet points without extra text.\n\nImportant: The response must be in bullet points and concise.\n\nLet's draft:\n\n- Initialize retry count to 0.\n- Define initial delay (e.g., 100ms) and max delay (e.g., 30s).\n- For up to max_retries (e.g., 5):\n  - Attempt API call.\n  - If successful, break.\n  - If failure, check if error is transient (e.g., HTTP 5xx, 429).\n  - If transient: \n      - Calculate next delay = min(max_delay, initial_delay * (2 ** retry_count))\n      - Add optional jitter (e.g., random(0, next_delay * 0.1))\n      - Wait for next_delay\n      - Increment retry count\n  - If not transient: re-raise exception\n- Return result on success or raise exception after max retries.\n\nBut we want it concise and directly usable. We can write in a way that a developer can copy and adapt.\n\nAlternative: Use a standard library pattern (like `tenacity` in Python) but the user didn't specify language. However, the context says \"API call\" so we can assume common languages. Since the user didn't specify, we write in a generic way.\n\nBut the instruction says: \"precise, directly usable output\". So we write in a way that can be adapted to any language.\n\nHowever, note: the context says \"RAG Context\" and then some text that doesn't help. We ignore.\n\nLet me write in bullet points without code (because the user might be in any language) but with clear steps.\n\nBut the user said \"directly usable\", so we can write in pseudo-code or in a way that's language-agnostic.\n\nGiven the constraints, I'll write:\n\n- Start with retry_count = 0, initial_delay = 100ms, max_delay = 30s, max_retries = 5.\n- While retry_count < max_retries:\n  - Try API call\n  - If success: break\n  - If failure and error is transient (e.g., 429, 5xx): \n        retry_count += 1\n        delay = min(max_delay, initial_delay * (2 ** retry_count)) + jitter (optional)\n        sleep(delay)\n  - Else: re-raise exception\n- If all retries failed: re-raise exception\n\nBut to be more precise and safe, we add:\n\n- Only retry on specific transient errors (e.g., network errors, server errors that are rate-limited).\n- Avoid exponential backoff beyond max_delay to prevent long hangs.\n\nWe'll write in bullet points as:\n\n- Set max_retries = 5, initial_delay = 100ms, max_delay = 30s.\n- For retry in range(max_retries):\n  - Attempt API call\n  - If successful: return result\n  - If error is transient (e.g., HTTP 429, 5xx, network timeout): \n        sleep_delay = min(max_delay, initial_delay * (2 ** retry))\n        sleep(sleep_delay + random(0, sleep_delay * "
+}

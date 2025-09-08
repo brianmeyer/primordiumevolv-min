@@ -1,0 +1,106 @@
+{
+  "run_id": 36,
+  "task_class": "analysis",
+  "task": "Aggregate list [1,2,2,3,3,3] into counts per value.",
+  "assertions": [
+    "{1: 1",
+    "2: 2",
+    "3: 3"
+  ],
+  "best_score": 0.42902151949021494,
+  "best_total_reward": 0.6790215194902149,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": "Example: Analyze this data pattern.\nPattern shows 20% increase in usage during peak hours, suggesting need for scaling.",
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 3,
+      "avg_reward": 0.6262919519526817,
+      "mean_payoff": 0.22634050649673831
+    },
+    "inject_rag": {
+      "n": 2,
+      "avg_reward": 0.4705626212814029,
+      "mean_payoff": 0.2814869523217058
+    },
+    "raise_temp": {
+      "n": 2,
+      "avg_reward": 0.5318933811827582,
+      "mean_payoff": 0.2660001795441579
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 1,
+      "avg_reward": 0.3884058449148782
+    },
+    "change_nudge": {
+      "n": 2,
+      "avg_reward": 0.47659918331296525,
+      "mean_payoff": 0.26528574223547025
+    },
+    "lower_temp": {
+      "n": 1,
+      "avg_reward": 0.5406433001174457
+    },
+    "inject_memory": {
+      "n": 1,
+      "avg_reward": 0.46393942254209275,
+      "mean_payoff": 0.46393942254209275
+    },
+    "lower_top_k": {
+      "n": 1,
+      "avg_reward": 0.5263391465652316,
+      "mean_payoff": 0.5263391465652316
+    }
+  },
+  "baseline": 0.0,
+  "improvement": 0.42902151949021494,
+  "total_reward_improvement": 0.6790215194902149,
+  "timestamp": 1757272795,
+  "metrics": {
+    "best_total_reward": 0.6790215194902149,
+    "best_score": 0.42902151949021494,
+    "avg_total_reward": null,
+    "steps_to_best": 2,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.679",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.42902151949021494,
+    "process_reward": 0.25,
+    "cost_penalty": 0.0,
+    "total_reward": 0.6790215194902149,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "iteration": 1,
+  "operator": "lower_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.2696742959404467,
+      "top_k": 31,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.3830086454644311,
+  "reward": 0.4940046454644311,
+  "reward_breakdown": {
+    "outcome_reward": 0.3830086454644311,
+    "process_reward": 0.2,
+    "cost_penalty": 0.089004,
+    "total_reward": 0.4940046454644311,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.044909513224039195,
+      "plays": 11,
+      "ucb_score": 1.2979041970314236
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.302919390221944
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.2485429883708203
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.2991896259602287
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.044909513224039195,
+        "plays": 11,
+        "ucb_score": 1.2979041970314236
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.14572881494028
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 1.989646948568672
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 14,
+        "ucb_score": 1.7514567696623202
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.07300228836241682,
+        "plays": 6,
+        "ucb_score": 1.7695651103717307
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.205650157692517
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are creating a concise to-do list with 5 items for preparing a presentation.\n The response must be in bullet points only.\n As a senior engineer, I'll focus on practical, actionable steps that are critical for a presentation.\n Let's think step by step:\n 1. Define the audience and purpose to tailor the content.\n 2. Structure the presentation (outline) to ensure clarity and flow.\n 3. Gather and prepare key materials (slides, data, examples).\n 4. Practice the delivery to refine timing and clarity.\n 5. Prepare for potential questions (Q&A) to handle objections.\n\n However, note: the user asked for 5 items. We must be precise and avoid fluff.\n\n Let me refine to 5 bullet points that are direct and essential:\n\n - Define target audience and presentation objective\n - Create a clear structure with logical flow (e.g., intro, key points, conclusion)\n - Prepare and refine slides with minimal text and high impact visuals\n - Practice the presentation delivery at least twice to ensure timing and clarity\n - Anticipate and prepare responses to top 3 potential questions\n\n But wait, the user said \"concise\". Let me make them even more concise.\n\n Revised to be very direct:\n\n - Define audience and purpose\n - Structure presentation with clear flow\n - Design slides with minimal text and strong visuals\n - Practice delivery twice for timing and clarity\n - Prepare top 3 anticipated questions and answers\n\n However, the problem says: \"Return precise, directly usable output\". So we must be as concise as possible without losing meaning.\n\n Let's count the words per bullet to be ultra-concise:\n\n Option : \n - Define audience and purpose\n - Structure with logical flow\n - Design slides: minimal text, impactful visuals\n - Practice delivery twice\n - Prepare top 3 Q&A responses\n\n But the user said 5 items. We have 5.\n\n However, note: the problem says \"to-do list\", so we want actionable tasks.\n\n Final decision: 5 bullet points, each starting with a verb phrase (imperative) but the user didn't specify verb form. \n But in to-do lists, we often use verb phrases.\n\n Since the user said \"bullet points\", I'll write each as a short phrase.\n\n Let me write:\n\n - Define target audience and presentation goal\n - Outline presentation structure (introduction, key points, conclusion)\n - Create slides with concise text and high-impact visuals\n - Practice presentation delivery twice for timing and clarity\n - Prepare answers for top 3 anticipated questions\n\n But we can make them even shorter? The user wants concise.\n\n How about:\n\n - Define audience and purpose\n - Structure with clear flow\n - Design slides: minimal text, strong visuals\n - Practice twice for timing and clarity\n - Prepare top 3 Q&A responses\n\n That's 5.\n\n However, the problem says \"precise, directly usable\". So I think this is good.\n\n Let me check: \n 1. Define audience and purpose -> critical for relevance\n 2. Structure with clear flow -> avoids confusion\n 3. Design slides: minimal text, strong visuals -> avoids clutter and enhances understanding\n 4. Practice twice for timing and clarity -> ensures it fits and is clear\n 5. Prepare top 3 Q&A responses -> handles common objections\n\n This is standard and practical.\n\n I'll output exactly that.\n\n Note: The user said \"Respond in bullet points\". So we output:\n\n- Define audience and purpose\n- Structure with clear flow\n- Design slides: minimal text, strong visuals\n- Practice twice for timing and clarity\n- Prepare top 3 Q&A responses\n\n But wait, the problem says \"5 items\". We have 5.\n\n However, to be even more concise, we can drop the colon in the third point? But it's clear.\n\n Alternatively, we can write without the colon? \n\n Let me see: the user wants concise. So:\n\n- Define audience and purpose\n- Structure with clear flow\n- Design slides: minimal text, strong visuals\n- Practice twice for timing and clarity\n- Prepare top 3 Q&A responses\n\n This is 5 bullet points.\n\n I think that's it.\n</think>\n\n- Define audience and purpose  \n- Structure with clear flow  \n- Design slides: minimal text, strong visuals  \n- Practice twice for timing and clarity  \n- Prepare top 3 Q&A responses"
+}

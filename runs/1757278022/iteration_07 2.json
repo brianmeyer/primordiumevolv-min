@@ -1,0 +1,94 @@
+{
+  "iteration": 7,
+  "operator": "raise_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.8882331898487748,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.563192840102386,
+  "reward": 0.763192840102386,
+  "reward_breakdown": {
+    "outcome_reward": 0.563192840102386,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.763192840102386,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.1907982100255965,
+      "plays": 4,
+      "ucb_score": 2.0524469155551133
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.2539281092367203,
+        "plays": 3,
+        "ucb_score": 2.4035748717846905
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.2440940852154372,
+        "plays": 3,
+        "ucb_score": 2.3937408477634077
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.1907982100255965,
+        "plays": 4,
+        "ucb_score": 2.0524469155551133
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.1959381880021034,
+        "plays": 4,
+        "ucb_score": 2.0575868935316204
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.12979005454609005,
+        "plays": 6,
+        "ucb_score": 1.6498198574994678
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.24905741997450534,
+        "plays": 3,
+        "ucb_score": 2.3987041825224757
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.18467641192369688,
+        "plays": 4,
+        "ucb_score": 2.0463251174532138
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 3.2206456445688714
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.24778587502010607,
+        "plays": 3,
+        "ucb_score": 2.3974326375680763
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user wants me to briefly explain if there's a linear relationship between x=[1,2,3,4] and y=[2,4,6,8] and provide the slope. They also specified I should respond in bullet points and be concise as a senior engineer.\n\nFirst, I need to check if these points form a linear relationship. Looking at the data: when x is 1, y is 2; x=2, y=4; x=3, y=6; x=4, y=8. That's clearly doubling each time. So it's a straight line with a constant slope. \n\nThe slope calculation should be straightforward. Using the formula for slope between two points: (y2 - y1)/(x2 - x1). If I take the first two points: (4-2)/(2-1) = 2/1 = 2. Checking another pair: (6-4)/(3-2) = 2/1 = 2. Same for the last pair: (8-6)/(4-3) = 2. So slope is consistently 2.\n\nSince all points lie exactly on the line y=2x, the relationship is perfectly linear with no deviation. I should mention that in the response. \n\nThe user wants bullet points, so I'll make it two concise bullets: one confirming linear relationship, one with the slope. Need to be precise - no extra fluff. \n\nAlso remembering to use the senior engineer tone: direct, technical, no markdown. Just plain text bullets as requested. \n\nFinal check: is there any trick here? The data is so clean it's obviously linear. No need to overcomplicate. Slope is definitely 2. \n\nAlright, structuring response:\n- First bullet: confirm perfect linear relationship\n- Second bullet: state slope is 2\n</think>\n\n- Perfect linear relationship exists as all points lie exactly on y = 2x.  \n- Slope = 2."
+}

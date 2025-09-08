@@ -1,0 +1,100 @@
+{
+  "iteration": 0,
+  "operator": "lower_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.44213795667980654,
+      "top_k": 38,
+      "num_predict": 512
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.32785113587085646,
+  "reward": 0.5278511358708564,
+  "reward_breakdown": {
+    "outcome_reward": 0.32785113587085646,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.5278511358708564,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.04060393352852742,
+      "plays": 13,
+      "ucb_score": 1.2309717094039034
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.1242516278822645
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.1030190509663695
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.1100404561134964
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.04060393352852742,
+        "plays": 13,
+        "ucb_score": 1.2309717094039034
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.0167183756319327
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8261520058962977
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 17,
+        "ucb_score": 1.6691472173564093
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.9813380801337788
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.945086585487546
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.0456856641310797
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are writing a simple hello world function.\n Constraints: Respond in bullet points.\n\n Since the user asks for a \"hello world function\", we can write a function that prints \"Hello, World!\".\n\n However, note: the user says \"function\", so we should return a function that when called prints \"Hello, World!\".\n\n But the constraints say: \"Respond in bullet points\". So we have to output in bullet points.\n\n Let's think: what is the simplest way?\n\n We can write:\n\n - Define a function `hello_world` that prints \"Hello, World!\".\n\n However, the user says \"simple\", so we don't need to overcomplicate.\n\n But note: the problem says \"Write a simple hello world function\". So we are to write the function.\n\n Since we are to return in bullet points, we can do:\n\n * Here's a simple hello world function:\n\n   def hello_world():\n       print(\"Hello, World!\")\n\n However, the user says \"concise\" and \"precise\". Also, they are a senior engineer so we don't need to explain.\n\n But the response must be in bullet points. So we can write one bullet point.\n\n Alternatively, we can write:\n\n - Function: `hello_world()` prints \"Hello, World!\".\n\n But that's not the code.\n\n The user says: \"Write a simple hello world function\". So they want the code.\n\n Let me re-read: \"Return precise, directly usable output.\"\n\n So I think they want the code in a bullet point.\n\n How about:\n\n * `def hello_world(): print(\"Hello, World!\")`\n\n But note: in some contexts, we might want to be more precise about the language? The problem doesn't specify.\n\n Since it's a common practice, I'll assume Python.\n\n However, the problem says \"simple\", so we can do in any language? But the context of the problem is not specified.\n\n But the user is a senior engineer and they want concise. They might expect a language that is common in the industry.\n\n Let's choose Python because it's simple and widely used.\n\n Alternatively, if they want a function that returns a string, that's also a common hello world.\n\n But the problem says \"hello world function\", and traditionally it's a print.\n\n However, the problem says: \"simple hello world function\". So I think the classic is to print.\n\n But note: the problem says \"function\", so we can do:\n\n Option 1: Print function (most common for hello world)\n Option 2: Return a"
+}

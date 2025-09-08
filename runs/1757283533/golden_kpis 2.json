@@ -1,0 +1,280 @@
+{
+  "per_item": [
+    {
+      "id": "analysis_aggregate",
+      "task_type": "Data Analysis",
+      "outcome_reward": 0.418778219151938,
+      "process_reward": 0.25,
+      "cost_penalty": 0.0,
+      "total_reward": 0.668778219151938,
+      "steps": 2
+    },
+    {
+      "id": "analysis_csv_stats",
+      "task_type": "Data Analysis",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "analysis_filter",
+      "task_type": "Data Analysis",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "analysis_mean",
+      "task_type": "Data Analysis",
+      "outcome_reward": 0.5894993488059347,
+      "process_reward": 0.2,
+      "cost_penalty": 0.0,
+      "total_reward": 0.7894993488059348,
+      "steps": 2
+    },
+    {
+      "id": "analysis_regression",
+      "task_type": "Data Analysis",
+      "outcome_reward": 0.5616536097572455,
+      "process_reward": 0.2,
+      "cost_penalty": 0.0,
+      "total_reward": 0.7616536097572455,
+      "steps": 1
+    },
+    {
+      "id": "analysis_summary",
+      "task_type": "analysis",
+      "outcome_reward": 0.4536638193262885,
+      "process_reward": 0.1,
+      "cost_penalty": 0.0,
+      "total_reward": 0.5536638193262885,
+      "steps": 2
+    },
+    {
+      "id": "business_market_entry",
+      "task_type": "Business Strategy",
+      "outcome_reward": 0.5677748018785904,
+      "process_reward": 0.25,
+      "cost_penalty": 0.2,
+      "total_reward": 0.6177748018785905,
+      "steps": 1
+    },
+    {
+      "id": "business_okrs",
+      "task_type": "Business Strategy",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "business_positioning",
+      "task_type": "Business Strategy",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "business_risks",
+      "task_type": "Business Strategy",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "business_swot",
+      "task_type": "Business Strategy",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "code_dedupe",
+      "task_type": "Code & Programming",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "code_fib",
+      "task_type": "code",
+      "outcome_reward": 0.6149659945378253,
+      "process_reward": 0.30000000000000004,
+      "cost_penalty": 0.2,
+      "total_reward": 0.7149659945378253,
+      "steps": 2
+    },
+    {
+      "id": "code_prime",
+      "task_type": "Code & Programming",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "code_reverse",
+      "task_type": "code",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "code_wordfreq",
+      "task_type": "Code & Programming",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "general_steps",
+      "task_type": "General Task",
+      "outcome_reward": 0.4466628833295063,
+      "process_reward": 0.2,
+      "cost_penalty": 0.0,
+      "total_reward": 0.6466628833295063,
+      "steps": 3
+    },
+    {
+      "id": "general_summary",
+      "task_type": "General Task",
+      "outcome_reward": 0.4681012303700206,
+      "process_reward": 0.2,
+      "cost_penalty": 0.0,
+      "total_reward": 0.6681012303700207,
+      "steps": 1
+    },
+    {
+      "id": "general_todo",
+      "task_type": "General Task",
+      "outcome_reward": 0.4404651685869825,
+      "process_reward": 0.1,
+      "cost_penalty": 0.039023999999999996,
+      "total_reward": 0.5014411685869825,
+      "steps": 3
+    },
+    {
+      "id": "general_translate",
+      "task_type": "General Task",
+      "outcome_reward": 0.45926871849863227,
+      "process_reward": 0.25,
+      "cost_penalty": 0.0,
+      "total_reward": 0.7092687184986323,
+      "steps": 3
+    },
+    {
+      "id": "research_h2o",
+      "task_type": "Research & Facts",
+      "outcome_reward": 0.3815777227387375,
+      "process_reward": 0.2,
+      "cost_penalty": 0.0,
+      "total_reward": 0.5815777227387375,
+      "steps": 2
+    },
+    {
+      "id": "research_independence",
+      "task_type": "Research & Facts",
+      "outcome_reward": 0.6796473450636448,
+      "process_reward": 0.2,
+      "cost_penalty": 0.0,
+      "total_reward": 0.8796473450636448,
+      "steps": 1
+    },
+    {
+      "id": "research_moon_landing",
+      "task_type": "Research & Facts",
+      "outcome_reward": 0.6267161062573625,
+      "process_reward": 0.2,
+      "cost_penalty": 0.0,
+      "total_reward": 0.8267161062573625,
+      "steps": 1
+    },
+    {
+      "id": "search_capital_france",
+      "task_type": "search",
+      "outcome_reward": 0.6081535968132152,
+      "process_reward": 0.2,
+      "cost_penalty": 0.019595999999999992,
+      "total_reward": 0.7885575968132152,
+      "steps": 2
+    },
+    {
+      "id": "search_einstein_birth",
+      "task_type": "search",
+      "outcome_reward": 0.39530478378342904,
+      "process_reward": 0.2,
+      "cost_penalty": 0.0,
+      "total_reward": 0.5953047837834291,
+      "steps": 2
+    },
+    {
+      "id": "writing_description",
+      "task_type": "Creative Writing",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "writing_haiku",
+      "task_type": "Creative Writing",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "writing_poem",
+      "task_type": "Creative Writing",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "writing_rephrase",
+      "task_type": "Creative Writing",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    },
+    {
+      "id": "writing_story",
+      "task_type": "Creative Writing",
+      "outcome_reward": null,
+      "process_reward": null,
+      "cost_penalty": null,
+      "total_reward": -Infinity,
+      "steps": 3
+    }
+  ],
+  "aggregate": {
+    "avg_total_reward": -Infinity,
+    "avg_cost_penalty": 0.015287333333333335,
+    "avg_steps": 2.433333333333333,
+    "pass_rate": 0.5
+  }
+}

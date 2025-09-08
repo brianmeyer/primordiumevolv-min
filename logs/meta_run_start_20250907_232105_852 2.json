@@ -1,0 +1,38 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-07T23:21:05.852436+00:00",
+  "unix_timestamp": 1757287265.852441,
+  "data": {
+    "run_id": 79,
+    "task_class": "general",
+    "task": "Create a to-do list with 5 items for preparing a presentation.",
+    "config": {
+      "n": 3,
+      "memory_k": 0,
+      "rag_k": 0,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.6,
+      "use_bandit": true,
+      "bandit_algorithm": null,
+      "framework_mask": [
+        "SEAL",
+        "SAMPLING"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": "ollama",
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

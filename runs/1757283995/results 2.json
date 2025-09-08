@@ -1,0 +1,107 @@
+{
+  "run_id": 63,
+  "task_class": "analysis",
+  "task": "Given the list [1,2,3,4,5], compute the mean and median and provide both values.",
+  "assertions": [
+    "mean",
+    "median",
+    "3"
+  ],
+  "best_score": 0.5894993488059347,
+  "best_total_reward": 0.7894993488059348,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.3967554486550067,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 8,
+      "avg_reward": 0.6764623119639971
+    },
+    "inject_rag": {
+      "n": 11,
+      "avg_reward": 0.6314091934507919,
+      "mean_payoff": 0.070755633568931
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 4,
+      "avg_reward": 0.6426614755943793
+    },
+    "change_nudge": {
+      "n": 5,
+      "avg_reward": 0.6546040392170613
+    },
+    "lower_temp": {
+      "n": 8,
+      "avg_reward": 0.6568032317618422,
+      "mean_payoff": 0.09868741860074184
+    },
+    "inject_memory": {
+      "n": 7,
+      "avg_reward": 0.6175625256617054
+    },
+    "lower_top_k": {
+      "n": 7,
+      "avg_reward": 0.7492009077714813,
+      "mean_payoff": 0.11028109607842691
+    },
+    "raise_top_k": {
+      "n": 4,
+      "avg_reward": 0.655187784138755
+    }
+  },
+  "baseline": 0.5837527520084135,
+  "improvement": 0.0057465967975212084,
+  "total_reward_improvement": 0.7894993488059348,
+  "timestamp": 1757283995,
+  "metrics": {
+    "best_total_reward": 0.7894993488059348,
+    "best_score": 0.5894993488059347,
+    "avg_total_reward": null,
+    "steps_to_best": 2,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.789",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.5894993488059347,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.7894993488059348,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

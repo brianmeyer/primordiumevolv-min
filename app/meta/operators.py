@@ -109,10 +109,6 @@ def build_plan(operator_name: str, base_recipe: Optional[Dict] = None) -> Dict[s
         
     return plan
 
-def use_groq(plan: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
-    plan = dict(plan)
-    plan["engine"] = "groq"
-    return plan
 
 def apply(plan: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
     """

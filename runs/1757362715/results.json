@@ -1,0 +1,147 @@
+{
+  "run_id": 114,
+  "task_class": "research",
+  "task": "List real-world use cases where self-tuning or evolutionary AI could be deployed today.",
+  "assertions": [],
+  "best_score": 0.37382820211220996,
+  "best_total_reward": 0.9222028202112209,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Use concise, technical language.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 17,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": true,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 13,
+      "avg_reward": 0.5944624816647529
+    },
+    "inject_rag": {
+      "n": 21,
+      "avg_reward": 0.5969084551186734,
+      "mean_payoff": 0.023044338422401396
+    },
+    "raise_temp": {
+      "n": 12,
+      "avg_reward": 0.5527736232341334
+    },
+    "toggle_web": {
+      "n": 10,
+      "avg_reward": 0.5285186060620737,
+      "mean_payoff": 0.04551020851788117
+    },
+    "change_system": {
+      "n": 11,
+      "avg_reward": 0.5735776326967074
+    },
+    "change_nudge": {
+      "n": 12,
+      "avg_reward": 0.6259625935898339
+    },
+    "lower_temp": {
+      "n": 18,
+      "avg_reward": 0.6000991060009978,
+      "mean_payoff": 0.0459129722016559
+    },
+    "inject_memory": {
+      "n": 16,
+      "avg_reward": 0.5870344177331915,
+      "mean_payoff": 0.05763767626320131
+    },
+    "lower_top_k": {
+      "n": 13,
+      "avg_reward": 0.6505006092943655
+    },
+    "raise_top_k": {
+      "n": 13,
+      "avg_reward": 0.5343946765964966
+    }
+  },
+  "baseline": 0.6796473450636448,
+  "improvement": -0.3058191429514348,
+  "total_reward_improvement": 0.9222028202112209,
+  "timestamp": 1757362715,
+  "metrics": {
+    "best_total_reward": 0.9222028202112209,
+    "best_score": 0.37382820211220996,
+    "avg_total_reward": null,
+    "steps_to_best": 2,
+    "cost_penalty_avg": 0.064896,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.922",
+        "cost efficiency: 0.065 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.847382820211221,
+    "process_reward": 0.2,
+    "cost_penalty": 0.12518,
+    "total_reward": 0.9222028202112209,
+    "outcome_metadata": {
+      "method": "hybrid_two_judge",
+      "semantic_score": 0.37382820211220996,
+      "semantic_weight": 0.1,
+      "groq_score": 0.9,
+      "groq_weight": 0.9,
+      "disagreement_threshold": 0.3,
+      "groq_metadata": {
+        "method": "two_judge_plus_tiebreaker",
+        "disagreement_threshold": 0.3,
+        "needed_tie_breaker": true,
+        "successful_initial_judges": 1,
+        "score_difference": null,
+        "final_score": 0.9,
+        "initial_scores": [
+          0.9
+        ],
+        "judge_results": [
+          {
+            "model": "llama-3.3-70b-versatile",
+            "error": "invalid_json",
+            "raw_response": "```json\n{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides a list of real-world use cases for self-tuning and evolutionary AI, covering both concepts and offering specific examples from well-known companies. It demonstrates a clear understanding of the task and the technologies involved.\",\n  \"strengths\": [\n    \"Provides concrete, current examples of self-tuning and evolutionary AI deployments\",\n    \"Covers a range of industries and applications, including cloud infrastructure, database optimization, hardware design, finance, and mobile app development\"\n  ],\n  \"weaknesses\": [\n    \"The explanations for each use case are very brief and lack detailed information about how the technologies are implemented or their specific benefits\",\n    \"The response could benefit from a brief introduction or summary to contextualize the list and highlight the significance of these use cases\"\n  ]\n}\n```",
+            "role": "judge_1"
+          },
+          {
+            "model": "groq/compound",
+            "score": 0.9,
+            "reasoning": "The response provides a concise list of real-world use cases for self-tuning and evolutionary AI that can be deployed today, covering various domains such as cloud infrastructure, database management, hardware design, finance, and neural network optimization. The examples are specific and accurate, drawn from well-known companies and technologies, and the response clearly distinguishes between self-tuning and evolutionary AI applications.",
+            "strengths": [
+              "Concise and clear presentation",
+              "Relevant and current examples",
+              "Accurate technical terms and company names",
+              "Covers both self-tuning and evolutionary AI"
+            ],
+            "weaknesses": [
+              "Some explanations are brief, potentially requiring additional context for a complete understanding",
+              "No additional resources or references are provided for further reading"
+            ],
+            "raw_response": "{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides a concise list of real-world use cases for self-tuning and evolutionary AI that can be deployed today, covering various domains such as cloud infrastructure, database management, hardware design, finance, and neural network optimization. The examples are specific and accurate, drawn from well-known companies and technologies, and the response clearly distinguishes between self-tuning and evolutionary AI applications.\",\n  \"strengths\": [\n    \"Concise and clear presentation\",\n    \"Relevant and current examples\",\n    \"Accurate technical terms and company names\",\n    \"Covers both self-tuning and evolutionary AI\"\n  ],\n  \"weaknesses\": [\n    \"Some explanations are brief, potentially requiring additional context for a complete understanding\",\n    \"No additional resources or references are provided for further reading\"\n  ]\n}",
+            "duration_ms": 1255,
+            "role": "judge_1"
+          }
+        ]
+      },
+      "final_score": 0.847382820211221,
+      "evaluation_overhead_ms": 1255
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

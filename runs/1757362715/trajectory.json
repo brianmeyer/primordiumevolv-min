@@ -1,0 +1,511 @@
+{
+  "run_id": 114,
+  "trajectory": [
+    {
+      "i": 0,
+      "op": "inject_rag",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 43139,
+      "score": 0.4064871068704294,
+      "reward": 0.48393110687042934,
+      "reward_breakdown": {
+        "outcome_reward": 0.4064871068704294,
+        "process_reward": 0.15000000000000002,
+        "cost_penalty": 0.072556,
+        "total_reward": 0.48393110687042934,
+        "outcome_metadata": {
+          "method": "semantic_fallback",
+          "semantic_score": 0.4064871068704294,
+          "semantic_weight": 0.1,
+          "groq_score": 0.0,
+          "groq_weight": 0.9,
+          "disagreement_threshold": 0.3,
+          "groq_metadata": {
+            "method": "two_judge_plus_tiebreaker",
+            "disagreement_threshold": 0.3,
+            "needed_tie_breaker": true,
+            "successful_initial_judges": 0,
+            "score_difference": null,
+            "final_score": 0.0,
+            "initial_scores": [],
+            "judge_results": [
+              {
+                "model": "groq/compound-mini",
+                "error": "invalid_json",
+                "raw_response": "```json\n{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides a concise list of real-world use cases for self-tuning or evolutionary AI that can be deployed today. It includes production-ready examples such as AutoML for hyperparameter tuning, self-tuning cloud orchestration, evolutionary neural architecture search, and self-healing distributed systems. Each use case is briefly described in one line, making it clear and coherent. The response is relevant to the task and practically useful.\",\n  \"strengths\": [\n    \"The response is concise and to the point, providing directly usable output.\",\n    \"It focuses on production-ready examples that are currently deployed.\",\n    \"The use cases are diverse and cover different areas such as ML pipelines, cloud orchestration, neural architecture search, and distributed systems.\",\n    \"The response avoids fluff and uses precise technical language.\"\n  ],\n  \"weaknesses\": [\n    \"The response could benefit from a brief introduction or conclusion to provide context.\",\n    \"Some use cases could be elaborated upon for better understanding, though brevity was a key requirement.\"\n  ]\n}\n```",
+                "role": "judge_1"
+              },
+              {
+                "model": "meta-llama/llama-4-maverick-17b-128e-instruct",
+                "error": "invalid_json",
+                "raw_response": "```json\n{\n  \"score\": 0.9,\n  \"reasoning\": \"The response is concise, directly addressing the task with relevant examples of self-tuning and evolutionary AI in real-world deployments. It uses precise technical language and sticks to production-ready applications, aligning with the user's request for current practical use cases.\",\n  \"strengths\": [\n    \"Relevant and current examples\",\n    \"Concise and precise language\",\n    \"Focus on production-ready applications\"\n  ],\n  \"weaknesses\": [\n    \"Lack of detailed explanations for each use case\",\n    \"No explicit connection to the broader context or future potential of self-tuning and evolutionary AI\"\n  ]\n}\n```",
+                "role": "judge_2"
+              }
+            ],
+            "error": "no_successful_evaluations"
+          },
+          "final_score": 0.4064871068704294,
+          "evaluation_overhead_ms": 0
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.023044338422401396,
+          "plays": 21,
+          "ucb_score": 0.9903828457502385
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 11,
+            "ucb_score": 1.9101478547387343
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 12,
+            "ucb_score": 1.9056311555927785
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 12,
+            "ucb_score": 1.832442185237078
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.0,
+            "plays": 17,
+            "ucb_score": 1.661921959058171
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.8239282675604063
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.0,
+            "plays": 15,
+            "ucb_score": 1.7092602148911853
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.023044338422401396,
+            "plays": 21,
+            "ucb_score": 0.9903828457502385
+          },
+          {
+            "operator": "toggle_web",
+            "mean_payoff": 0.0,
+            "plays": 9,
+            "ucb_score": 2.014309974763128
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.76386046249215
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.8799663951900187
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "op": "inject_memory",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 55040,
+      "score": 0.37382820211220996,
+      "reward": 0.9222028202112209,
+      "reward_breakdown": {
+        "outcome_reward": 0.847382820211221,
+        "process_reward": 0.2,
+        "cost_penalty": 0.12518,
+        "total_reward": 0.9222028202112209,
+        "outcome_metadata": {
+          "method": "hybrid_two_judge",
+          "semantic_score": 0.37382820211220996,
+          "semantic_weight": 0.1,
+          "groq_score": 0.9,
+          "groq_weight": 0.9,
+          "disagreement_threshold": 0.3,
+          "groq_metadata": {
+            "method": "two_judge_plus_tiebreaker",
+            "disagreement_threshold": 0.3,
+            "needed_tie_breaker": true,
+            "successful_initial_judges": 1,
+            "score_difference": null,
+            "final_score": 0.9,
+            "initial_scores": [
+              0.9
+            ],
+            "judge_results": [
+              {
+                "model": "llama-3.3-70b-versatile",
+                "error": "invalid_json",
+                "raw_response": "```json\n{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides a list of real-world use cases for self-tuning and evolutionary AI, covering both concepts and offering specific examples from well-known companies. It demonstrates a clear understanding of the task and the technologies involved.\",\n  \"strengths\": [\n    \"Provides concrete, current examples of self-tuning and evolutionary AI deployments\",\n    \"Covers a range of industries and applications, including cloud infrastructure, database optimization, hardware design, finance, and mobile app development\"\n  ],\n  \"weaknesses\": [\n    \"The explanations for each use case are very brief and lack detailed information about how the technologies are implemented or their specific benefits\",\n    \"The response could benefit from a brief introduction or summary to contextualize the list and highlight the significance of these use cases\"\n  ]\n}\n```",
+                "role": "judge_1"
+              },
+              {
+                "model": "groq/compound",
+                "score": 0.9,
+                "reasoning": "The response provides a concise list of real-world use cases for self-tuning and evolutionary AI that can be deployed today, covering various domains such as cloud infrastructure, database management, hardware design, finance, and neural network optimization. The examples are specific and accurate, drawn from well-known companies and technologies, and the response clearly distinguishes between self-tuning and evolutionary AI applications.",
+                "strengths": [
+                  "Concise and clear presentation",
+                  "Relevant and current examples",
+                  "Accurate technical terms and company names",
+                  "Covers both self-tuning and evolutionary AI"
+                ],
+                "weaknesses": [
+                  "Some explanations are brief, potentially requiring additional context for a complete understanding",
+                  "No additional resources or references are provided for further reading"
+                ],
+                "raw_response": "{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides a concise list of real-world use cases for self-tuning and evolutionary AI that can be deployed today, covering various domains such as cloud infrastructure, database management, hardware design, finance, and neural network optimization. The examples are specific and accurate, drawn from well-known companies and technologies, and the response clearly distinguishes between self-tuning and evolutionary AI applications.\",\n  \"strengths\": [\n    \"Concise and clear presentation\",\n    \"Relevant and current examples\",\n    \"Accurate technical terms and company names\",\n    \"Covers both self-tuning and evolutionary AI\"\n  ],\n  \"weaknesses\": [\n    \"Some explanations are brief, potentially requiring additional context for a complete understanding\",\n    \"No additional resources or references are provided for further reading\"\n  ]\n}",
+                "duration_ms": 1255,
+                "role": "judge_1"
+              }
+            ]
+          },
+          "final_score": 0.847382820211221,
+          "evaluation_overhead_ms": 1255
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.05763767626320131,
+          "plays": 16,
+          "ucb_score": 1.1666891770768613
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 11,
+            "ucb_score": 1.9111440695619604
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 12,
+            "ucb_score": 1.9065849586696837
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 12,
+            "ucb_score": 1.8333959883139832
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.0,
+            "plays": 17,
+            "ucb_score": 1.6627233139297761
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.8248446519151966
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.05763767626320131,
+            "plays": 16,
+            "ucb_score": 1.1666891770768613
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.023044338422401396,
+            "plays": 21,
+            "ucb_score": 0.9911038531048727
+          },
+          {
+            "operator": "toggle_web",
+            "mean_payoff": 0.0,
+            "plays": 9,
+            "ucb_score": 2.015411331689538
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.7647768468469405
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.8808827795448093
+          }
+        ]
+      }
+    },
+    {
+      "i": 5,
+      "op": "lower_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 53923,
+      "score": 0.3736149962980616,
+      "reward": 0.8264334996298062,
+      "reward_breakdown": {
+        "outcome_reward": 0.8473614996298062,
+        "process_reward": 0.1,
+        "cost_penalty": 0.12092800000000001,
+        "total_reward": 0.8264334996298062,
+        "outcome_metadata": {
+          "method": "hybrid_two_judge",
+          "semantic_score": 0.3736149962980616,
+          "semantic_weight": 0.1,
+          "groq_score": 0.9,
+          "groq_weight": 0.9,
+          "disagreement_threshold": 0.3,
+          "groq_metadata": {
+            "method": "two_judge_plus_tiebreaker",
+            "disagreement_threshold": 0.3,
+            "needed_tie_breaker": true,
+            "successful_initial_judges": 1,
+            "score_difference": null,
+            "final_score": 0.9,
+            "initial_scores": [
+              0.9
+            ],
+            "judge_results": [
+              {
+                "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+                "error": "invalid_json",
+                "raw_response": "```json\n{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides relevant, real-world use cases for self-tuning or evolutionary AI that can be deployed today. It uses concise, technical language and focuses on current, practical applications. The examples given are accurate and demonstrate a clear understanding of the concepts. The response could be improved by providing more details or examples, but it effectively meets the user's requirements.\",\n  \"strengths\": [\n    \"Relevance to the task: The response directly addresses the request for real-world use cases of self-tuning or evolutionary AI.\",\n    \"Accuracy and correctness: The examples provided, such as AutoML hyperparameter optimization, adaptive anomaly detection, and neural architecture search, are accurate and current.\",\n    \"Clarity and coherence: The response is well-structured and uses clear, technical language, making it easy to understand for a senior engineer.\",\n    \"Practical usefulness: The examples given are practical and can be implemented or are already deployed in various industries.\"\n  ],\n  \"weaknesses\": [\n    \"Limited scope: The response could benefit from additional examples or a broader range of industries where these technologies are applied.\",\n    \"Lack of depth: While the examples are clear, more detailed explanations or case studies could enhance the response's usefulness.\"\n  ]\n}\n```",
+                "role": "judge_1"
+              },
+              {
+                "model": "groq/compound",
+                "score": 0.9,
+                "reasoning": "The response provides relevant and actionable examples of real-world use cases for self-tuning or evolutionary AI that can be deployed today. It uses concise, technical language and focuses on current, practical applications. The examples given, such as AutoML hyperparameter optimization, adaptive anomaly detection, and neural architecture search, are accurate and directly related to the request. The response effectively balances technical detail with clarity and coherence.",
+                "strengths": [
+                  "Accuracy and correctness of examples",
+                  "Concise and technical language",
+                  "Relevance to current real-world applications",
+                  "Clear and coherent presentation"
+                ],
+                "weaknesses": [
+                  "Limited number of examples (only three)",
+                  "Potential for additional use cases in other domains (e.g., finance, manufacturing)"
+                ],
+                "raw_response": "{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides relevant and actionable examples of real-world use cases for self-tuning or evolutionary AI that can be deployed today. It uses concise, technical language and focuses on current, practical applications. The examples given, such as AutoML hyperparameter optimization, adaptive anomaly detection, and neural architecture search, are accurate and directly related to the request. The response effectively balances technical detail with clarity and coherence.\",\n  \"strengths\": [\n    \"Accuracy and correctness of examples\",\n    \"Concise and technical language\",\n    \"Relevance to current real-world applications\",\n    \"Clear and coherent presentation\"\n  ],\n  \"weaknesses\": [\n    \"Limited number of examples (only three)\",\n    \"Potential for additional use cases in other domains (e.g., finance, manufacturing)\"\n  ]\n}",
+                "duration_ms": 1309,
+                "role": "judge_1"
+              }
+            ]
+          },
+          "final_score": 0.8473614996298062,
+          "evaluation_overhead_ms": 1309
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.0459129722016559,
+          "plays": 18,
+          "ucb_score": 1.0923092945233026
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 11,
+            "ucb_score": 1.9121323057618156
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 12,
+            "ucb_score": 1.907531122796291
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 12,
+            "ucb_score": 1.8343421524405905
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.0459129722016559,
+            "plays": 18,
+            "ucb_score": 1.0923092945233026
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.8257536970039383
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.05763767626320131,
+            "plays": 16,
+            "ucb_score": 1.1675085792466526
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.023044338422401396,
+            "plays": 21,
+            "ucb_score": 0.9918190859558593
+          },
+          {
+            "operator": "toggle_web",
+            "mean_payoff": 0.0,
+            "plays": 9,
+            "ucb_score": 2.0165038679159264
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.765685891935682
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.8817918246335508
+          }
+        ]
+      }
+    },
+    {
+      "i": 11,
+      "op": "toggle_web",
+      "groups": [
+        "WEB"
+      ],
+      "engine": "ollama",
+      "time_ms": 41224,
+      "score": 0.3199980851788117,
+      "reward": 0.45510208517881173,
+      "reward_breakdown": {
+        "outcome_reward": 0.3199980851788117,
+        "process_reward": 0.2,
+        "cost_penalty": 0.064896,
+        "total_reward": 0.45510208517881173,
+        "outcome_metadata": {
+          "method": "semantic_fallback",
+          "semantic_score": 0.3199980851788117,
+          "semantic_weight": 0.1,
+          "groq_score": 0.0,
+          "groq_weight": 0.9,
+          "disagreement_threshold": 0.3,
+          "groq_metadata": {
+            "method": "two_judge_plus_tiebreaker",
+            "disagreement_threshold": 0.3,
+            "needed_tie_breaker": true,
+            "successful_initial_judges": 0,
+            "score_difference": null,
+            "final_score": 0.0,
+            "initial_scores": [],
+            "judge_results": [
+              {
+                "model": "qwen/qwen3-32b",
+                "error": "invalid_json",
+                "raw_response": "<think>\nOkay, let's evaluate this AI response. The task was to list real-world use cases for self-tuning or evolutionary AI deployed today. The response provided three examples: production hyperparameter tuning with AutoML, RAG embedding refinement, and model drift mitigation.\n\nFirst, accuracy and correctness. The examples given are valid. AutoML platforms like AWS SageMaker and Google Vertex AI do use self-tuning for hyperparameter optimization. RAG systems in enterprises updating embeddings and model drift mitigation with auto-retraining are also real applications. So that's good.\n\nCompleteness and thoroughness. The response lists three distinct use cases, each from different domains (ML pipelines, RAG systems, model monitoring). They cover different aspects of self-tuning. However, maybe there are more examples, but three is a reasonable number for a concise answer.\n\nClarity and coherence. The points are clear and each is explained succinctly. The examples are specific, mentioning platforms like AWS and Google, which adds credibility.\n\nRelevance to the task. All three examples directly address self-tuning or evolutionary AI in real-world deployment. They avoid hypothetical or research-stage applications, which aligns with the \"deployed today\" requirement.\n\nPractical usefulness. The examples are actionable for someone looking to implement similar solutions. Including specific platforms (AWS, Google) gives practical context.\n\nStrengths: The response is accurate, covers relevant domains, and provides specific examples. The mention of real platforms adds credibility.\n\nWeaknesses: It might be a bit brief, but the user asked for a concise list. Also, the third example (model drift mitigation) is a bit broader; it could specify a particular industry or use case for more depth. However, the answer is still correct as stated.\n\nOverall, the response is strong. It meets the task requirements effectively. The score should reflect that, maybe around 0.9, considering it's thorough and accurate but could have a bit more detail in one area.\n</think>\n\n{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides three accurate, real-world use cases with specific technical examples (AutoML platforms, RAG systems, model drift mitigation). It avoids hypothetical scenarios and focuses on current deployments. The examples are concise yet technically precise.\",\n  \"strengths\": [\n    \"Clear, actionable examples with industry-specific context (e.g., financial institutions using RAG)\",\n    \"Mentions specific platforms (AWS SageMaker, Vertex AI) to ground the use cases\"\n  ],\n  \"weaknesses\": [\n    \"The third example could clarify how 'model drift mitigation' specifically employs evolutionary/self-tuning mechanisms\",\n    \"No mention of evolutionary algorithms in the examples, though the task allowed for 'self-tuning or evolutionary AI'\"\n  ]\n}",
+                "role": "judge_1"
+              },
+              {
+                "model": "groq/compound-mini",
+                "error": "invalid_json",
+                "raw_response": "```json\n{\n  \"score\": 0.9,\n  \"reasoning\": \"The response provides accurate, relevant, and practical use cases for self-tuning or evolutionary AI that can be deployed today. It effectively filters out research-focused and experimental cases, focusing on real-world deployments. The examples given are clear, concise, and technically precise.\",\n  \"strengths\": [\n    \"Accuracy and correctness: The response identifies valid real-world use cases.\",\n    \"Relevance to the task: The examples directly address the user's request for current deployments.\",\n    \"Clarity and coherence: The response is well-structured and easy to understand.\",\n    \"Practical usefulness: The examples provided are actionable and relevant for potential implementation.\"\n  ],\n  \"weaknesses\": [\n    \"Limited scope: The response focuses on three main areas, which might not exhaustively cover all possible use cases.\",\n    \"Jargon usage: Although minimized, terms like 'RAG' and 'AutoML' assume a certain level of technical background.\"\n  ]\n}\n```",
+                "role": "judge_2"
+              }
+            ],
+            "error": "no_successful_evaluations"
+          },
+          "final_score": 0.3199980851788117,
+          "evaluation_overhead_ms": 0
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.04551020851788117,
+          "plays": 10,
+          "ucb_score": 1.4504264242589753
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 11,
+            "ucb_score": 1.9131126854303302
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 12,
+            "ucb_score": 1.9084697648668203
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 12,
+            "ucb_score": 1.8352807945111198
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.0459129722016559,
+            "plays": 18,
+            "ucb_score": 1.0930756925646048
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.8266555151349637
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.05763767626320131,
+            "plays": 16,
+            "ucb_score": 1.1683214671247917
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.023044338422401396,
+            "plays": 21,
+            "ucb_score": 0.9925286326669231
+          },
+          {
+            "operator": "toggle_web",
+            "mean_payoff": 0.04551020851788117,
+            "plays": 10,
+            "ucb_score": 1.4504264242589753
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.7665877100667076
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.0,
+            "plays": 13,
+            "ucb_score": 1.8826936427645764
+          }
+        ]
+      }
+    }
+  ]
+}

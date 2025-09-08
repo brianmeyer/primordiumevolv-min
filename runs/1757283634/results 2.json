@@ -1,0 +1,72 @@
+{
+  "run_id": 61,
+  "task_class": "analysis",
+  "task": "Given a small CSV of products with price, compute average price and count items over $10.",
+  "assertions": [
+    "average",
+    "> 10",
+    "count"
+  ],
+  "best_score": -Infinity,
+  "best_total_reward": -Infinity,
+  "best_recipe": null,
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 8,
+      "avg_reward": 0.6764623119639971
+    },
+    "inject_rag": {
+      "n": 10,
+      "avg_reward": 0.616718915870047
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 4,
+      "avg_reward": 0.6426614755943793
+    },
+    "change_nudge": {
+      "n": 5,
+      "avg_reward": 0.6546040392170613
+    },
+    "lower_temp": {
+      "n": 7,
+      "avg_reward": 0.6378466436126862
+    },
+    "inject_memory": {
+      "n": 7,
+      "avg_reward": 0.6175625256617054
+    },
+    "lower_top_k": {
+      "n": 6,
+      "avg_reward": 0.7454064469752302
+    },
+    "raise_top_k": {
+      "n": 4,
+      "avg_reward": 0.655187784138755
+    }
+  },
+  "baseline": 0.5837527520084135,
+  "improvement": 0,
+  "total_reward_improvement": -Infinity,
+  "timestamp": 1757283634,
+  "metrics": {
+    "best_total_reward": -Infinity,
+    "best_score": -Infinity,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": false,
+      "reasons": [
+        "insufficient total_reward improvement: -inf < 0.05"
+      ]
+    }
+  }
+}

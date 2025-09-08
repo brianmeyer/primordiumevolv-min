@@ -56,9 +56,6 @@ def get_embedding(text: str) -> List[float]:
             
             raise Exception(f"HuggingFace API error: {response.status_code} {response.text}")
             
-        elif _embedder_type == "openai":
-            # TODO: OpenAI embeddings implementation
-            raise NotImplementedError("OpenAI embeddings not yet implemented")
         
         else:
             raise ValueError(f"Unknown embedder type: {_embedder_type}")
@@ -96,10 +93,6 @@ def _initialize_embedder(embedder: str):
                 logger.warning("sentence-transformers not available, falling back to HuggingFace API")
                 return None, "huggingface"
         
-        elif embedder.startswith("openai/"):
-            # TODO: OpenAI client initialization
-            logger.warning("OpenAI embeddings not implemented, using HuggingFace fallback")
-            return None, "huggingface"
         
         else:
             # Default to HuggingFace API

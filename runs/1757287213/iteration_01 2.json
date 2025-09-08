@@ -1,0 +1,94 @@
+{
+  "iteration": 1,
+  "operator": "raise_top_k",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 46,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.3990820242879388,
+  "reward": 0.4990820242879388,
+  "reward_breakdown": {
+    "outcome_reward": 0.3990820242879388,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0,
+    "total_reward": 0.4990820242879388,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.09981640485758776,
+      "plays": 5,
+      "ucb_score": 1.9495009442352744
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.2948798123554823
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.2410997855883634
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.291150048093767
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.06681012303700207,
+        "plays": 10,
+        "ucb_score": 1.3747346038868797
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.138766336272221
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 1.9830826607286043
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 1.787504849930795
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.09981640485758776,
+        "plays": 5,
+        "ucb_score": 1.9495009442352744
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.1986876790244585
+      }
+    ]
+  },
+  "output_preview": "<think>\nHmm, the user wants me to summarize a specific phrase in under 15 words while including the word 'local'. They also want it in bullet points format. \n\nThe phrase is \"Local generation with rigorous evaluation improves reliability.\" I need to condense this while keeping it precise. The key elements are: local generation, rigorous evaluation, and improved reliability. \n\nI'm counting words carefully - \"Local generation\" is 2 words, \"rigorous evaluation\" is 2 words, \"improves reliability\" is 2 words. That's already 6 words, but I need to make it under 15. \n\nThe user specified \"including 'local'\" so I must keep that word. As a senior engineer, I know conciseness is crucial - no fluff. \n\nI'm thinking of \"Local generation + rigorous evaluation boosts reliability.\" That's exactly 5 words. Perfectly under 15. \n\nWait, does \"boosts\" imply improvement? Yes, in engineering terms it means enhancement. And \"reliability\" is the core concept. \n\nDouble-checking: 5 words total. Includes \"local\". Directly usable output. Bullet point format as requested. \n\nThis meets all constraints. No need for extra explanations - user wants concise response only.\n</think>\n\n- Local generation + rigorous evaluation boosts reliability."
+}

@@ -361,8 +361,29 @@ def groq_quality_score(task: str, assertions: List[str], output: str, disagreeme
         
         try:
             # Get the two successful judge results for the tie-breaker prompt
-            judge1_result = next(r for r in judge_results if r.get("role") == "judge_1" and "score" in r)
-            judge2_result = next(r for r in judge_results if r.get("role") == "judge_2" and "score" in r)
+            judge1_result = next((r for r in judge_results if r.get("role") == "judge_1" and "score" in r), None)
+            judge2_result = next((r for r in judge_results if r.get("role") == "judge_2" and "score" in r), None)
+            
+            if judge1_result is None or judge2_result is None:
+                # Can't find successful judge results for tie-breaker
+                final_score = sum(successful_scores) / len(successful_scores) if successful_scores else 0.0
+                tie_breaker_result = {
+                    "model": tie_breaker_model,
+                    "error": "missing_judge_results",
+                    "role": "tie_breaker"
+                }
+                return final_score, {
+                    "method": "two_judge_plus_tiebreaker",
+                    "disagreement_threshold": disagreement_threshold,
+                    "needed_tie_breaker": need_tie_breaker,
+                    "successful_initial_judges": len(successful_scores),
+                    "score_difference": abs(successful_scores[0] - successful_scores[1]) if len(successful_scores) == 2 else None,
+                    "final_score": final_score,
+                    "initial_scores": successful_scores,
+                    "judge_results": judge_results,
+                    "tie_breaker_result": tie_breaker_result,
+                    "error": "tie_breaker_failed_missing_results"
+                }
             
             messages = [
                 {"role": "system", "content": TIE_BREAKER_SYSTEM},
@@ -505,9 +526,18 @@ def hybrid_quality_score(
         final_score = (semantic_weight * semantic_score) + (groq_weight * groq_score)
         method = "hybrid_two_judge"
     
-    total_eval_overhead_ms = sum(r.get("duration_ms", 0) for r in judge_results)
-    if tie_breaker_result:
-        total_eval_overhead_ms += tie_breaker_result.get("duration_ms", 0)
+    # Compute evaluation overhead from returned Groq metadata
+    total_eval_overhead_ms = 0
+    try:
+        jr = (groq_metadata or {}).get("judge_results") or []
+        if isinstance(jr, list):
+            total_eval_overhead_ms = sum((r or {}).get("duration_ms", 0) for r in jr if isinstance(r, dict))
+        tbr = (groq_metadata or {}).get("tie_breaker_result")
+        if isinstance(tbr, dict):
+            total_eval_overhead_ms += tbr.get("duration_ms", 0)
+    except Exception:
+        # Best-effort; lack of overhead should not break scoring
+        total_eval_overhead_ms = 0
     metadata = {
         "method": method,
         "semantic_score": semantic_score,

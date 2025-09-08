@@ -6,11 +6,20 @@ def call_engine(engine: str, prompt: str, system: str | None = None, options: di
     # Apply guardrails
     options = options or {}
     
-    # Cap max_tokens to prevent runaway generation
-    if "max_tokens" not in options:
-        options["max_tokens"] = 4096  # Default cap
+    # Handle token limits based on engine
+    if engine == "groq":
+        # Groq uses max_tokens
+        if "max_tokens" not in options:
+            options["max_tokens"] = 4096  # Default cap for Groq
+        else:
+            options["max_tokens"] = min(options["max_tokens"], 8192)  # Hard cap
     else:
-        options["max_tokens"] = min(options["max_tokens"], 8192)  # Hard cap
+        # Ollama uses num_predict (not max_tokens)
+        # Convert max_tokens to num_predict if present
+        if "max_tokens" in options:
+            options["num_predict"] = min(options.pop("max_tokens"), 2048)  # Match META_MAX_TOKENS
+        elif "num_predict" not in options:
+            options["num_predict"] = 2048  # Match META_MAX_TOKENS default
     
     # Ensure reasonable temperature bounds
     if "temperature" in options:

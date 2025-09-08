@@ -1,0 +1,105 @@
+{
+  "run_id": 38,
+  "task_class": "analysis",
+  "task": "Filter rows where age > 30 from a sample CSV and count them. Assume data is provided inline.",
+  "assertions": [
+    "filter",
+    "> 30",
+    "count"
+  ],
+  "best_score": 0.412199301953931,
+  "best_total_reward": 0.570635301953931,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": "Example: Design a user login system.\nComponents: Authentication service, session management, password hashing, rate limiting.",
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 4,
+      "avg_reward": 0.612377789452994,
+      "mean_payoff": 0.14265882548848274
+    },
+    "inject_rag": {
+      "n": 2,
+      "avg_reward": 0.4705626212814029
+    },
+    "raise_temp": {
+      "n": 2,
+      "avg_reward": 0.5318933811827582
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 1,
+      "avg_reward": 0.3884058449148782
+    },
+    "change_nudge": {
+      "n": 2,
+      "avg_reward": 0.47659918331296525
+    },
+    "lower_temp": {
+      "n": 2,
+      "avg_reward": 0.4970976856515717,
+      "mean_payoff": 0.22677603559284887
+    },
+    "inject_memory": {
+      "n": 1,
+      "avg_reward": 0.46393942254209275
+    },
+    "lower_top_k": {
+      "n": 1,
+      "avg_reward": 0.5263391465652316
+    },
+    "raise_top_k": {
+      "n": 1,
+      "avg_reward": 0.4119290449158892,
+      "mean_payoff": 0.4119290449158892
+    }
+  },
+  "baseline": 0.42902151949021494,
+  "improvement": -0.016822217536283934,
+  "total_reward_improvement": 0.570635301953931,
+  "timestamp": 1757277394,
+  "metrics": {
+    "best_total_reward": 0.570635301953931,
+    "best_score": 0.412199301953931,
+    "avg_total_reward": null,
+    "steps_to_best": 7,
+    "cost_penalty_avg": 0.091564,
+    "promotion": {
+      "eligible": false,
+      "reasons": [
+        "cost too high: 0.092 > 0.090"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.412199301953931,
+    "process_reward": 0.25,
+    "cost_penalty": 0.091564,
+    "total_reward": 0.570635301953931,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

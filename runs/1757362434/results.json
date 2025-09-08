@@ -1,0 +1,142 @@
+{
+  "run_id": 113,
+  "task_class": "code",
+  "task": "Write a simple function to add two numbers",
+  "assertions": [],
+  "best_score": 0.27381491633690286,
+  "best_total_reward": 1.1719481583003568,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": true,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 13,
+      "avg_reward": 0.5944624816647529
+    },
+    "inject_rag": {
+      "n": 20,
+      "avg_reward": 0.6025573225310856
+    },
+    "raise_temp": {
+      "n": 12,
+      "avg_reward": 0.5527736232341334
+    },
+    "toggle_web": {
+      "n": 9,
+      "avg_reward": 0.536675997271325,
+      "mean_payoff": 0.13021646203337298
+    },
+    "change_system": {
+      "n": 11,
+      "avg_reward": 0.5735776326967074
+    },
+    "change_nudge": {
+      "n": 12,
+      "avg_reward": 0.6259625935898339
+    },
+    "lower_temp": {
+      "n": 17,
+      "avg_reward": 0.5867853181404796
+    },
+    "inject_memory": {
+      "n": 15,
+      "avg_reward": 0.5646898575679896
+    },
+    "lower_top_k": {
+      "n": 13,
+      "avg_reward": 0.6505006092943655
+    },
+    "raise_top_k": {
+      "n": 13,
+      "avg_reward": 0.5343946765964966
+    }
+  },
+  "baseline": 0.6788969487452675,
+  "improvement": -0.40508203240836466,
+  "total_reward_improvement": 1.1719481583003568,
+  "timestamp": 1757362434,
+  "metrics": {
+    "best_total_reward": 1.1719481583003568,
+    "best_score": 0.27381491633690286,
+    "avg_total_reward": null,
+    "steps_to_best": 2,
+    "cost_penalty_avg": 0.0014333333333333333,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 1.172",
+        "cost efficiency: 0.001 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.8733814916336903,
+    "process_reward": 0.30000000000000004,
+    "cost_penalty": 0.0014333333333333333,
+    "total_reward": 1.1719481583003568,
+    "outcome_metadata": {
+      "method": "hybrid_two_judge",
+      "semantic_score": 0.27381491633690286,
+      "semantic_weight": 0.1,
+      "groq_score": 0.94,
+      "groq_weight": 0.9,
+      "disagreement_threshold": 0.3,
+      "groq_metadata": {
+        "method": "two_judge_plus_tiebreaker",
+        "disagreement_threshold": 0.3,
+        "needed_tie_breaker": true,
+        "successful_initial_judges": 1,
+        "score_difference": null,
+        "final_score": 0.94,
+        "initial_scores": [
+          0.94
+        ],
+        "judge_results": [
+          {
+            "model": "qwen/qwen3-32b",
+            "error": "invalid_json",
+            "raw_response": "<think>\nOkay, let's evaluate the AI's response. The task was to write a simple function to add two numbers. The AI provided a concise function using Python's syntax. \n\nFirst, accuracy: The function correctly adds two numbers using the '+' operator. It's straightforward and does exactly what's needed. So that's good.\n\nCompleteness: The function is minimal, which is what the task asked for. It doesn't include unnecessary elements like input handling or error checking, which is appropriate for a simple task. But maybe it's too minimal if the user expects more robustness, but the task didn't specify that.\n\nClarity and coherence: The code is clear and easy to understand. The function name 'add' is descriptive, and the parameters 'a' and 'b' are standard. The return statement is direct.\n\nRelevance: The response directly addresses the task. There's no extra code or explanation, which fits the requirement for a simple function.\n\nUsefulness: For the given task, this function is practical. It's a basic building block that can be used in larger programs. However, if the user intended for it to handle different data types or inputs, that's not covered here, but the task didn't mention those.\n\nStrengths are the correctness and simplicity. Weaknesses might be the lack of error handling and input validation, but since the task was to add two numbers, those aren't necessary here. The response is good for the given task.\n</think>\n\n{\n  \"score\": 0.95,\n  \"reasoning\": \"The response provides a correct and minimal Python function to add two numbers. It uses standard syntax and achieves the task efficiently. The function is clear and directly addresses the requirement.\",\n  \"strengths\": [\n    \"Correctly implements the required functionality using Python's '+' operator\",\n    \"Minimal and concise implementation with no unnecessary elements\"\n  ],\n  \"weaknesses\": [\n    \"No input validation or type checking included\",\n    \"Function parameters 'a' and 'b' could be more descriptive in a production context\"\n  ]\n}",
+            "role": "judge_1"
+          },
+          {
+            "model": "openai/gpt-oss-120b",
+            "score": 0.94,
+            "reasoning": "The response correctly provides a concise, functional Python definition that adds two numbers, directly fulfilling the task. It is clear, relevant, and immediately usable. While it lacks extra context or examples, the minimal requirement is met effectively.",
+            "strengths": [
+              "Accurate and correct function definition",
+              "Concise and directly addresses the request"
+            ],
+            "weaknesses": [
+              "No additional explanation or usage example",
+              "No handling of edge cases or input validation"
+            ],
+            "raw_response": "{\n  \"score\": 0.94,\n  \"reasoning\": \"The response correctly provides a concise, functional Python definition that adds two numbers, directly fulfilling the task. It is clear, relevant, and immediately usable. While it lacks extra context or examples, the minimal requirement is met effectively.\",\n  \"strengths\": [\n    \"Accurate and correct function definition\",\n    \"Concise and directly addresses the request\"\n  ],\n  \"weaknesses\": [\n    \"No additional explanation or usage example\",\n    \"No handling of edge cases or input validation\"\n  ]\n}",
+            "duration_ms": 645,
+            "role": "judge_1"
+          }
+        ]
+      },
+      "final_score": 0.8733814916336903,
+      "evaluation_overhead_ms": 645
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

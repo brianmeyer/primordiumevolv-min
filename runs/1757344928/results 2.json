@@ -1,0 +1,103 @@
+{
+  "run_id": 105,
+  "task_class": "code",
+  "task": "Write a function to add two numbers",
+  "assertions": [],
+  "best_score": 0.24491049324816963,
+  "best_total_reward": 0.5449104932481696,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.4430182289772506,
+      "top_k": 38,
+      "num_predict": 512
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 11,
+      "avg_reward": 0.6416544620253505,
+      "mean_payoff": 0.042117834071795965
+    },
+    "inject_rag": {
+      "n": 17,
+      "avg_reward": 0.6282007943707641
+    },
+    "raise_temp": {
+      "n": 10,
+      "avg_reward": 0.5779957503030861,
+      "mean_payoff": 0.051221239618373306
+    },
+    "toggle_web": {
+      "n": 3,
+      "avg_reward": 0.5033899542338864
+    },
+    "change_system": {
+      "n": 8,
+      "avg_reward": 0.6068244984971182
+    },
+    "change_nudge": {
+      "n": 10,
+      "avg_reward": 0.656427515840782
+    },
+    "lower_temp": {
+      "n": 14,
+      "avg_reward": 0.611864484606447,
+      "mean_payoff": 0.03892217808915498
+    },
+    "inject_memory": {
+      "n": 12,
+      "avg_reward": 0.5871779429463514
+    },
+    "lower_top_k": {
+      "n": 10,
+      "avg_reward": 0.688457579248057
+    },
+    "raise_top_k": {
+      "n": 10,
+      "avg_reward": 0.5878585006045236
+    }
+  },
+  "baseline": 0.6788969487452675,
+  "improvement": -0.4339864554970979,
+  "total_reward_improvement": 0.5449104932481696,
+  "timestamp": 1757344928,
+  "metrics": {
+    "best_total_reward": 0.5449104932481696,
+    "best_score": 0.24491049324816963,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.545",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.24491049324816963,
+    "process_reward": 0.30000000000000004,
+    "cost_penalty": 0.0,
+    "total_reward": 0.5449104932481696,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

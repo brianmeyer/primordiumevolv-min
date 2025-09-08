@@ -1,0 +1,94 @@
+{
+  "iteration": 0,
+  "operator": "raise_top_k",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5506686410313444,
+      "top_k": 44,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.40511373017450086,
+  "reward": 0.4380137301745009,
+  "reward_breakdown": {
+    "outcome_reward": 0.40511373017450086,
+    "process_reward": 0.1,
+    "cost_penalty": 0.0671,
+    "total_reward": 0.4380137301745009,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.07300228836241682,
+      "plays": 6,
+      "ucb_score": 1.7669257603064066
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.3002800401566197
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.246099425030007
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.2965502758949046
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9549797496115446
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.143443070734229
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 1.9874919282644634
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 14,
+        "ucb_score": 1.7497289094537725
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.07300228836241682,
+        "plays": 6,
+        "ucb_score": 1.7669257603064066
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.2033644134864665
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are creating a to-do list with 5 items for preparing a presentation.\n The response must be in bullet points and be concise and directly usable.\n As a senior engineer, I focus on practical, actionable steps without fluff.\n\n Steps for preparing a presentation (5 items):\n 1. Define the target audience and key messages to keep the presentation focused.\n 2. Gather and organize all necessary materials (slides, data, examples).\n 3. Create a draft of the presentation slides with clear, concise content.\n 4. Practice the presentation to ensure smooth delivery and timing.\n 5. Prepare for Q&A by anticipating potential questions and having answers ready.\n\n However, note: the user asked for 5 items. Let me make sure they are distinct and cover the essentials.\n\n Revised to be more precise and engineering-focused (since I'm a senior engineer, I think in terms of efficiency and clarity):\n\n - Finalize presentation objectives and target audience to align content.\n - Compile and structure slide content with minimal text and high impact visuals.\n - Conduct a technical rehearsal to check for smooth transitions and timing.\n - Prepare concise answers for anticipated technical questions.\n - Review and refine slides for clarity, consistency, and adherence to time constraints.\n\n But the user said \"5 items\", so I'll pick 5 that are critical and actionable.\n\n Let me choose:\n\n 1. Define clear presentation goals and target audience.\n 2. Create initial slide structure with key points per slide.\n 3. Gather and verify all supporting data and visuals.\n 4. Practice delivery with timing and feedback.\n 5. Prepare for Q&A by listing top 3 technical concerns and answers.\n\n However, the problem says \"preparing a presentation\", so we don't want to include the actual delivery as a separate step? But the constraint is 5 items.\n\n I think the following 5 are standard and concise:\n\n - Finalize presentation objectives and audience\n - Structure slides with clear, concise content (max 1 idea per slide)\n - Collect and validate all necessary data and visuals\n - Rehearse presentation with timing and feedback\n - Prepare concise responses for potential technical questions\n\n But to be even more concise and direct (as a senior engineer would):\n\n * Define presentation goals and target audience\n * Draft slide structure with key messages per slide\n * Gather and verify all supporting materials\n * Practice delivery with timing and feedback\n * Prepare top 3 technical questions and answers\n\n However, the user wants exactly 5 bullet points.\n\n Let me write them in the most precise way:\n\n - Define clear objectives and target audience for the presentation\n - Structure slides with one key message per slide\n - Gather and validate all data and visual assets\n - Rehearse presentation to ensure timing and smooth delivery\n - Prepare concise answers for top 3 anticipated technical questions\n\n But note: the user said \"concise\". So we can make each bullet point very short.\n\n Final decision (5 bullet points, concise, directly usable):\n\n- Define presentation goals and target audience\n- Structure slides with one key point per slide\n- Gather and validate all data and visuals\n- Rehearse delivery with timing and feedback\n- Prepare top 3 technical Q&A answers\n\n This is 5 items and very concise.\n\n Let me check: \n  1. Define presentation goals and target audience -> yes\n  2. Structure slides with one key point per slide -> yes\n  3. Gather and validate all data and visuals -> yes\n  4. Rehearse delivery with timing and feedback -> yes\n  5. Prepare top 3 technical Q&A answers -> yes\n\n This covers the preparation without being too verbose.\n\n I think this is good.\n</think>\n\n- Define presentation goals and target audience  \n- Structure slides with one key message per slide  \n- Gather and validate all data and visual assets  \n- Rehearse delivery with timing and feedback  \n- Prepare top 3 technical Q&A answers"
+}

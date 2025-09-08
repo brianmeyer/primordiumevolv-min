@@ -1,0 +1,100 @@
+{
+  "iteration": 8,
+  "operator": "raise_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.847962327411568,
+      "top_k": 38,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.4081425905999598,
+  "reward": 0.5117465905999599,
+  "reward_breakdown": {
+    "outcome_reward": 0.4081425905999598,
+    "process_reward": 0.25,
+    "cost_penalty": 0.14639600000000003,
+    "total_reward": 0.5117465905999599,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.042645549216663324,
+      "plays": 12,
+      "ucb_score": 1.3174262261961913
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9806094636107772
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0466180696006187,
+        "plays": 12,
+        "ucb_score": 1.3213987465801467
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.042645549216663324,
+        "plays": 12,
+        "ucb_score": 1.3174262261961913
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.027223636286431888,
+        "plays": 17,
+        "ucb_score": 1.098253632373338
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.03735279072868752,
+        "plays": 13,
+        "ucb_score": 1.2621224485954732
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.036053043851333615,
+        "plays": 15,
+        "ucb_score": 1.176251543903104
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.02083802424016389,
+        "plays": 19,
+        "ucb_score": 1.0339309771325635
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.060927776693704055,
+        "plays": 8,
+        "ucb_score": 1.622208872973479
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.036636464002561216,
+        "plays": 12,
+        "ucb_score": 1.3114171409820892
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.035792858353577955,
+        "plays": 13,
+        "ucb_score": 1.2605625162203637
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are to set up a safe retry loop for an API call with exponential backoff.\n Constraints: Respond in bullet points.\n\n Steps for safe retry loop with exponential backoff:\n\n 1. Define the maximum number of retries and the initial backoff time (e.g., 1 second).\n 2. Use a loop that attempts the API call up to the maximum retries.\n 3. In each iteration, if the call fails (with a specific exception or condition), wait for an exponential backoff period before retrying.\n 4. The backoff time should be calculated as: `initial_backoff * (2 ** retry_count)`, but we must cap the total time to avoid excessive delays.\n 5. Handle exceptions appropriately (e.g., network errors, 5xx errors) to decide when to retry. Note: Do not retry on client errors (e.g., 4xx) or permanent failures.\n 6. Implement a way to log each attempt and the reason for failure.\n 7. On success, break the loop and return the result.\n 8. If all retries fail, raise an exception with the last error.\n\n Example code structure (in Python for clarity, but the concept is general):\n\n   max_retries = 5\n   initial_backoff = 1  # seconds\n   backoff_factor = 2   # for exponential (2^retry_count)\n\n   for retry_count in range(max_retries):\n        try:\n            # Do the API call\n            response = api_call()\n            if response.status_code == 200:\n                return response\n        except (ConnectionError, Timeout, HTTPError) as e:\n            if retry_count == max_retries - 1:\n                raise  # last try failed, re-raise\n            else:\n                wait_time = initial_backoff * (2 ** retry_count)\n                # Cap wait_time to avoid too long waits (e.g., 30 seconds max)\n                wait_time = min(wait_time, 30)\n                time.sleep(wait_time)\n                continue\n\n   # If we get here, all retries failed\n\n However, note: The problem says \"safe\" so we must avoid retrying on permanent errors.\n\n But the question asks for bullet points, so we'll write in concise bullet points.\n\n Let's write:\n\n - Define maximum retries (e.g., 3-5) and initial backoff (e. g., 1 second).\n - Calculate backoff time as: `initial_backoff * (2 ** retry_count)`, but cap the total backoff time (e.g., 30 seconds) to prevent unbounded delays.\n - In a loop, attempt the API call up to the maximum retries.\n - For each retry, catch transient errors (e.g., network issues, 5xx errors) but avoid retrying on permanent errors (e.g., 4xx, invalid credentials).\n - Wait for the calculated backoff time before the next retry.\n - On success, return the result immediately.\n - If all retries fail, re-raise the last exception with context (e.g., the last error message and retry count).\n\n But note: The problem says \"concise\" and \"directly usable output\". So we'll make the bullet points very short and actionable.\n\n Final bullet points:\n\n - Set max_retries (e.g., 5) and initial_backoff (e.g., 1s).\n - For retry in range(max_retries):\n   - Attempt API call; handle transient errors (e.g., 5xx, network issues) but not permanent errors (e.g., 4xx).\n   - On transient error: wait = min(initial_backoff * (2 ** retry), 30s) and sleep.\n   - On success: return result.\n - On all retries failing: re-raise last exception with context.\n\n However, the problem says \"bullet points\" and we must be precise.\n\n Let me write:\n\n * Define max_retries (e.g., 5) and initial_backoff (e.g., 100ms).\n * Use exponential backoff: `wait_time = initial_backoff * (2 ** retry_count)`, capped at 30s.\n * In loop: attempt call; if transient error, sleep `wait_time` then retry.\n * Skip retry for permanent errors (e.g., 4xx, authentication failures).\n * On success: return result.\n * On failure after max_retries: re-raise last exception.\n\n But note: the problem says \"safe\" so we must avoid retrying on errors that are not transient.\n\n Let's do:\n\n - Set max_retries (e.g., 3) and initial_backoff (e.g., 1 second).\n - For retry_count from 0 to max_retries-1:\n   - Attempt API call.\n   - If transient error (e.g., connection error, 5xx), wait = min(initial_backoff * (2 ** retry_count), 30s) then retry.\n"
+}
