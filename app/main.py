@@ -1,6 +1,11 @@
 import os
 import subprocess
 import logging
+import json
+import time
+import math
+import asyncio
+from glob import glob
 from fastapi import FastAPI, Request, Query
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.responses import StreamingResponse
@@ -27,14 +32,8 @@ from app.errors import (
     ModelError, MemoryError, RAGError, MetaError, ValidationError,
     handle_exception
 )
-import json
-import os
-import time
-import math
-from glob import glob
 from app.config import FF_CODE_LOOP
 from app import code_loop
-import asyncio
 
 load_dotenv()
 PORT = int(os.getenv("PORT", "8000"))
@@ -50,8 +49,11 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup_event():
-    """Check for multiple server instances and clear caches for clean startup."""
+    """Combined startup: clear caches, validate model, and background warmups."""
     logger = logging.getLogger(__name__)
+    
+    # Ensure data directory exists
+    os.makedirs("data", exist_ok=True)
     
     # Clear all caches for fresh start
     try:
@@ -76,6 +78,33 @@ async def startup_event():
                 
     except Exception as e:
         pass  # Don't fail startup if process check fails
+    
+    # Validate model
+    try:
+        validate_model(MODEL_ID)
+    except Exception as e:
+        logger.warning(f"Model validation failed: {e}")
+    
+    # Background warmups (non-blocking)
+    try:
+        import threading
+        def _warm_embeddings():
+            try:
+                from app.embeddings import get_model
+                get_model()
+            except Exception:
+                pass
+        def _warm_groq():
+            try:
+                from app.groq_client import available, list_models
+                if available():
+                    list_models(force=True)
+            except Exception:
+                pass
+        threading.Thread(target=_warm_embeddings, daemon=True).start()
+        threading.Thread(target=_warm_groq, daemon=True).start()
+    except Exception:
+        pass
 
 # CORS
 app.add_middleware(
@@ -214,37 +243,6 @@ async def golden_stream(run_id: str):
     }
     return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
 
-# Validate model at startup
-@app.on_event("startup")
-async def _startup():
-    # Ensure data directory exists
-    os.makedirs("data", exist_ok=True)
-    
-    try:
-        validate_model(MODEL_ID)
-    except Exception as e:
-        # Keep app up but report unhealthy
-        print(f"[warn] Model validation failed: {e}")
-    # Background warmups (non-blocking)
-    try:
-        import threading
-        def _warm_embeddings():
-            try:
-                from app.embeddings import get_model
-                get_model()
-            except Exception:
-                pass
-        def _warm_groq():
-            try:
-                from app.groq_client import available, list_models
-                if available():
-                    list_models(force=True)
-            except Exception:
-                pass
-        threading.Thread(target=_warm_embeddings, daemon=True).start()
-        threading.Thread(target=_warm_groq, daemon=True).start()
-    except Exception:
-        pass
 
 # Chat with memory integration
 @app.post("/api/chat")
