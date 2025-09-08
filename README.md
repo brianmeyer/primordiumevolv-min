@@ -78,8 +78,25 @@ Analytics expose voice usage and mean total_reward/cost per system string.
 
 ## Real-time Meta Runs
 - Async start: `POST /api/meta/run_async` returns `{ run_id }` immediately and performs the run in the background.
-- Live updates: `GET /api/meta/stream?run_id=<id>` streams Server-Sent Events with iteration, judge, and completion events.
-- UI shows a live "Latest Run" table with operator, engine, model, score, and latency per iteration.
+- Live updates (SSE): `GET /api/meta/stream?run_id=<id>` streams staged iteration lifecycle events so progress is visible at each step.
+- UI shows per-iteration status, judges, and a heartbeat (elapsed timer + spinner), plus a rating panel when a variant is saved.
+
+### Staged Iteration Events (SSE)
+For each iteration `i`, the server publishes these event types:
+
+- `iter_selected`: `{ i, operator, engine, timestamp }`
+- `iter_gen_start`: `{ i, prompt_length, timestamp }`
+- `iter_gen_done`: `{ i, duration_ms, prompt_length, timestamp }`
+- `iter_score_done`: `{ i, total_reward, reward_breakdown:{outcome,process,cost}, judge_info:{judges:[{model,score}], tie_breaker_used, final_score}, timestamp }`
+- `iter_saved`: `{ i, variant_id, timestamp }`
+- `iter_error`: `{ i, message, timestamp }`
+- `iter` (legacy/compat): includes `output` and `variant_id` for rating UI, plus summary fields
+- `judge`: high-level judge report (pairwise mode)
+- `done`: final results (sanitized to remove NaN/±Infinity)
+
+Notes:
+- Staged publishing keeps the UI active even if later steps fail (e.g., DB write), avoiding the “frozen until done” effect.
+- The final payload is sanitized to avoid JSON.parse issues in browsers.
 
 ## Generation & Evaluation Policy
 
@@ -124,6 +141,7 @@ The interface has been completely redesigned with human-centered design principl
 - **Visual Progress Bar**: Shows evolution completion percentage
 - **Live Step Tracking**: "🔄 Iteration 2: Trying toggle_web" with status updates
 - **Streaming Output**: Real-time display of current AI output
+- **Heartbeat**: Elapsed time ticker and subtle spinner so it never looks frozen
 - **Results Display**: Clear score improvements and strategy summaries
 
 ### 🎨 **Collapsible Sections**
@@ -181,7 +199,7 @@ The interface has been completely redesigned with human-centered design principl
 ### Meta-Evolution System
 - `POST /api/meta/run` - Trigger self-evolution cycle with bandit optimization
 - `POST /api/meta/run_async` - Start run in background (returns `run_id`)
-- `GET /api/meta/stream?run_id=ID` - Live SSE updates (iter/judge/done)
+- `GET /api/meta/stream?run_id=ID` - Live SSE updates (staged: iter_selected/gen_start/gen_done/score_done/saved/error + judge/done)
 - `GET /api/meta/runs/{run_id}` - Run details + variants
 - `GET /api/meta/variants/{variant_id}` - Full output for a specific variant
 
@@ -300,6 +318,12 @@ Open the Analytics panel to explore metrics across eight tabs:
 Streaming behavior:
 - Evolution runs stream live in the “🧬 Evolution in Progress” section during a run (`/api/meta/stream`).
 - Golden Set streams in the Golden tab while a Golden evaluation is running (`/api/golden/stream`).
+
+## Analytics Reliability
+
+- The `/api/meta/analytics` endpoint always returns a valid JSON shape even if the data store fails; it soft-fails with defaults and `null` values rather than 500.
+- Consumers should still check `response.ok` and guard against `null` fields.
+- The UI displays a non-blocking message and hides the tiles when analytics can’t load, so streaming UX is never impacted.
 
 ## Phase 4: AlphaEvolve‑lite (Criticize → Edit → Test → Decide)
 

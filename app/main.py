@@ -1,4 +1,6 @@
 import os
+import subprocess
+import logging
 from fastapi import FastAPI, Request, Query
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.responses import StreamingResponse
@@ -28,6 +30,7 @@ from app.errors import (
 import json
 import os
 import time
+import math
 from glob import glob
 from app.config import FF_CODE_LOOP
 from app import code_loop
@@ -42,7 +45,37 @@ CORS_ALLOW = [x for x in os.getenv("CORS_ALLOW", "http://localhost:3000,http://l
 # Global dictionary to store streaming queues for different run types
 streaming_queues = {}
 
+
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    """Check for multiple server instances and clear caches for clean startup."""
+    logger = logging.getLogger(__name__)
+    
+    # Clear all caches for fresh start
+    try:
+        from app.cache_manager import clear_all_caches, clear_streaming_queues
+        clear_all_caches()
+        clear_streaming_queues()
+    except Exception as e:
+        logger.warning(f"Cache cleanup failed: {e}")
+    
+    # Check for multiple server instances
+    try:
+        result = subprocess.run(['ps', 'aux'], capture_output=True, text=True)
+        uvicorn_processes = [line for line in result.stdout.split('\n') if 'uvicorn app.main:app' in line and 'grep' not in line]
+        
+        if len(uvicorn_processes) > 1:
+            logger.warning(f"WARNING: {len(uvicorn_processes)} uvicorn server instances detected!")
+            logger.warning("Multiple servers can cause resource contention and timeouts.")
+            logger.warning("Consider using './server.sh restart' or 'pkill -f uvicorn' to stop duplicates.")
+            
+            for i, process in enumerate(uvicorn_processes, 1):
+                logger.warning(f"  {i}. {process.strip()}")
+                
+    except Exception as e:
+        pass  # Don't fail startup if process check fails
 
 # CORS
 app.add_middleware(
@@ -75,6 +108,20 @@ async def root():
 @app.get("/api/health")
 async def health_ep():
     return JSONResponse(health())
+
+@app.get("/api/jobs/status")
+async def jobs_status():
+    """Get current job status to prevent overlaps."""
+    try:
+        from app.job_manager import get_active_jobs, is_job_running
+        return JSONResponse({
+            "active_jobs": list(get_active_jobs()),
+            "evolution_running": is_job_running("evolution"),
+            "golden_running": is_job_running("golden"),
+            "code_loop_running": is_job_running("code_loop")
+        })
+    except Exception as e:
+        return JSONResponse({"error": str(e), "active_jobs": []}, status_code=500)
 
 @app.get("/api/health/ollama")
 async def ollama_health_ep():
@@ -403,6 +450,16 @@ async def meta_run_ep(body: MetaRunRequest):
 @app.post("/api/meta/run_async")
 async def meta_run_async_ep(body: MetaRunRequest, request: Request):
     try:
+        # Check for overlapping jobs
+        from app.job_manager import JobConflictError, is_job_running, get_active_jobs
+        
+        if is_job_running("evolution"):
+            active_jobs = get_active_jobs()
+            return JSONResponse(
+                {"status": "conflict", "message": "Evolution already running", "active_jobs": list(active_jobs)},
+                status_code=409
+            )
+        
         # Create run immediately and return ID
         run_id = store.save_run_start(body.task_class, body.task, body.assertions or [])
         # Capture optional user preferences from raw body and persist to run config
@@ -418,26 +475,28 @@ async def meta_run_async_ep(body: MetaRunRequest, request: Request):
         import threading
 
         def _worker():
+            from app.job_manager import JobContext
             try:
-                meta_run(
-                    body.task_class,
-                    body.task,
-                    body.assertions or [],
-                    body.session_id,
-                    n=body.n,
-                    memory_k=body.memory_k,
-                    rag_k=body.rag_k,
-                    operators=body.operators,
-                    eps=body.eps,
-                    use_bandit=body.use_bandit,
-                    bandit_algorithm=body.bandit_algorithm,
-                    framework_mask=body.framework_mask,
-                    force_engine=body.force_engine,
-                    compare_with_groq=body.compare_with_groq,
-                    judge_mode=body.judge_mode,
-                    judge_include_rationale=body.judge_include_rationale,
-                    pre_run_id=run_id,
-                )
+                with JobContext("evolution"):
+                    meta_run(
+                        body.task_class,
+                        body.task,
+                        body.assertions or [],
+                        body.session_id,
+                        n=body.n,
+                        memory_k=body.memory_k,
+                        rag_k=body.rag_k,
+                        operators=body.operators,
+                        eps=body.eps,
+                        use_bandit=body.use_bandit,
+                        bandit_algorithm=body.bandit_algorithm,
+                        framework_mask=body.framework_mask,
+                        force_engine=body.force_engine,
+                        compare_with_groq=body.compare_with_groq,
+                        judge_mode=body.judge_mode,
+                        judge_include_rationale=body.judge_include_rationale,
+                        pre_run_id=run_id,
+                    )
             except Exception as e:
                 print(f"[meta_run_async] worker failed: {e}")
 
@@ -731,7 +790,46 @@ async def get_memory_analytics():
 async def get_analytics():
     """Get comprehensive analytics showing system improvement over time."""
     try:
-        analytics = store.get_analytics_overview()
+        # Try primary analytics; on failure, return safe fallback (never 500)
+        try:
+            analytics = store.get_analytics_overview()
+        except Exception as e:
+            # Fallback safe shape so UI never crashes
+            fallback = {
+                "basic_stats": {
+                    "total_runs": 0,
+                    "first_run": None,
+                    "latest_run": None,
+                    "overall_avg_score": None,
+                    "timespan_days": 0,
+                },
+                "improvement_trend": {
+                    "early_avg_score": None,
+                    "recent_avg_score": None,
+                    "improvement": 0,
+                },
+                "reward_analytics": {
+                    "avg_total_reward": None,
+                    "avg_outcome_reward": None,
+                    "avg_process_reward": None,
+                    "avg_cost_penalty": None,
+                    "total_variants_with_rewards": 0,
+                    "reward_progression": [],
+                    "top_operators_by_reward": [],
+                },
+                "score_progression": [],
+                "top_operators": [],
+                "task_performance": [],
+                # Optional panels
+                "operators": {"coverage_first_k": 0, "performance": []},
+                "voices": [],
+                "judges": {"evaluated": 0, "tie_breaker_rate": 0.0, "eval_latency_ms": {"p50": None, "p90": None}},
+                "golden": {},
+                "thresholds": {},
+                "_degraded": True,
+                "_error": str(e),
+            }
+            return JSONResponse(fallback)
         
         # Clean up any remaining infinite values before JSON serialization
         import json
@@ -746,8 +844,22 @@ async def get_analytics():
                 if math.isinf(obj) or math.isnan(obj):
                     return None
                 return obj
-            else:
+            elif isinstance(obj, str):
+                # Also check for string representations of infinity
+                if obj in ['-Inf', 'Inf', '-inf', 'inf', 'NaN', 'nan']:
+                    return None
                 return obj
+            elif obj is None:
+                return None
+            else:
+                # Try to convert to float to check for infinity
+                try:
+                    val = float(obj)
+                    if math.isinf(val) or math.isnan(val):
+                        return None
+                    return obj
+                except (ValueError, TypeError):
+                    return obj
         
         cleaned_analytics = clean_value(analytics)
         # Augment with rating analytics

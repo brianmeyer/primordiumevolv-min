@@ -10,7 +10,7 @@ from app.config import DEFAULT_OPERATORS, EVO_DEFAULTS, OP_GROUPS
 from app.engines import call_engine
 from app.groq_client import available as groq_available
 from app.judge import judge_pair
-from app.ollama_client import MODEL_ID as OLLAMA_MODEL_ID
+from app.ollama_client import MODEL_ID as OLLAMA_MODEL_ID, OLLAMA_TIMEOUT
 from app.evolve.loop import score_output, stitch_context
 # Legacy memory import removed - using new episodic memory system
 from app.memory.store import get_memory_store, Experience
@@ -247,6 +247,19 @@ def meta_run(
             
             # Compute operator groups for analytics
             groups = [g for g, names in OP_GROUPS.items() if selected_op in names] or ["UNSET"]
+
+            # Stream operator selection early so UI shows progress immediately
+            try:
+                realtime.publish(run_id, {
+                    "type": "iter_selected",
+                    "run_id": run_id,
+                    "i": i,
+                    "operator": selected_op,
+                    "engine": "ollama",
+                    "timestamp": time.time(),
+                })
+            except Exception:
+                pass
             
             # Get base recipe (use best known recipe for task class)
             base_recipe = top_recipes[0] if top_recipes else None
@@ -305,16 +318,49 @@ def meta_run(
             # Apply plan to build final prompt
             execution = ops.apply(plan, context)
             
+            # Log prompt details for debugging
+            prompt_len = len(execution["prompt"])
+            system_len = len(execution.get("system", ""))
+            options = execution.get("options", {})
+            print(f"[EVOLUTION DEBUG] Iteration {i}: Prompt length={prompt_len}, System length={system_len}, Total={prompt_len+system_len}")
+            print(f"[EVOLUTION DEBUG] Options: {options}")
+            print(f"[EVOLUTION DEBUG] First 500 chars of prompt: {execution['prompt'][:500]}")
+            
             # Generate output via selected engine with timing (no local token cap)
             start_time = time.time()
             engine = plan.get("engine", "ollama")
+            # Pre-publish generation start for visible progress
+            try:
+                realtime.publish(run_id, {
+                    "type": "iter_gen_start",
+                    "run_id": run_id,
+                    "i": i,
+                    "prompt_length": len(execution["prompt"]),
+                    "timestamp": time.time(),
+                })
+            except Exception:
+                pass
+            print(f"[EVOLUTION DEBUG] Calling {engine} with timeout={OLLAMA_TIMEOUT}s...")
             output, model_used = call_engine(
                 engine,
                 execution["prompt"],
                 system=execution["system"],
-                options=execution.get("options", {}),
+                options=options,
             )
+            print(f"[EVOLUTION DEBUG] Got response in {time.time()-start_time:.1f}s")
             generation_time_ms = int((time.time() - start_time) * 1000)
+            # Publish generation done
+            try:
+                realtime.publish(run_id, {
+                    "type": "iter_gen_done",
+                    "run_id": run_id,
+                    "i": i,
+                    "duration_ms": generation_time_ms,
+                    "prompt_length": len(execution["prompt"]),
+                    "timestamp": time.time(),
+                })
+            except Exception:
+                pass
             
             # Log generation timing
             log_generation_timing(run_id, i, selected_op, generation_time_ms, logs_dir)
@@ -340,6 +386,40 @@ def meta_run(
                 test_weight=test_weight,
                 task_baseline=task_baseline
             )
+
+            # Publish score/judge info as soon as available (before DB save)
+            try:
+                judge_info = {}
+                if reward_breakdown.get("outcome_metadata"):
+                    outcome_meta = reward_breakdown["outcome_metadata"]
+                    if outcome_meta.get("groq_metadata") and outcome_meta["groq_metadata"].get("judge_results"):
+                        judges = outcome_meta["groq_metadata"]["judge_results"]
+                        judge_info = {
+                            "judges": [{"model": j.get("model", "unknown"), "score": j.get("score", 0)} for j in judges if j.get("score") is not None],
+                            "tie_breaker_used": outcome_meta["groq_metadata"].get("needed_tie_breaker", False),
+                            "final_score": outcome_meta["groq_metadata"].get("final_score", score)
+                        }
+                    else:
+                        judge_info = {
+                            "judges": [],
+                            "tie_breaker_used": False,
+                            "final_score": score
+                        }
+                realtime.publish(run_id, {
+                    "type": "iter_score_done",
+                    "run_id": run_id,
+                    "i": i,
+                    "total_reward": total_reward,
+                    "reward_breakdown": {
+                        "outcome": reward_breakdown["outcome_reward"],
+                        "process": reward_breakdown["process_reward"], 
+                        "cost": reward_breakdown["cost_penalty"]
+                    },
+                    "judge_info": judge_info,
+                    "timestamp": time.time(),
+                })
+            except Exception:
+                pass
             
             # Save variant with analytics
             model_id_value = model_used if plan.get("engine") == "groq" else OLLAMA_MODEL_ID
@@ -363,6 +443,18 @@ def meta_run(
                 reward_metadata=reward_breakdown.get("outcome_metadata")
             )
 
+            # Publish persisted variant id for rating UI
+            try:
+                realtime.publish(run_id, {
+                    "type": "iter_saved",
+                    "run_id": run_id,
+                    "i": i,
+                    "variant_id": variant_id,
+                    "timestamp": time.time(),
+                })
+            except Exception:
+                pass
+
             # Stream iteration event with output and variant_id for human rating
             try:
                 # Include full output for human rating (no truncation)
@@ -372,11 +464,19 @@ def meta_run(
                 if reward_breakdown.get("outcome_metadata"):
                     outcome_meta = reward_breakdown["outcome_metadata"]
                     if outcome_meta.get("groq_metadata") and outcome_meta["groq_metadata"].get("judge_results"):
+                        # Groq judging with multiple models
                         judges = outcome_meta["groq_metadata"]["judge_results"]
                         judge_info = {
                             "judges": [{"model": j.get("model", "unknown"), "score": j.get("score", 0)} for j in judges if j.get("score") is not None],
                             "tie_breaker_used": outcome_meta["groq_metadata"].get("needed_tie_breaker", False),
                             "final_score": outcome_meta["groq_metadata"].get("final_score", score)
+                        }
+                    else:
+                        # Ollama judging - provide basic scoring info
+                        judge_info = {
+                            "judges": [{"model": model_id_value, "score": score}],
+                            "tie_breaker_used": False,
+                            "final_score": score
                         }
                 
                 realtime.publish(run_id, {
@@ -505,6 +605,16 @@ def meta_run(
                 pass
                 
         except Exception as e:
+            try:
+                realtime.publish(run_id, {
+                    "type": "iter_error",
+                    "run_id": run_id,
+                    "i": i,
+                    "message": str(e),
+                    "timestamp": time.time(),
+                })
+            except Exception:
+                pass
             print(f"Error in iteration {i}: {e}")
             continue
     
@@ -683,9 +793,22 @@ def meta_run(
             print(f"  {op:15s}: payoff={mean_payoff:6.3f}, plays={plays:2d}, ucb={ucb_score:6.3f}")
         print("=" * 40)
     
-    # Stream completion
+    # Stream completion (sanitize to avoid NaN/Inf in SSE)
+    def _sanitize(obj):
+        import math
+        if isinstance(obj, dict):
+            return {k: _sanitize(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [_sanitize(v) for v in obj]
+        if isinstance(obj, float):
+            if math.isnan(obj) or math.isinf(obj):
+                return None
+            return obj
+        return obj
+
     try:
-        realtime.publish(run_id, {"type": "done", "run_id": run_id, "result": final_results})
+        safe_results = _sanitize(final_results)
+        realtime.publish(run_id, {"type": "done", "run_id": run_id, "result": safe_results})
     except Exception:
         pass
 

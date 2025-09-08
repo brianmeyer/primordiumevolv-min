@@ -2,6 +2,8 @@
 
 let currentRunId = null;
 let evolutionEventSource = null;
+let evolutionTimerInterval = null;
+let evolutionStartTs = null;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -19,17 +21,46 @@ document.addEventListener('DOMContentLoaded', function() {
         delayEl.addEventListener('change', () => localStorage.setItem('reading_delay_ms', String(delayEl.value)));
     }
     
-    // Auto-check health every 30 seconds
-    setInterval(checkHealth, 30000);
+    // Auto-check health every 2 minutes (reduced from 30 seconds to reduce API calls)
+    healthCheckInterval = setInterval(checkHealth, 120000);
+});
+
+// Handle tab visibility changes to reduce API calls when tab is not active
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        console.log('Tab hidden, pausing health checks');
+    } else {
+        console.log('Tab visible, resuming health checks');
+        // Check health immediately when tab becomes visible
+        setTimeout(checkHealth, 1000);
+    }
 });
 
 // Global variables for rating system
 let currentVariantId = null;
 let currentIterationOutput = null;
 
+// Health check state management
+let healthCheckInProgress = false;
+let healthCheckInterval = null;
+
 // Health Check
 async function checkHealth() {
+    // Prevent overlapping health checks
+    if (healthCheckInProgress) {
+        console.log('Health check already in progress, skipping...');
+        return;
+    }
+    
+    // Skip if tab is not visible (reduce API calls when user is not looking)
+    if (document.hidden) {
+        console.log('Tab not visible, skipping health check...');
+        return;
+    }
+    
+    healthCheckInProgress = true;
     console.log('Checking health...');
+    
     try {
         // Check Ollama
         console.log('Checking Ollama health...');
@@ -37,8 +68,10 @@ async function checkHealth() {
         const ollamaData = await ollamaResponse.json();
         console.log('Ollama health:', ollamaData);
         const ollamaHealth = document.getElementById('ollamaHealth');
-        ollamaHealth.textContent = `Ollama: ${ollamaData.status}`;
-        ollamaHealth.className = ollamaData.status === 'ok' ? 'status-badge status-ok' : 'status-badge status-error';
+        if (ollamaHealth) {
+            ollamaHealth.textContent = `Ollama: ${ollamaData.status}`;
+            ollamaHealth.className = ollamaData.status === 'ok' ? 'status-badge status-ok' : 'status-badge status-error';
+        }
         
         // Check Groq  
         console.log('Checking Groq health...');
@@ -46,10 +79,12 @@ async function checkHealth() {
         const groqData = await groqResponse.json();
         console.log('Groq health:', groqData);
         const groqHealth = document.getElementById('groqHealth');
-        // Extract just groq status from the response
-        const groqStatus = groqData.groq ? groqData.groq.status : groqData.status;
-        groqHealth.textContent = `Groq: ${groqStatus}`;
-        groqHealth.className = groqStatus === 'ok' ? 'status-badge status-ok' : 'status-badge status-error';
+        if (groqHealth) {
+            // Extract just groq status from the response
+            const groqStatus = groqData.groq ? groqData.groq.status : groqData.status;
+            groqHealth.textContent = `Groq: ${groqStatus}`;
+            groqHealth.className = groqStatus === 'ok' ? 'status-badge status-ok' : 'status-badge status-error';
+        }
     } catch (error) {
         console.error('Health check failed:', error);
         // Show error state
@@ -63,6 +98,8 @@ async function checkHealth() {
             groqHealth.textContent = 'Groq: error';
             groqHealth.className = 'status-badge status-error';
         }
+    } finally {
+        healthCheckInProgress = false;
     }
 }
 
@@ -174,19 +211,31 @@ function startEvolutionStream(runId, totalIterations) {
     
     evolutionEventSource.onmessage = function(event) {
         console.log('Evolution stream event:', event.data);
-        const data = JSON.parse(event.data);
-        handleEvolutionEvent(data, totalIterations);
+        try {
+            // Handle -Infinity values that can't be parsed by JSON.parse
+            const cleanedData = event.data.replace(/-Infinity/g, 'null');
+            const data = JSON.parse(cleanedData);
+            handleEvolutionEvent(data, totalIterations);
+        } catch (error) {
+            console.error('Failed to parse evolution event:', error, 'Raw data:', event.data);
+        }
     };
     
     evolutionEventSource.onopen = function(event) {
         console.log('Evolution stream connected');
         addEvolutionStep('📡 Connected to evolution stream', 'running');
+        // Start elapsed timer
+        evolutionStartTs = Date.now();
+        startElapsedTimer();
+        setStreamStatus('Streaming…', true);
     };
     
     evolutionEventSource.onerror = function(error) {
         console.error('Evolution stream error:', error);
         addEvolutionStep('❌ Stream connection error', 'error');
         evolutionEventSource.close();
+        stopElapsedTimer();
+        setStreamStatus('Disconnected', false);
         setTimeout(() => {
             resetEvolutionButton();
         }, 2000);
@@ -194,17 +243,61 @@ function startEvolutionStream(runId, totalIterations) {
 }
 
 function handleEvolutionEvent(data, totalIterations) {
+    if (data.type === 'iter_selected') {
+        addEvolutionStep(`🧩 Iteration ${data.i + 1}: ${data.operator} selected`, 'running');
+        return;
+    }
+    if (data.type === 'iter_gen_start') {
+        updateLastStep(`⚙️ Iteration ${data.i + 1}: generating…`, 'running');
+        return;
+    }
+    if (data.type === 'iter_gen_done') {
+        const ms = typeof data.duration_ms === 'number' ? data.duration_ms : 0;
+        const pl = typeof data.prompt_length === 'number' ? data.prompt_length : 0;
+        updateLastStep(`🧪 Iteration ${data.i + 1}: generated (${ms} ms, ${pl} chars)`, 'running');
+        return;
+    }
+    if (data.type === 'iter_score_done') {
+        const rb = data.reward_breakdown || {};
+        const out = toFixedSafe(rb.outcome, 3);
+        const proc = toFixedSafe(rb.process, 3);
+        const cost = toFixedSafe(rb.cost, 3);
+        let judgeInfo = '';
+        if (data.judge_info && Array.isArray(data.judge_info.judges) && data.judge_info.judges.length > 0) {
+            const judgeScores = data.judge_info.judges.map(j => `${(j.model || '').toString().split('/').pop().split('-')[0]}: ${toFixedSafe(j.score, 2)}`).join(', ');
+            const tb = data.judge_info.tie_breaker_used ? ' (tie-breaker)' : '';
+            judgeInfo = ` — judges: ${judgeScores}${tb}`;
+        }
+        updateLastStep(`📊 Iteration ${data.i + 1}: scored reward=${toFixedSafe(data.total_reward, 3)} (o:${out} p:${proc} − c:${cost})${judgeInfo}`, 'running');
+        return;
+    }
+    if (data.type === 'iter_saved') {
+        updateLastStep(`💾 Iteration ${data.i + 1}: saved (variant_id=${data.variant_id})`, 'completed');
+        currentVariantId = data.variant_id || null;
+        showRatingPanel();
+        if (typeof totalIterations === 'number'){
+            updateProgress(Math.min(100, Math.round(100*(data.i+1)/Math.max(1,totalIterations))));
+        }
+        return;
+    }
+    if (data.type === 'iter_error') {
+        addEvolutionStep(`❌ Iteration ${data.i + 1} failed: ${data.message || 'unknown error'}`, 'error');
+        if (typeof totalIterations === 'number'){
+            updateProgress(Math.min(100, Math.round(100*(data.i+1)/Math.max(1,totalIterations))));
+        }
+        return;
+    }
     if (data.type === 'iter'){
         // Format judge information for display
         let judgeInfo = '';
         if (data.judge_info && data.judge_info.judges && data.judge_info.judges.length > 0) {
-            const judgeScores = data.judge_info.judges.map(j => `${j.model.split('/').pop().split('-')[0]}: ${j.score.toFixed(2)}`).join(', ');
+            const judgeScores = data.judge_info.judges.map(j => `${j.model.split('/').pop().split('-')[0]}: ${toFixedSafe(j.score, 2)}`).join(', ');
             const tieBreaker = data.judge_info.tie_breaker_used ? ' (tie-breaker)' : '';
             judgeInfo = ` | judges: ${judgeScores}${tieBreaker}`;
         }
         
-        addEvolutionStep(`🔄 Iteration ${data.i + 1}: ${data.operator} | score ${(data.score||0).toFixed(3)}${judgeInfo}`, 'running');
-        updateLastStep(`✅ Iteration ${data.i + 1}: ${data.operator} | score ${(data.score||0).toFixed(3)}${judgeInfo}`, 'completed');
+        addEvolutionStep(`🔄 Iteration ${data.i + 1}: ${data.operator} | score ${toFixedSafe(data.score, 3)}${judgeInfo}`, 'running');
+        updateLastStep(`✅ Iteration ${data.i + 1}: ${data.operator} | score ${toFixedSafe(data.score, 3)}${judgeInfo}`, 'completed');
         if (typeof totalIterations === 'number'){ 
             updateProgress(Math.min(100, Math.round(100*(data.i+1)/Math.max(1,totalIterations))));
         }
@@ -226,12 +319,16 @@ function handleEvolutionEvent(data, totalIterations) {
     if (data.type === 'done'){
         handleEvolutionComplete(data.result);
         hideRatingPanel();
+        stopElapsedTimer();
+        setStreamStatus('Complete', false);
         return;
     }
     if (data.type === 'error'){
         showError('Evolution error: ' + data.message);
         resetEvolutionButton();
         hideRatingPanel();
+        stopElapsedTimer();
+        setStreamStatus('Error', false);
         return;
     }
 }
@@ -261,6 +358,40 @@ function updateProgress(percentage) {
     document.getElementById('progressBar').style.width = `${percentage}%`;
 }
 
+function toFixedSafe(val, n) {
+    const num = typeof val === 'number' ? val : 0;
+    if (!isFinite(num)) return '0.000';
+    return num.toFixed(n);
+}
+
+function startElapsedTimer() {
+    try { clearInterval(evolutionTimerInterval); } catch(_) {}
+    const el = document.getElementById('elapsedTime');
+    if (!el) return;
+    evolutionTimerInterval = setInterval(() => {
+        if (!evolutionStartTs) return;
+        const secs = Math.floor((Date.now() - evolutionStartTs) / 1000);
+        const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+        const ss = String(secs % 60).padStart(2, '0');
+        el.textContent = `${mm}:${ss}`;
+    }, 1000);
+}
+
+function stopElapsedTimer() {
+    try { clearInterval(evolutionTimerInterval); } catch(_) {}
+    evolutionTimerInterval = null;
+}
+
+function setStreamStatus(text, spinning) {
+    const el = document.getElementById('streamStatus');
+    if (!el) return;
+    if (spinning) {
+        el.innerHTML = `<span class="spinner"></span> ${text}`;
+    } else {
+        el.textContent = text;
+    }
+}
+
 function handleEvolutionComplete(result) {
     if (evolutionEventSource) {
         evolutionEventSource.close();
@@ -281,16 +412,18 @@ function showEvolutionResults(result) {
     document.getElementById('evolutionProgress').classList.add('hidden');
     document.getElementById('evolutionResults').classList.remove('hidden');
     
-    const improvement = ((result.improvement / Math.max(result.baseline, 0.1)) * 100).toFixed(1);
+    const baseline = (result && typeof result.baseline === 'number') ? result.baseline : 0.1;
+    const bestScore = (result && typeof result.best_score === 'number') ? result.best_score : 0;
+    const improvement = (result && typeof result.improvement === 'number') ? ((result.improvement / Math.max(baseline, 0.1)) * 100).toFixed(1) : '0.0';
     
     const resultsHTML = `
         <div class="result-card">
-            <div class="result-score">${result.best_score.toFixed(3)}</div>
+            <div class="result-score">${toFixedSafe(bestScore, 3)}</div>
             <div class="result-improvement">+${improvement}% improvement</div>
             <div class="text-center text-muted">
-                Best strategy: ${result.best_recipe.system || 'Default system'} 
-                ${result.best_recipe.use_web ? '+ Web Research' : ''}
-                ${result.best_recipe.use_memory ? '+ Memory' : ''}
+                Best strategy: ${(result && result.best_recipe && result.best_recipe.system) ? result.best_recipe.system : 'Default system'} 
+                ${(result && result.best_recipe && result.best_recipe.use_web) ? '+ Web Research' : ''}
+                ${(result && result.best_recipe && result.best_recipe.use_memory) ? '+ Memory' : ''}
             </div>
         </div>
         
@@ -466,6 +599,7 @@ async function loadEvolutionHistory() {
 async function loadAnalytics() {
     try {
         const response = await fetch('/api/meta/analytics');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         
         const overviewDiv = document.getElementById('analyticsOverview');
@@ -476,18 +610,20 @@ async function loadAnalytics() {
         overviewDiv.classList.remove('hidden');
         
         // Update overview stats
-        document.getElementById('totalRuns').textContent = data.basic_stats.total_runs || 0;
-        document.getElementById('timespanDays').textContent = `Over ${Math.round(data.basic_stats.timespan_days)} days`;
-        document.getElementById('improvementPercent').textContent = data.improvement_trend.improvement ? 
-            `${data.improvement_trend.improvement.toFixed(1)}%` : 'N/A';
-        document.getElementById('overallAvgScore').textContent = data.basic_stats.overall_avg_score ? 
-            data.basic_stats.overall_avg_score.toFixed(3) : 'N/A';
+        const bs = data.basic_stats || {};
+        const it = data.improvement_trend || {};
+        document.getElementById('totalRuns').textContent = bs.total_runs || 0;
+        document.getElementById('timespanDays').textContent = `Over ${Math.round(bs.timespan_days || 0)} days`;
+        const imp = (typeof it.improvement === 'number') ? `${it.improvement.toFixed(1)}%` : 'N/A';
+        document.getElementById('improvementPercent').textContent = imp;
+        const avgScore = (typeof bs.overall_avg_score === 'number') ? bs.overall_avg_score.toFixed(3) : 'N/A';
+        document.getElementById('overallAvgScore').textContent = avgScore;
         
         // Color improvement based on positive/negative
         const improvementEl = document.getElementById('improvementPercent');
-        if (data.improvement_trend.improvement > 0) {
+        if ((it.improvement || 0) > 0) {
             improvementEl.style.color = 'var(--success)';
-        } else if (data.improvement_trend.improvement < 0) {
+        } else if ((it.improvement || 0) < 0) {
             improvementEl.style.color = 'var(--danger)';
         }
         
@@ -705,6 +841,9 @@ function selectAnalyticsTab(name) {
         loadEvolutionHistory();
     } else if (name === 'memory') {
         loadMemoryAnalytics();
+    } else {
+        // Load analytics data for all other tabs (overview, operators, voices, etc.)
+        loadAnalytics();
     }
 }
 

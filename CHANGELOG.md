@@ -340,3 +340,22 @@
 ### 🛡 Policy & Rewards
 - Local‑only generation (engine="ollama"); Groq used for evaluation only (two‑judge + tie‑breaker) with metadata.
 - Bandit uses `total_reward`; artifacts include `reward_breakdown` and `bandit_state`.
+## [2.7.2] - 2025-09-08 - Staged Iteration Streaming + Analytics Guard
+
+### ✨ Streaming UX Always Alive
+- Added staged SSE events for evolution runs: `iter_selected`, `iter_gen_start`, `iter_gen_done`, `iter_score_done`, `iter_saved`, `iter_error`.
+- Judges remain ON; `iter_score_done` includes `judge_info` (per-judge scores + tie-breaker status).
+- Final `done` payload sanitized (NaN/±Infinity → null) to prevent JSON.parse crashes.
+
+### 🖥️ UI Improvements
+- Renders staged steps with clear messages per iteration.
+- Heartbeat added (elapsed mm:ss ticker + spinner) so progress never appears frozen.
+- Defensive parsing and null-safe display for final results.
+
+### 🛡️ Analytics Resilience
+- `/api/meta/analytics` now soft-fails with a safe, shaped JSON instead of 500.
+- Frontend checks `response.ok` and hides tiles on failure; analytics never block the stream.
+
+### 🔧 Files Touched
+- Backend: `app/meta/runner.py`, `app/main.py`
+- Frontend: `app/ui/app.js`, `app/ui/index.html`
