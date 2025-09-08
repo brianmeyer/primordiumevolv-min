@@ -1,0 +1,38 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-07T20:44:05.140575+00:00",
+  "unix_timestamp": 1757277845.1405828,
+  "data": {
+    "run_id": 39,
+    "task_class": "analysis",
+    "task": "Given the list [1,2,3,4,5], compute the mean and median and provide both values.",
+    "config": {
+      "n": 8,
+      "memory_k": 0,
+      "rag_k": 0,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.6,
+      "use_bandit": true,
+      "bandit_algorithm": null,
+      "framework_mask": [
+        "SEAL",
+        "SAMPLING"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": "ollama",
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

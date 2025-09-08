@@ -1,0 +1,112 @@
+{
+  "run_id": 40,
+  "task_class": "analysis",
+  "task": "Briefly explain whether a linear relationship exists between x=[1,2,3,4] and y=[2,4,6,8] and provide slope.",
+  "assertions": [
+    "linear",
+    "slope",
+    "2"
+  ],
+  "best_score": 0.5837527520084135,
+  "best_total_reward": 0.7837527520084135,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5731024046078352,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 6,
+      "avg_reward": 0.6730741891588005,
+      "mean_payoff": 0.12979005454609005
+    },
+    "inject_rag": {
+      "n": 4,
+      "avg_reward": 0.605677887254197,
+      "mean_payoff": 0.18467641192369688
+    },
+    "raise_temp": {
+      "n": 4,
+      "avg_reward": 0.642578650599904,
+      "mean_payoff": 0.1907982100255965
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 3,
+      "avg_reward": 0.6427303168941426,
+      "mean_payoff": 0.2539281092367203
+    },
+    "change_nudge": {
+      "n": 3,
+      "avg_reward": 0.5618268740907474,
+      "mean_payoff": 0.2440940852154372
+    },
+    "lower_temp": {
+      "n": 4,
+      "avg_reward": 0.6429322544479962,
+      "mean_payoff": 0.1959381880021034
+    },
+    "inject_memory": {
+      "n": 3,
+      "avg_reward": 0.6613732325481464,
+      "mean_payoff": 0.24905741997450534
+    },
+    "lower_top_k": {
+      "n": 3,
+      "avg_reward": 0.6834995923569522,
+      "mean_payoff": 0.24778587502010607
+    },
+    "raise_top_k": {
+      "n": 2,
+      "avg_reward": 0.5878767968347123
+    }
+  },
+  "baseline": 0.5601936498642868,
+  "improvement": 0.02355910214412671,
+  "total_reward_improvement": 0.7837527520084135,
+  "timestamp": 1757278022,
+  "metrics": {
+    "best_total_reward": 0.7837527520084135,
+    "best_score": 0.5837527520084135,
+    "avg_total_reward": null,
+    "steps_to_best": 7,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.784",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.5837527520084135,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.7837527520084135,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

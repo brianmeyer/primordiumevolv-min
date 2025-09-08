@@ -1,0 +1,15 @@
+{
+  "metrics": {
+    "best_total_reward": 0.6177748018785905,
+    "best_score": 0.5677748018785904,
+    "avg_total_reward": null,
+    "steps_to_best": 1,
+    "cost_penalty_avg": 0.12805200000000003,
+    "promotion": {
+      "eligible": false,
+      "reasons": [
+        "cost too high: 0.128 > 0.090"
+      ]
+    }
+  }
+}

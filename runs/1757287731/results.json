@@ -1,0 +1,105 @@
+{
+  "run_id": 84,
+  "task_class": "search",
+  "task": "What is the capital of France?",
+  "assertions": [
+    "Paris"
+  ],
+  "best_score": 0.6081535968132152,
+  "best_total_reward": 0.7885575968132152,
+  "best_recipe": {
+    "system": "You are a careful analyst. Trace reasoning in brief steps and confirm assumptions are valid.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 9,
+      "avg_reward": 0.6801074682456232
+    },
+    "inject_rag": {
+      "n": 16,
+      "avg_reward": 0.6400517503864518
+    },
+    "raise_temp": {
+      "n": 7,
+      "avg_reward": 0.6098898623861289
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 7,
+      "avg_reward": 0.6323852865841422,
+      "mean_payoff": 0.11265108525903075
+    },
+    "change_nudge": {
+      "n": 8,
+      "avg_reward": 0.7030580669572418
+    },
+    "lower_temp": {
+      "n": 12,
+      "avg_reward": 0.624445096280936
+    },
+    "inject_memory": {
+      "n": 11,
+      "avg_reward": 0.6009826958223653,
+      "mean_payoff": 0.04323492806118757
+    },
+    "lower_top_k": {
+      "n": 8,
+      "avg_reward": 0.7363836547162345
+    },
+    "raise_top_k": {
+      "n": 9,
+      "avg_reward": 0.6086881295452876,
+      "mean_payoff": 0.0568947162104477
+    }
+  },
+  "baseline": 0.0,
+  "improvement": 0.6081535968132152,
+  "total_reward_improvement": 0.7885575968132152,
+  "timestamp": 1757287731,
+  "metrics": {
+    "best_total_reward": 0.7885575968132152,
+    "best_score": 0.6081535968132152,
+    "avg_total_reward": null,
+    "steps_to_best": 2,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.789",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.6081535968132152,
+    "process_reward": 0.2,
+    "cost_penalty": 0.019595999999999992,
+    "total_reward": 0.7885575968132152,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "iteration": 0,
+  "operator": "inject_rag",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.5387056476947875,
+  "reward": 0.7387056476947875,
+  "reward_breakdown": {
+    "outcome_reward": 0.5387056476947875,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.7387056476947875,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.18467641192369688,
+      "plays": 4,
+      "ucb_score": 1.9787989899177982
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 3.1204757938451726
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 3.0138716656720046
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.674048227493903
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.667666395322683
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 2.256652979280044
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 3.155746201219501
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.18467641192369688,
+        "plays": 4,
+        "ucb_score": 1.9787989899177982
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 3.125149279193751
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 3.1908430583643086
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user wants me to check if there's a linear relationship between x=[1,2,3,4] and y=[2,4,6,8] and give the slope. They also want it in bullet points and concise.\n\nFirst, I need to see if the data points form a straight line. Let me plot these mentally: when x is 1, y is 2; x=2, y=4; x=3, y=6; x=4, y=8. So each time x increases by 1, y increases by 2. That looks like a perfect straight line with a constant slope.\n\nTo confirm it's linear, I should check the slope between each pair. From (1,2) to (2,4): slope is (4-2)/(2-1) = 2/1 = 2. From (2,4) to (3,6): (6-4)/(3-2)=2/1=2. Same for the next pair. All slopes are 2, so yes, it's linear.\n\nThe slope is consistently 2. Since there are only four points and they're equally spaced, the relationship is perfectly linear with no deviations.\n\nThe user said \"briefly explain\" and \"provide slope\". So I'll state it's linear with slope 2 in bullet points. Must be precise and directly usable - no extra fluff.\n\nAlso, they want bullet points. I'll make it one bullet for the relationship and one for the slope. Wait, the instruction says \"respond in bullet points\" so probably two bullets: one saying yes, one with the slope. But to be concise, maybe combine into one bullet? No, the user said \"bullet points\" plural, so at least two points.\n\nWait, looking at the constraints: \"Respond in bullet points.\" So I should output something like:\n- Linear relationship exists\n- Slope: 2\n\nBut to be precise, the explanation should be brief. Since the data is clearly linear, I can say \"Yes\" and give the slope.\n\nLet me phrase it tightly. The user is a senior engineer, so they know the math - no need to over-explain. Just state the facts.\n\nFinal answer should be:\n- Linear relationship exists\n- Slope = 2\n\nThat's two bullet points, concise, directly usable.\n</think>\n\n- Linear relationship exists  \n- Slope = 2"
+}

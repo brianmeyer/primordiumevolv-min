@@ -1,0 +1,107 @@
+{
+  "run_id": 64,
+  "task_class": "analysis",
+  "task": "Briefly explain whether a linear relationship exists between x=[1,2,3,4] and y=[2,4,6,8] and provide slope.",
+  "assertions": [
+    "linear",
+    "slope",
+    "2"
+  ],
+  "best_score": 0.5616536097572455,
+  "best_total_reward": 0.7616536097572455,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.3967554486550067,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 8,
+      "avg_reward": 0.6764623119639971
+    },
+    "inject_rag": {
+      "n": 12,
+      "avg_reward": 0.642262894809663,
+      "mean_payoff": 0.06347113414643712
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 5,
+      "avg_reward": 0.6376916598191331,
+      "mean_payoff": 0.12356247934362974
+    },
+    "change_nudge": {
+      "n": 6,
+      "avg_reward": 0.6716418660094107,
+      "mean_payoff": 0.1261384999951928
+    },
+    "lower_temp": {
+      "n": 8,
+      "avg_reward": 0.6568032317618422
+    },
+    "inject_memory": {
+      "n": 7,
+      "avg_reward": 0.6175625256617054
+    },
+    "lower_top_k": {
+      "n": 7,
+      "avg_reward": 0.7492009077714813
+    },
+    "raise_top_k": {
+      "n": 4,
+      "avg_reward": 0.655187784138755
+    }
+  },
+  "baseline": 0.5894993488059347,
+  "improvement": -0.027845739048689144,
+  "total_reward_improvement": 0.7616536097572455,
+  "timestamp": 1757284047,
+  "metrics": {
+    "best_total_reward": 0.7616536097572455,
+    "best_score": 0.5616536097572455,
+    "avg_total_reward": null,
+    "steps_to_best": 1,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.762",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.5616536097572455,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.7616536097572455,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

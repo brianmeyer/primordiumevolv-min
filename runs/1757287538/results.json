@@ -1,0 +1,104 @@
+{
+  "run_id": 81,
+  "task_class": "research",
+  "task": "What is the chemical formula for water?",
+  "assertions": [
+    "H2O"
+  ],
+  "best_score": 0.3815777227387375,
+  "best_total_reward": 0.5815777227387375,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 30,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 9,
+      "avg_reward": 0.6801074682456232
+    },
+    "inject_rag": {
+      "n": 15,
+      "avg_reward": 0.6315053891765547
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 6,
+      "avg_reward": 0.6063565682126298
+    },
+    "change_nudge": {
+      "n": 7,
+      "avg_reward": 0.6778310272277557
+    },
+    "lower_temp": {
+      "n": 12,
+      "avg_reward": 0.624445096280936,
+      "mean_payoff": 0.04755115058076586
+    },
+    "inject_memory": {
+      "n": 9,
+      "avg_reward": 0.604409205068973
+    },
+    "lower_top_k": {
+      "n": 8,
+      "avg_reward": 0.7363836547162345
+    },
+    "raise_top_k": {
+      "n": 7,
+      "avg_reward": 0.5913463733937424,
+      "mean_payoff": 0.08308253181981964
+    }
+  },
+  "baseline": 0.44000998095380406,
+  "improvement": -0.058432258215066535,
+  "total_reward_improvement": 0.5815777227387375,
+  "timestamp": 1757287538,
+  "metrics": {
+    "best_total_reward": 0.5815777227387375,
+    "best_score": 0.3815777227387375,
+    "avg_total_reward": null,
+    "steps_to_best": 2,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.582",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.3815777227387375,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.5815777227387375,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

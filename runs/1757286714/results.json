@@ -1,0 +1,72 @@
+{
+  "run_id": 75,
+  "task_class": "code",
+  "task": "Write a Python function reverse_string(s) that returns the reversed string and explain in one sentence.",
+  "assertions": [
+    "def reverse_string",
+    "[::-1] or reversed",
+    "returns correct for 'hello'"
+  ],
+  "best_score": -Infinity,
+  "best_total_reward": -Infinity,
+  "best_recipe": null,
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 8,
+      "avg_reward": 0.6764623119639971
+    },
+    "inject_rag": {
+      "n": 13,
+      "avg_reward": 0.6403791953534268
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 5,
+      "avg_reward": 0.6376916598191331
+    },
+    "change_nudge": {
+      "n": 7,
+      "avg_reward": 0.6778310272277557
+    },
+    "lower_temp": {
+      "n": 9,
+      "avg_reward": 0.64006905250751
+    },
+    "inject_memory": {
+      "n": 9,
+      "avg_reward": 0.604409205068973
+    },
+    "lower_top_k": {
+      "n": 7,
+      "avg_reward": 0.7492009077714813
+    },
+    "raise_top_k": {
+      "n": 4,
+      "avg_reward": 0.655187784138755
+    }
+  },
+  "baseline": 0.6788969487452675,
+  "improvement": 0,
+  "total_reward_improvement": -Infinity,
+  "timestamp": 1757286714,
+  "metrics": {
+    "best_total_reward": -Infinity,
+    "best_score": -Infinity,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": false,
+      "reasons": [
+        "insufficient total_reward improvement: -inf < 0.05"
+      ]
+    }
+  }
+}

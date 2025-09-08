@@ -1,0 +1,17 @@
+{
+  "metrics": {
+    "best_total_reward": 0.46937188155229975,
+    "best_score": 0.3095998815522997,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.040228,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.469",
+        "cost efficiency: 0.040 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  }
+}

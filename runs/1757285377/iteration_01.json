@@ -1,0 +1,94 @@
+{
+  "iteration": 1,
+  "operator": "change_nudge",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Provide step-by-step reasoning.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.6149659945378253,
+  "reward": 0.7149659945378253,
+  "reward_breakdown": {
+    "outcome_reward": 0.6149659945378253,
+    "process_reward": 0.30000000000000004,
+    "cost_penalty": 0.2,
+    "total_reward": 0.7149659945378253,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.10213799921968933,
+      "plays": 7,
+      "ucb_score": 1.6549249324789286
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 5,
+        "ucb_score": 2.474973936482381
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.10213799921968933,
+        "plays": 7,
+        "ucb_score": 1.6549249324789286
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.2798283830057615
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.0094984073323756
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.128961486692869
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 1.9738385598938386
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 1.7798132931103394
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 2.709331816376053
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.3019878410307206
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, let's see. I need to write a Python function called fibonacci(n) that returns the nth Fibonacci number. They want a recursive approach and a brief docstring. Hmm.\n\nFirst, Fibonacci sequence starts with 0 and 1. So the 0th term is 0, 1st is 1, ... right? Wait, sometimes people get confused about the indexing here. The problem says \"nth Fibonacci number\". Let me check common definitions. In many cases, the Fibonacci sequence is defined as F(0) = 0, F(1) = 1, F(2) = 1, F(3) = 2, etc. So the function should handle n starting from 0.\n\nBut the problem says \"nth\", so maybe the user expects the standard where F(0) is 0. Let me think. For example, if n=0, return 0; n=1 return 1; n=2 return 1, etc.\n\nThe problem says to prefer recursive approach. So recursive Fibonacci.\n\nBut the classic recursive Fibonacci has a problem with efficiency because it recalculates the same values multiple times. However, the problem doesn't mention efficiency, just that we prefer recursive. So maybe they want the naive recursive implementation.\n\nLet me outline the steps.\n\nBase cases: when n is 0, return 0; when n is 1, return 1.\n\nFor n >= 2, return fibonacci(n-1) + fibonacci(n-2).\n\nWait, but wait: if n is 0, that's the first term. Let me confirm.\n\nYes, standard recursive Fibonacci function.\n\nSo the code would be:\n\ndef fibonacci(n):\n    \"\"\"Returns the nth Fibonacci number, with F(0)=0, F(1)=1.\"\"\"\n    if n == 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:\n        return fibonacci(n-1) + fibonacci(n-2)\n\nWait, but in some definitions, the Fibonacci sequence starts at F(1)=1, F(2)=1. But the problem says \"nth\", so the user probably expects the 0th index.\n\nWait, let's check. For example, if n=0, the function should return 0. Let me make sure.\n\nThe problem says \"returns the nth Fibonacci number\". So for example, in the sequence 0, 1, 1, 2, 3, 5... so the 0th is 0, 1st is 1, 2nd is 1, 3rd is 2, etc.\n\nYes, so the code should handle n starting at 0.\n\nSo the recursive function with base cases 0 and 1.\n\nBut wait, the problem says \"prefer a recursive approach\". So the naive recursion is acceptable here.\n\nSo the code would be as I wrote.\n\nWait, but the problem says \"Provide step-by-step reasoning.\" So I need to write that.\n\nLet me think about the steps.\n\nFirst, define the function.\n\nCheck the base cases: n=0 and n=1.\n\nFor all other n, compute recursively.\n\nSo the step-by-step reasoning would be:\n\n1. The Fibonacci sequence is defined such that F(0) = 0, F(1) = 1, and F(n) = F(n-1) + F(n-2) for n \u2265 2.\n\n2. For the recursive approach, handle base cases first (n=0 and n=1) to avoid infinite recursion.\n\n3. For n \u2265 2, recursively compute the sum of the two preceding terms.\n\n4. The function returns the result for the given n.\n\nSo the code is straightforward.\n\nWait, but I should check if n is negative? But the problem says \"nth\", so assuming n is a non-negative integer. The problem probably expects n to be \u2265 0.\n\nThe problem says \"the nth Fibonacci number\", so probably n is a non-negative integer.\n\nSo the code should handle n \u2265 0.\n\nSo the function as written should work.\n\nLet me write the code with the docstring.\n\nThe docstring says: \"Returns the nth Fibonacci number, with F(0)=0, F(1)=1.\"\n\nYes.\n\nSo the code is:\n\ndef fibonacci(n):\n    \"\"\"Returns the nth Fibonacci number, with F(0)=0, F(1)=1.\"\"\"\n    if n == 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:\n        return fibonacci(n-1) + fibonacci(n-2)\n\nWait, but in Python, using recursion, this is correct.\n\nWait, but when n is 2, it returns fibonacci(1) + fibonacci(0) = 1 + 0 = 1. Which is correct.\n\nYes.\n\nSo this should be the solution.\n\nBut the problem says \"prefer a recursive approach\". The user might have intended that, so this is the way.\n\nI think that's it.\n</think>\n\ndef fibonacci(n):\n    \"\"\"Returns the nth Fibonacci number, with F(0)=0, F(1)=1.\"\"\"\n    if n == 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:\n        return fibonacci(n - 1) + fibonacci(n - 2)"
+}

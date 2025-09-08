@@ -1,0 +1,38 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-07T21:12:55.477488+00:00",
+  "unix_timestamp": 1757279575.477491,
+  "data": {
+    "run_id": 47,
+    "task_class": "analysis",
+    "task": "Briefly explain whether a linear relationship exists between x=[1,2,3,4] and y=[2,4,6,8] and provide slope.",
+    "config": {
+      "n": 3,
+      "memory_k": 0,
+      "rag_k": 0,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.6,
+      "use_bandit": true,
+      "bandit_algorithm": null,
+      "framework_mask": [
+        "SEAL",
+        "SAMPLING"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": "ollama",
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

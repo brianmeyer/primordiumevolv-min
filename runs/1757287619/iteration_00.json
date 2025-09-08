@@ -1,0 +1,94 @@
+{
+  "iteration": 0,
+  "operator": "change_nudge",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Use concise, technical language.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 17,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.6796473450636448,
+  "reward": 0.8796473450636448,
+  "reward_breakdown": {
+    "outcome_reward": 0.6796473450636448,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.8796473450636448,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.1099559181329556,
+      "plays": 8,
+      "ucb_score": 1.590163105433754
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.315552604301699
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.1099559181329556,
+        "plays": 8,
+        "ucb_score": 1.590163105433754
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.3118228400399845
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.833029203776684
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.0756601878475704
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 1.9999619246709206
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 15,
+        "ucb_score": 1.712495877531117
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.173754418056574
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.2165908420170326
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are asked for the year the United States declared independence.\n The United States declared independence on July 4, 1776, with the adoption of the Declaration of Independence.\n However, note that the question asks for the year. So the answer is 1776.\n\n Constraints: Use concise, technical language.\n\n Therefore, the direct answer is: 1776\n</think>\n\n1776"
+}

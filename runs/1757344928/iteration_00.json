@@ -1,0 +1,100 @@
+{
+  "iteration": 0,
+  "operator": "add_fewshot",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 38,
+      "num_predict": 512
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": "Example: Write a function to reverse a string.\ndef reverse_string(s): return s[::-1]"
+  },
+  "score": 0.21329617478975557,
+  "reward": 0.4632961747897556,
+  "reward_breakdown": {
+    "outcome_reward": 0.21329617478975557,
+    "process_reward": 0.25,
+    "cost_penalty": 0.0,
+    "total_reward": 0.4632961747897556,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.042117834071795965,
+      "plays": 11,
+      "ucb_score": 1.340330449832353
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.129113726638347
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.0180043940565713
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.020533060066434
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 1.811196711576195
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.042117834071795965,
+        "plays": 11,
+        "ucb_score": 1.340330449832353
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8301218929067717
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 17,
+        "ucb_score": 1.6724825895863744
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.9892778541547274
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.949435378820313
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.0500344574638465
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user wants me to write a function to add two numbers. Let me think. The example they gave for reversing a string was a simple one-liner using slicing. So they probably want something similar here.\n\nWait, adding two numbers. The most straightforward way is to take two parameters, say a and b, and return a + b. But in Python, functions are defined with def. The example used s[::-1] for reverse, so they want a concise function.\n\nWait, the constraints say respond in bullet points. But the user says \"Respond in bullet points.\" Wait, no\u2014the user says \"Constraints: Respond in bullet points.\" Wait, looking back: the user wrote \"Constraints: Respond in bullet points.\" Wait no, the original instruction says: \"Constraints: Respond in bullet points.\" Hmm, but the problem is to write the function. Wait, the user says \"You are a concise senior engineer. Return precise, directly usable output.\" And the context is examples and constraints.\n\nWait, the user's instruction says: \"Write a function to add two numbers\". The example given is for reverse_string. The function they want is a simple addition.\n\nSo the answer should be a bullet point with the function definition. Wait, the user says \"Respond in bullet points.\" So maybe the response is a single bullet point with the code.\n\nWait, the problem says: \"Respond in bullet points.\" So the answer should be a bullet point list, but in this case, since it's a single function, probably one bullet point.\n\nWait, the example they provided for the reverse function was written as a code block. But the user says \"Return precise, directly usable output.\" So the answer should be the function definition in a code format.\n\nWait, the user's example shows the function as \"def reverse_string(s): return s[::-1]\". So the answer here would be similar: def add_numbers(a, b): return a + b\n\nBut the user says \"Respond in bullet points.\" So maybe the response is a bullet point with the code.\n\nWait, the instructions say: \"Respond in bullet points.\" So perhaps the answer should be a bullet point list, but since it's a single function, it's one bullet point.\n\nWait, but the user says \"Return precise, directly usable output.\" So maybe the answer is just the code line, but formatted as a bullet point.\n\nWait, the problem says: \"Write a as a function to add two numbers\".\n\nWait, the correct function in"
+}

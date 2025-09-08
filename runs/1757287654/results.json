@@ -1,0 +1,104 @@
+{
+  "run_id": 83,
+  "task_class": "research",
+  "task": "What year did humans first land on the Moon?",
+  "assertions": [
+    "1969"
+  ],
+  "best_score": 0.6267161062573625,
+  "best_total_reward": 0.8267161062573625,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Use concise, technical language.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 30,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 9,
+      "avg_reward": 0.6801074682456232
+    },
+    "inject_rag": {
+      "n": 16,
+      "avg_reward": 0.6400517503864518,
+      "mean_payoff": 0.04801544803343176
+    },
+    "raise_temp": {
+      "n": 7,
+      "avg_reward": 0.6098898623861289
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 6,
+      "avg_reward": 0.6063565682126298
+    },
+    "change_nudge": {
+      "n": 8,
+      "avg_reward": 0.7030580669572418
+    },
+    "lower_temp": {
+      "n": 12,
+      "avg_reward": 0.624445096280936
+    },
+    "inject_memory": {
+      "n": 10,
+      "avg_reward": 0.6135225445372955
+    },
+    "lower_top_k": {
+      "n": 8,
+      "avg_reward": 0.7363836547162345
+    },
+    "raise_top_k": {
+      "n": 8,
+      "avg_reward": 0.6207675900016949,
+      "mean_payoff": 0.10333951328217031
+    }
+  },
+  "baseline": 0.6796473450636448,
+  "improvement": -0.052931238806282255,
+  "total_reward_improvement": 0.8267161062573625,
+  "timestamp": 1757287654,
+  "metrics": {
+    "best_total_reward": 0.8267161062573625,
+    "best_score": 0.6267161062573625,
+    "avg_total_reward": null,
+    "steps_to_best": 1,
+    "cost_penalty_avg": 0.0,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.827",
+        "cost efficiency: 0.000 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.6267161062573625,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.8267161062573625,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

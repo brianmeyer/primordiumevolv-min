@@ -1,0 +1,100 @@
+{
+  "iteration": 1,
+  "operator": "raise_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.9121661747422167,
+      "top_k": 38,
+      "num_predict": 512
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.21221239618373294,
+  "reward": 0.512212396183733,
+  "reward_breakdown": {
+    "outcome_reward": 0.21221239618373294,
+    "process_reward": 0.30000000000000004,
+    "cost_penalty": 0.0,
+    "total_reward": 0.512212396183733,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.051221239618373306,
+      "plays": 10,
+      "ucb_score": 1.414216602653974
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.130699640879422
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.019422878876383
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.051221239618373306,
+        "plays": 10,
+        "ucb_score": 1.414216602653974
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 1.8124408050626761
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.042117834071795965,
+        "plays": 11,
+        "ucb_score": 1.341682922041456
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.831416786462254
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 17,
+        "ucb_score": 1.6735705177803812
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.9918676412656917
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9508538636401243
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.0514529422836576
+      }
+    ]
+  },
+  "output_preview": "<think>\nOkay, the user wants me to write a function to add two numbers with specific constraints. They said to respond in bullet points and be concise as a senior engineer. Let me think.\n\nFirst, the function should be straightforward. In most programming languages, adding two numbers is simple. But I need to make sure it's precise. Wait, the constraints mention \"Respond in bullet points.\" So the answer should be bullet points, not a paragraph.\n\nHmm, the user probably expects the code for the function. But they said \"return precise, directly usable output.\" So maybe they want the code in a bullet point. Wait, the problem says \"Write a function to add two numbers\" so the response should be the code.\n\nWait, but the instruction says \"Respond in bullet points.\" So I should list the bullet points with the code. Let me check the example. Wait, in the problem statement, it's a constraint: \"Respond in bullet points.\" So the answer should be in bullet points.\n\nWait, as a senior engineer, I need to be concise. So the function could be in Python, JavaScript, etc. But the user didn't specify the language. Hmm, but the problem says \"directly usable output\". Maybe they want a generic function? Or perhaps the most common language. Let's assume Python since it's widely used.\n\nWait, the user might not care about the language, but the function should work in any context. Wait, but the problem says \"write a function\", so it's probably expecting code.\n\nWait, the user says \"Respond in bullet points\". So the answer should be:\n\n- def add(a, b): return a + b\n\nBut maybe the user wants a specific language. Hmm, the problem doesn't specify. But in the context of being a senior engineer, the code should be clear.\n\nWait, perhaps they want the code in a bullet point. Let me think. The exact answer should be concise. So the bullet point would be the code for a function that takes two numbers and returns their sum.\n\nSo the response would be a bullet point like:\n\n- `def add(a, b): return a + b` (Python)\n\nBut maybe the user wants it in JavaScript? The problem says \"directly usable output\", so the code needs to be in a language that's common. Since the problem is very general, perhaps Python is safe.\n\nAlternatively, the problem might expect a solution that's language-agnostic. But functions are language-specific.\n\nWait, the user says \"Return"
+}

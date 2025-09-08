@@ -1,0 +1,107 @@
+{
+  "run_id": 41,
+  "task_class": "analysis",
+  "task": "Summarize the following paragraph in one sentence: 'PrimordiumEvolv introduces a self-evolving system that blends local generation with rigorous evaluation to steadily improve.'",
+  "assertions": [
+    "summary",
+    "improve",
+    "local"
+  ],
+  "best_score": 0.40369463423254853,
+  "best_total_reward": 0.5933226342325485,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.33815086427485846,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 6,
+      "avg_reward": 0.6730741891588005
+    },
+    "inject_rag": {
+      "n": 5,
+      "avg_reward": 0.5907004202437122,
+      "mean_payoff": 0.10615811044035453
+    },
+    "raise_temp": {
+      "n": 5,
+      "avg_reward": 0.6103691592982783,
+      "mean_payoff": 0.09630623881835502
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 3,
+      "avg_reward": 0.6427303168941426
+    },
+    "change_nudge": {
+      "n": 3,
+      "avg_reward": 0.5618268740907474
+    },
+    "lower_temp": {
+      "n": 5,
+      "avg_reward": 0.6330103304049066,
+      "mean_payoff": 0.1186645268465097
+    },
+    "inject_memory": {
+      "n": 3,
+      "avg_reward": 0.6613732325481464
+    },
+    "lower_top_k": {
+      "n": 3,
+      "avg_reward": 0.6834995923569522
+    },
+    "raise_top_k": {
+      "n": 2,
+      "avg_reward": 0.5878767968347123
+    }
+  },
+  "baseline": 0.5837527520084135,
+  "improvement": -0.18005811777586495,
+  "total_reward_improvement": 0.5933226342325485,
+  "timestamp": 1757278238,
+  "metrics": {
+    "best_total_reward": 0.5933226342325485,
+    "best_score": 0.40369463423254853,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.035952000000000005,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.593",
+        "cost efficiency: 0.036 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.40369463423254853,
+    "process_reward": 0.2,
+    "cost_penalty": 0.010372000000000004,
+    "total_reward": 0.5933226342325485,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

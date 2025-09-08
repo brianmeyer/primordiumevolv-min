@@ -1,0 +1,100 @@
+{
+  "iteration": 0,
+  "operator": "raise_top_k",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 48,
+      "num_predict": 1024
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.22181513883343693,
+  "reward": 0.26168713883343686,
+  "reward_breakdown": {
+    "outcome_reward": 0.22181513883343693,
+    "process_reward": 0.2,
+    "cost_penalty": 0.16012800000000002,
+    "total_reward": 0.26168713883343686,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.023789739893948805,
+      "plays": 11,
+      "ucb_score": 1.332436535954998
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.060440126745064
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.0289478546791297
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9505160891414342
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 15,
+        "ucb_score": 1.7373897750739473
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.9503012580863994
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 13,
+        "ucb_score": 1.7940174657847292
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 17,
+        "ucb_score": 1.6808758407407067
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 4,
+        "ucb_score": 2.7298446007398525
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.023789739893948805,
+        "plays": 11,
+        "ucb_score": 1.332436535954998
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 11,
+        "ucb_score": 1.9994313647596833
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are writing a simple script for data cleanup and summarization in a table.\n Constraints: Respond in bullet points (only bullet points, no extra text)\n\n Steps:\n 1. We assume we have a CSV file as input (common for data).\n 2. We'll clean the data: handle missing values, convert to appropriate types, etc.\n 3. We'll summarize the data in a table (using pandas for simplicity, but note: the problem says \"simple script\", so we can use basic libraries).\n\n However, the problem says: \"Return precise, directly usable output\" and \"Respond in bullet points\".\n\n Since we are to return bullet points (and not a full script in the response), we have to describe the script in bullet points.\n\n But note: the user says \"Write a simple script\", so we are expected to write the script? However, the constraint says \"Respond in bullet points\".\n\n Clarification: The user asks for a script, but the response must be in bullet points. So we have to describe the script in bullet points? Or write the script as a string of code in bullet points?\n\n Let me re-read: \"Return precise, directly usable output\". And the constraint: \"Respond in bullet points\".\n\n I think the intended response is a list of bullet points that describe the steps of the script.\n\n However, the user says \"Write a and summarizes results in a table\". So they want the script.\n\n But the constraint says: \"Respond in bullet points\". So we have to write the script as a string of code in a bullet point? Or describe the steps?\n\n Since the problem says \"a simple script\", and we are a senior engineer, we can write the script in a way that is directly usable.\n\n But the response must be in bullet points.\n\n How about:\n\n - Use Python with pandas to read a CSV file named 'data.csv'\n - Clean the data: drop rows with missing values in critical columns, convert columns to numeric where applicable\n - Generate a summary table of key statistics and counts\n\n However, the problem says \"summarizes results in a table\". We have to output a table (like markdown) or a CSV? The problem doesn't specify.\n\n Let's assume we output a markdown table.\n\n But note: the problem says \"directly usable output\". So we want to output the script that when run produces the table.\n\n Alternatively, the user might want a step-by-step of what the script does? But the problem says \"Write a simple script\".\n\n I think the best is to write the script in a bullet point? But the constraint says \"Respond in bullet points\", meaning the entire response should be bullet points.\n\n How about:\n\n * Script: [code]\n\n But the problem says \"precise, directly usable output\". So we can write the code in a code block? However, the instruction says \"bullet points\", so we have to avoid code blocks? \n\n Alternatively, we can describe the script in a few bullet points that are actionable.\n\n Let me think of the minimal response:\n\n We are to return bullet points. So:\n\n - Install pandas and necessary libraries (if not already installed)\n - Write a script that reads 'data.csv', cleans the data by removing rows with missing values in the 'value' column and converts the 'amount' column to float.\n - Generate a summary table with columns: 'Category', 'Total', 'Count', and save it to 'summary.csv'.\n\n But the problem says \"summarizes results in a table\". We don't have to specify the file names? \n\n However, the problem says \"simple script\". So we'll write a minimal script.\n\n Since the response must be in bullet points, I'll write:\n\n * Install dependencies: `pip install pandas`\n * Run the following script:\n     import pandas as pd\n     df = pd.read_csv('data.csv')\n     df = df.dropna(subset=['value'])  # assume 'value' is critical column\n     df['amount'] = pd.to_numeric(df['amount'], errors='coerce')\n     summary = df.groupby('category').agg({'amount': ['mean', 'sum'], 'count': 'count'})\n     summary.to_csv('summary.csv', index=True)\n\n But wait, the problem says \"summarizes results in a table\". We are outputting to a CSV. Alternatively, we might output to the console as a markdown table? \n\n However, the problem doesn't specify the output format.\n\n Given the constraints, I'll write the script in a bullet point as a code block? But the instruction says \"bullet points\" and we are to avoid markdown? \n\n Since the user says \"Respond in bullet points\", I think we have to write the bullet points without code blocks? \n\n Alternatively, we can write:\n\n - [Step 1: ...]\n - [Step 2: ...]\n\n But the problem says \"directly usable output\". So the user wants the script? \n\n After re-thinking: the user says \"Write a simple script\", so the response should be the script code? But"
+}

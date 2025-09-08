@@ -1,0 +1,94 @@
+{
+  "iteration": 5,
+  "operator": "inject_rag",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.5731024046078352,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": true,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.36674255220177254,
+  "reward": 0.5307905522017726,
+  "reward_breakdown": {
+    "outcome_reward": 0.36674255220177254,
+    "process_reward": 0.2,
+    "cost_penalty": 0.035952000000000005,
+    "total_reward": 0.5307905522017726,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.10615811044035453,
+      "plays": 5,
+      "ucb_score": 1.7926569836067527
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.8199909999511545
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.739087557147759
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.09630623881835502,
+        "plays": 5,
+        "ucb_score": 1.7828051119847532
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.1186645268465097,
+        "plays": 5,
+        "ucb_score": 1.8051634000129078
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.212629982559268
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.838633915605158
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.10615811044035453,
+        "plays": 5,
+        "ucb_score": 1.7926569836067527
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 2,
+        "ucb_score": 3.2544656520913353
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.860760275413964
+      }
+    ]
+  },
+  "output_preview": "<think>\nHmm, the user wants me to summarize a specific paragraph in one sentence, but with constraints: respond in bullet points. That's interesting because they said \"one sentence\" but then specified bullet points. I need to be precise here.\n\nThe paragraph is: 'PrimordiumEvolv introduces a self-evolving system that blends local generation with rigorous evaluation to steadily improve.' It's about a tech concept - PrimordiumEvolv seems to be a system name. The key points are: it's self-evolving, combines local generation and rigorous evaluation, and aims for steady improvement.\n\nAs a senior engineer, I should keep it concise and directly usable. The user said \"return precise, directly usable output\" so I'll avoid fluff. But they want bullet points, not a sentence. That means I have to format it as a list.\n\nLooking at the constraints: \"Respond in bullet points.\" and it's for one sentence summary. I think they mean to output the summary as bullet points, but since it's one sentence, it might be a single bullet point. The phrase \"in one sentence\" might be misleading here - I'll interpret it as: summarize in a single sentence, but present that sentence as bullet points (which for one item would be just one bullet).\n\nTo be safe, I'll make it one bullet point containing the one-sentence summary. That way it's precise: one sentence, one bullet point. No extra text.\n\nThe user is probably testing if I follow instructions strictly. They said \"concise senior engineer\" so I'll be professional. No markdown, just plain text with bullet points. Since it's one bullet, I'll write it as: \u2022 [the sentence].\n\nLet me craft the sentence: Original says \"blends local generation with rigorous evaluation\" - that's two things. \"Self-evolving system\" is the type. \"Steadily improve\" is the outcome. So I can say: \"Primord: A self-evolving system that integrates local generation with rigorous evaluation to achieve steady improvement.\"\n\nI should use the exact name \"PrimordiumEvolv\" as given. Also, \"steadily improve\" becomes \"steady improvement\" for conciseness.\n\nFinal sentence idea: \"PrimordiumEvolv is a self-evolving system that combines local generation with rigorous evaluation for steady improvement.\"\n\nBut the user wants it in bullet points. So I'll output: \u2022 PrimordiumEvolv is a self-evolving system combining local generation with rigorous evaluation to achieve steady improvement.\n\nThat's one sentence, one bullet point. Perfect.\n\nI'll make sure it's direct: no extra words, just the core meaning. The original says \"introduces\" but in summary, \"is\" is fine. \"Blends\" becomes \"combines\" for technical precision.\n\nYes, this should work.\n</think>\n\n\u2022 PrimordiumEvolv is a self-evolving system combining local generation with rigorous evaluation to achieve steady improvement."
+}

@@ -1,0 +1,94 @@
+{
+  "iteration": 0,
+  "operator": "raise_top_k",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Use concise, technical language.",
+    "params": {
+      "temperature": 0.7,
+      "top_k": 30,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.6267161062573625,
+  "reward": 0.8267161062573625,
+  "reward_breakdown": {
+    "outcome_reward": 0.6267161062573625,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.8267161062573625,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.10333951328217031,
+      "plays": 8,
+      "ucb_score": 1.589751402328507
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 6,
+        "ucb_score": 2.322717176747755
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.1894699560035784
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.0,
+        "plays": 7,
+        "ucb_score": 2.1989310122257955
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8380953215375924
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.081510036753584
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.943009755125889
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 15,
+        "ucb_score": 1.7170271510092812
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.10333951328217031,
+        "plays": 8,
+        "ucb_score": 1.589751402328507
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.222795543762571
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are asked: \"What year did humans first land on the Moon?\"\n The first human landing on the Moon was by the Apollo 11 mission on July 20, 1969.\n Therefore, the year is 1969.\n We must return the year in a concise, technical manner without extra text.\n</think>\n\n1969"
+}

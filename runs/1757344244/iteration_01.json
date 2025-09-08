@@ -1,0 +1,100 @@
+{
+  "iteration": 1,
+  "operator": "raise_temp",
+  "plan": {
+    "engine": "ollama",
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.9582840242657931,
+      "top_k": 38,
+      "num_predict": 512
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null
+  },
+  "score": 0.32683849302032947,
+  "reward": 0.5268384930203295,
+  "reward_breakdown": {
+    "outcome_reward": 0.32683849302032947,
+    "process_reward": 0.2,
+    "cost_penalty": 0.0,
+    "total_reward": 0.5268384930203295,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "bandit_state": {
+    "chosen_op": {
+      "mean_payoff": 0.05853761033559216,
+      "plays": 9,
+      "ucb_score": 1.4907263807676434
+    },
+    "snapshot": [
+      {
+        "operator": "change_system",
+        "mean_payoff": 0.0,
+        "plays": 8,
+        "ucb_score": 2.1258900857647087
+      },
+      {
+        "operator": "change_nudge",
+        "mean_payoff": 0.0,
+        "plays": 9,
+        "ucb_score": 2.1045638038721894
+      },
+      {
+        "operator": "raise_temp",
+        "mean_payoff": 0.05853761033559216,
+        "plays": 9,
+        "ucb_score": 1.4907263807676434
+      },
+      {
+        "operator": "lower_temp",
+        "mean_payoff": 0.04060393352852742,
+        "plays": 13,
+        "ucb_score": 1.23225702151387
+      },
+      {
+        "operator": "add_fewshot",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.0181838569132986
+      },
+      {
+        "operator": "inject_memory",
+        "mean_payoff": 0.0,
+        "plays": 12,
+        "ucb_score": 1.8274898011553073
+      },
+      {
+        "operator": "inject_rag",
+        "mean_payoff": 0.0,
+        "plays": 17,
+        "ucb_score": 1.6702711901910283
+      },
+      {
+        "operator": "toggle_web",
+        "mean_payoff": 0.0,
+        "plays": 3,
+        "ucb_score": 2.9840136706517986
+      },
+      {
+        "operator": "raise_top_k",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 1.9465520667689122
+      },
+      {
+        "operator": "lower_top_k",
+        "mean_payoff": 0.0,
+        "plays": 10,
+        "ucb_score": 2.0471511454124456
+      }
+    ]
+  },
+  "output_preview": "<think>\nWe are to write a simple \"hello world\" function.\n Constraints: Respond in bullet points.\n\n Since it's a simple function, we can write a function that prints \"Hello, World!\".\n\n However, note: the user says \"function\", so we should return a function definition.\n\n But the constraints say: \"Respond in bullet points\".\n\n Let's think: What is the simplest way?\n\n We can write:\n\n - Define a function `hello_world` that returns the string \"Hello, World!\".\n\n But note: the problem says \"hello world function\", which in many contexts is a print statement.\n\n However, to be precise and simple, we can write a function that prints.\n\n Alternatively, the classic hello world in programming is a print statement, but the problem says \"function\".\n\n Let me re-read: \"Write a simple hello world function\"\n\n So, I think they want a function that when called prints \"Hello, World!\".\n\n Since the response must be in bullet points, I will write:\n\n - Here's a simple `hello_world` function in Python (since the problem doesn't specify language, but we choose a common one for simplicity):\n\n   def hello_world():\n       print(\"Hello, World!\")\n\n However, the problem doesn't specify a language. But in the context of being a senior engineer and concise, we can pick one.\n\n Alternatively, we can write without language? But the problem says \"simple\", so let's pick Python.\n\n But note: the problem says \"Return precise, directly usable output\".\n\n So, I'll write in bullet points:\n\n - Python: `def hello_world(): print(\"Hello, World!\")`\n\n But wait, that's a bit long? The problem says concise.\n\n Alternatively, we can write in a more compact way? The problem says \"simple\".\n\n Another idea: the minimal function.\n\n However, the problem says \"hello world function\", so we must have the string.\n\n Let's do:\n\n - `hello_world = lambda: print(\"Hello, World!\")`   (if we want a one-liner)\n\n But the problem says \"simple\", so maybe the lambda is too advanced? \n\n Alternatively, we can write a function that returns the string without printing? But the classic hello world is printed.\n\n The problem says \"hello world\", which traditionally prints.\n\n I think the most standard and simple is:\n\n   def hello_world():\n       print(\"Hello, World!\")\n\n But to be concise, we can write without the function body? No.\n\n Since the constraints say \"bullet points\", I will write:\n\n - A"
+}

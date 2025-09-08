@@ -1,0 +1,9 @@
+{
+  "eligible": false,
+  "safety": {
+    "ok": false,
+    "matches": [
+      "credit card"
+    ]
+  }
+}

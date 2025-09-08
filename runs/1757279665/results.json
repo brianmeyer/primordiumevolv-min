@@ -1,0 +1,105 @@
+{
+  "run_id": 48,
+  "task_class": "analysis",
+  "task": "Summarize the following paragraph in one sentence: 'PrimordiumEvolv introduces a self-evolving system that blends local generation with rigorous evaluation to steadily improve.'",
+  "assertions": [
+    "summary",
+    "improve",
+    "local"
+  ],
+  "best_score": 0.42828692763435067,
+  "best_total_reward": 0.5181189276343507,
+  "best_recipe": {
+    "system": "You are a concise senior engineer. Return precise, directly usable output.",
+    "nudge": "Respond in bullet points.",
+    "params": {
+      "temperature": 0.33815086427485846,
+      "top_k": 40,
+      "max_tokens": 4096
+    },
+    "use_rag": false,
+    "use_memory": false,
+    "use_web": false,
+    "fewshot": null,
+    "engine": "ollama"
+  },
+  "operator_stats": {
+    "add_fewshot": {
+      "n": 7,
+      "avg_reward": 0.6775600395085769
+    },
+    "inject_rag": {
+      "n": 7,
+      "avg_reward": 0.6371725693560517
+    },
+    "raise_temp": {
+      "n": 6,
+      "avg_reward": 0.6026268039509148
+    },
+    "toggle_web": {
+      "n": 1,
+      "avg_reward": 0.4948097943880382
+    },
+    "change_system": {
+      "n": 4,
+      "avg_reward": 0.6426614755943793
+    },
+    "change_nudge": {
+      "n": 4,
+      "avg_reward": 0.604680301443679
+    },
+    "lower_temp": {
+      "n": 7,
+      "avg_reward": 0.6378466436126862,
+      "mean_payoff": 0.0740169896620501
+    },
+    "inject_memory": {
+      "n": 5,
+      "avg_reward": 0.6309151305362253
+    },
+    "lower_top_k": {
+      "n": 4,
+      "avg_reward": 0.6992547373738514
+    },
+    "raise_top_k": {
+      "n": 3,
+      "avg_reward": 0.5483751584072415
+    }
+  },
+  "baseline": 0.5837527520084135,
+  "improvement": -0.1554658243740628,
+  "total_reward_improvement": 0.5181189276343507,
+  "timestamp": 1757279665,
+  "metrics": {
+    "best_total_reward": 0.5181189276343507,
+    "best_score": 0.42828692763435067,
+    "avg_total_reward": null,
+    "steps_to_best": 3,
+    "cost_penalty_avg": 0.010168,
+    "promotion": {
+      "eligible": true,
+      "reasons": [
+        "total_reward improvement: 0.518",
+        "cost efficiency: 0.010 <= 0.090",
+        "auto-approved for exceptional performance"
+      ]
+    }
+  },
+  "best_reward_breakdown": {
+    "outcome_reward": 0.42828692763435067,
+    "process_reward": 0.1,
+    "cost_penalty": 0.010168,
+    "total_reward": 0.5181189276343507,
+    "outcome_metadata": {
+      "method": "fallback_semantic",
+      "groq_error": "name 'judge_results' is not defined"
+    }
+  },
+  "eval": {
+    "eligible": true,
+    "safety": {
+      "ok": true,
+      "matches": []
+    }
+  }
+}

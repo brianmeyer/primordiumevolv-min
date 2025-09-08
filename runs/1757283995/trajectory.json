@@ -1,0 +1,257 @@
+{
+  "run_id": 63,
+  "trajectory": [
+    {
+      "i": 0,
+      "op": "lower_top_k",
+      "groups": [
+        "SAMPLING"
+      ],
+      "engine": "ollama",
+      "time_ms": 19027,
+      "score": 0.5719676725489884,
+      "reward": 0.7719676725489883,
+      "reward_breakdown": {
+        "outcome_reward": 0.5719676725489884,
+        "process_reward": 0.2,
+        "cost_penalty": 0.0,
+        "total_reward": 0.7719676725489883,
+        "outcome_metadata": {
+          "method": "fallback_semantic",
+          "groq_error": "name 'judge_results' is not defined"
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.11028109607842691,
+          "plays": 7,
+          "ucb_score": 1.6335188151766864
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 4,
+            "ucb_score": 2.6577155717780077
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 5,
+            "ucb_score": 2.4569232141794584
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 6,
+            "ucb_score": 2.2479115838692563
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.0,
+            "plays": 7,
+            "ucb_score": 2.1610843627109455
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 2.10132072783317
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.0,
+            "plays": 7,
+            "ucb_score": 2.1408002447599648
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.0,
+            "plays": 10,
+            "ucb_score": 1.8911510263485014
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 4,
+            "ucb_score": 2.6702418803223833
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.11028109607842691,
+            "plays": 7,
+            "ucb_score": 1.6335188151766864
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "op": "lower_temp",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 14675,
+      "score": 0.5894993488059347,
+      "reward": 0.7894993488059348,
+      "reward_breakdown": {
+        "outcome_reward": 0.5894993488059347,
+        "process_reward": 0.2,
+        "cost_penalty": 0.0,
+        "total_reward": 0.7894993488059348,
+        "outcome_metadata": {
+          "method": "fallback_semantic",
+          "groq_error": "name 'judge_results' is not defined"
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.09868741860074184,
+          "plays": 8,
+          "ucb_score": 1.5265420057183725
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 4,
+            "ucb_score": 2.6619527977927686
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 5,
+            "ucb_score": 2.460713104341473
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 6,
+            "ucb_score": 2.251371264422927
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.09868741860074184,
+            "plays": 8,
+            "ucb_score": 1.5265420057183725
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 2.1043168990816277
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.0,
+            "plays": 7,
+            "ucb_score": 2.1440032865553453
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.0,
+            "plays": 10,
+            "ucb_score": 1.893830883382014
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 4,
+            "ucb_score": 2.6744791063371443
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.11028109607842691,
+            "plays": 7,
+            "ucb_score": 1.6367218569720667
+          }
+        ]
+      }
+    },
+    {
+      "i": 2,
+      "op": "inject_rag",
+      "groups": [
+        "SEAL"
+      ],
+      "engine": "ollama",
+      "time_ms": 13534,
+      "score": 0.5783119692582409,
+      "reward": 0.778311969258241,
+      "reward_breakdown": {
+        "outcome_reward": 0.5783119692582409,
+        "process_reward": 0.2,
+        "cost_penalty": 0.0,
+        "total_reward": 0.778311969258241,
+        "outcome_metadata": {
+          "method": "fallback_semantic",
+          "groq_error": "name 'judge_results' is not defined"
+        }
+      },
+      "bandit_state": {
+        "chosen_op": {
+          "mean_payoff": 0.070755633568931,
+          "plays": 11,
+          "ucb_score": 1.2909410981933724
+        },
+        "snapshot": [
+          {
+            "operator": "change_system",
+            "mean_payoff": 0.0,
+            "plays": 4,
+            "ucb_score": 2.6661101559967513
+          },
+          {
+            "operator": "change_nudge",
+            "mean_payoff": 0.0,
+            "plays": 5,
+            "ucb_score": 2.4644315585618415
+          },
+          {
+            "operator": "raise_temp",
+            "mean_payoff": 0.0,
+            "plays": 6,
+            "ucb_score": 2.254765733182171
+          },
+          {
+            "operator": "lower_temp",
+            "mean_payoff": 0.09868741860074184,
+            "plays": 8,
+            "ucb_score": 1.5294817018962301
+          },
+          {
+            "operator": "add_fewshot",
+            "mean_payoff": 0.0,
+            "plays": 8,
+            "ucb_score": 2.1072565952594853
+          },
+          {
+            "operator": "inject_memory",
+            "mean_payoff": 0.0,
+            "plays": 7,
+            "ucb_score": 2.147145953960703
+          },
+          {
+            "operator": "inject_rag",
+            "mean_payoff": 0.070755633568931,
+            "plays": 11,
+            "ucb_score": 1.2909410981933724
+          },
+          {
+            "operator": "raise_top_k",
+            "mean_payoff": 0.0,
+            "plays": 4,
+            "ucb_score": 2.678636464541127
+          },
+          {
+            "operator": "lower_top_k",
+            "mean_payoff": 0.11028109607842691,
+            "plays": 7,
+            "ucb_score": 1.6398645243774244
+          }
+        ]
+      }
+    }
+  ]
+}
