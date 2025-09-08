@@ -1,0 +1,47 @@
+groq_judges:
+  primary_pool:
+    - model: "llama-3.3-70b-versatile"
+      description: "Advanced reasoning capabilities"
+      role: "primary"
+      weight: 0.18
+    - model: "openai/gpt-oss-120b"
+      description: "Large-scale language understanding"
+      role: "primary" 
+      weight: 0.14
+    - model: "openai/gpt-oss-20b"
+      description: "Efficient high-quality evaluation"
+      role: "primary"
+      weight: 0.14
+    - model: "llama-3.1-8b-instant"
+      description: "Fast, reliable scoring"
+      role: "primary"
+      weight: 0.14
+    - model: "groq/compound"
+      description: "Multi-faceted analysis"
+      role: "primary"
+      weight: 0.10
+    - model: "groq/compound-mini"
+      description: "Lightweight evaluation"
+      role: "secondary"
+      weight: 0.10
+    - model: "meta-llama/llama-4-maverick-17b-128e-instruct"
+      description: "Latest instruction-following"
+      role: "secondary"
+      weight: 0.08
+    - model: "meta-llama/llama-4-scout-17b-16e-instruct"
+      description: "Exploration-focused evaluation"
+      role: "secondary"
+      weight: 0.07
+    - model: "qwen/qwen3-32b"
+      description: "Advanced multilingual capabilities"
+      role: "tiebreaker"
+      weight: 0.03
+    - model: "moonshotai/kimi-k2-instruct"
+      description: "Specialized instruction understanding"
+      role: "tiebreaker"
+      weight: 0.02
+  selection_strategy:
+    judge_1_pool: ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant", "groq/compound"]
+    judge_2_pool: ["openai/gpt-oss-20b", "groq/compound-mini", "meta-llama/llama-4-maverick-17b-128e-instruct"]
+    tiebreaker_pool: ["meta-llama/llama-4-scout-17b-16e-instruct", "qwen/qwen3-32b", "moonshotai/kimi-k2-instruct"]
+    rotation_algorithm: "weighted_round_robin"
