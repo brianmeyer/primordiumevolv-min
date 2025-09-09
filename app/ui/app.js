@@ -834,24 +834,269 @@ async function loadMemoryAnalytics() {
     }
 }
 
-// Tab switching for Analytics
+// Tab switching for Analytics V2
 function selectAnalyticsTab(name) {
-    const tabs = ['overview','runs','operators','voices','judges','golden','costs','thresholds','memory'];
+    // Updated tabs list - removed 'costs', kept others
+    const tabs = ['overview','runs','operators','voices','judges','golden','thresholds','memory'];
     tabs.forEach(t => {
         const el = document.getElementById(`tab-${t}`);
         if (el) el.classList.toggle('hidden', t !== name);
     });
+    
+    // Update tab buttons active state
+    const tabButtons = document.querySelectorAll('.analytics-tab-btn');
+    tabButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === name);
+    });
+    
+    // Load appropriate data
     if (name === 'runs') {
         loadEvolutionHistory();
     } else if (name === 'memory') {
         loadMemoryAnalytics();
     } else {
-        // Load analytics data for all other tabs (overview, operators, voices, etc.)
-        loadAnalytics();
+        // Use new snapshot-based analytics for other tabs
+        loadAnalyticsV2(name);
+    }
+}
+
+// Load Analytics V2 with snapshot support
+async function loadAnalyticsV2(activeTab = 'overview') {
+    try {
+        // Get window setting from UI (default 30d)
+        const windowSelect = document.getElementById('analyticsWindow');
+        const window = windowSelect ? windowSelect.value : '30d';
+        
+        const response = await fetch(`/api/meta/analytics/snapshot?window=${window}`);
+        const snapshot = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(snapshot.error || 'Failed to load analytics snapshot');
+        }
+        
+        // Update timestamp
+        updateAnalyticsTimestamp(snapshot);
+        
+        // Populate tabs with snapshot data
+        populateOverviewTab(snapshot.totals);
+        populateOperatorsTab(snapshot.totals.operators);
+        populateVoicesTab(snapshot.totals.voices);
+        populateJudgesTab(snapshot.totals.judges);
+        populateGoldenTab(snapshot.totals.golden);
+        populateThresholdsTab(snapshot.totals.thresholds);
+        
+        // Show/hide deprecated items based on toggle
+        handleDeprecationToggle();
+        
+        console.log(`Analytics V2 loaded (${snapshot.cached ? 'cached' : 'computed'}, age: ${snapshot.age_seconds}s)`);
+        
+    } catch (error) {
+        console.error('Analytics V2 failed:', error);
+        showAnalyticsError(error.message);
+    }
+}
+
+// Update analytics timestamp display
+function updateAnalyticsTimestamp(snapshot) {
+    const timestampEl = document.getElementById('analyticsLastUpdated');
+    if (timestampEl) {
+        const date = new Date();
+        timestampEl.textContent = `Last updated: ${date.toLocaleTimeString()}`;
+        timestampEl.title = `Cache age: ${snapshot.age_seconds}s, computation time: ${snapshot.meta.computation_time_ms}ms`;
+    }
+}
+
+// Populate individual tabs with snapshot data
+
+function populateOverviewTab(totals) {
+    // KPIs with cost/latency integrated
+    document.getElementById('totalRuns').textContent = totals.runs.total || 0;
+    document.getElementById('avgScore').textContent = totals.runs.avg_score ? totals.runs.avg_score.toFixed(3) : 'N/A';
+    document.getElementById('deltaImprovement').textContent = totals.improvement.delta_total_reward ? 
+        (totals.improvement.delta_total_reward > 0 ? '+' : '') + totals.improvement.delta_total_reward.toFixed(3) : 'N/A';
+    
+    // Memory stats
+    if (totals.memory.enabled) {
+        document.getElementById('memoryHitRate').textContent = (totals.memory.hit_rate * 100).toFixed(1) + '%';
+        document.getElementById('memoryLift').textContent = totals.memory.reward_lift ? 
+            (totals.memory.reward_lift > 0 ? '+' : '') + totals.memory.reward_lift.toFixed(3) : 'N/A';
+        document.getElementById('memoryStoreSize').textContent = totals.memory.store_size || 0;
+    } else {
+        document.getElementById('memoryHitRate').textContent = 'Disabled';
+        document.getElementById('memoryLift').textContent = 'N/A';
+        document.getElementById('memoryStoreSize').textContent = 'N/A';
+    }
+    
+    // Cost/latency summary (integrated from former costs tab)
+    document.getElementById('avgLatency').textContent = totals.costs.avg_latency_ms ? 
+        totals.costs.avg_latency_ms.toFixed(0) + 'ms' : 'N/A';
+    document.getElementById('avgCostPenalty').textContent = totals.costs.avg_cost_penalty ? 
+        totals.costs.avg_cost_penalty.toFixed(4) : 'N/A';
+}
+
+function populateOperatorsTab(operators) {
+    const container = document.getElementById('operatorsTable');
+    if (!operators || operators.length === 0) {
+        container.innerHTML = '<p class="text-muted">N/A in this window</p>';
+        return;
+    }
+    
+    let html = `
+        <table style="width:100%;border-collapse:collapse">
+            <thead>
+                <tr style="border-bottom:1px solid var(--border)">
+                    <th style="padding:8px;text-align:left">Operator</th>
+                    <th style="padding:8px;text-align:right">Usage</th>
+                    <th style="padding:8px;text-align:right">Avg Reward</th>
+                    <th style="padding:8px;text-align:right">Avg Latency</th>
+                    <th style="padding:8px;text-align:right">Success Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    operators.forEach(op => {
+        const rowClass = op.deprecated ? 'deprecated-row' : '';
+        html += `
+            <tr class="${rowClass}" style="border-bottom:1px solid var(--border)">
+                <td style="padding:6px">${op.name}${op.deprecated ? ' 🗑️' : ''}</td>
+                <td style="padding:6px;text-align:right">${op.usage_count}</td>
+                <td style="padding:6px;text-align:right">${op.avg_total_reward.toFixed(3)}</td>
+                <td style="padding:6px;text-align:right">${op.avg_latency_ms.toFixed(0)}ms</td>
+                <td style="padding:6px;text-align:right">${(op.success_rate * 100).toFixed(1)}%</td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function populateVoicesTab(voices) {
+    const container = document.getElementById('voicesTable');
+    if (!voices || voices.length === 0) {
+        container.innerHTML = '<p class="text-muted">N/A in this window</p>';
+        return;
+    }
+    
+    let html = `
+        <table style="width:100%;border-collapse:collapse">
+            <thead>
+                <tr style="border-bottom:1px solid var(--border)">
+                    <th style="padding:8px;text-align:left">Voice (System Prompt)</th>
+                    <th style="padding:8px;text-align:right">Usage</th>
+                    <th style="padding:8px;text-align:right">Avg Reward</th>
+                    <th style="padding:8px;text-align:right">Avg Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    voices.forEach(voice => {
+        const rowClass = voice.deprecated ? 'deprecated-row' : '';
+        html += `
+            <tr class="${rowClass}" style="border-bottom:1px solid var(--border)">
+                <td style="padding:6px">${voice.system_prompt}${voice.deprecated ? ' 🗑️' : ''}</td>
+                <td style="padding:6px;text-align:right">${voice.usage_count}</td>
+                <td style="padding:6px;text-align:right">${voice.avg_total_reward.toFixed(3)}</td>
+                <td style="padding:6px;text-align:right">${voice.avg_cost_penalty.toFixed(4)}</td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function populateJudgesTab(judges) {
+    document.getElementById('judgesEvaluated').textContent = judges.evaluated || 0;
+    document.getElementById('judgesTieBreakerRate').textContent = 
+        judges.tie_breaker_rate ? (judges.tie_breaker_rate * 100).toFixed(1) + '%' : 'N/A';
+    document.getElementById('judgesLatencyP50').textContent = 
+        judges.eval_latency_ms.p50 ? judges.eval_latency_ms.p50.toFixed(0) + 'ms' : 'N/A';
+    document.getElementById('judgesLatencyP90').textContent = 
+        judges.eval_latency_ms.p90 ? judges.eval_latency_ms.p90.toFixed(0) + 'ms' : 'N/A';
+}
+
+function populateGoldenTab(golden) {
+    document.getElementById('goldenTotalTests').textContent = golden.total_tests || 0;
+    document.getElementById('goldenPassRate').textContent = 
+        golden.pass_rate ? (golden.pass_rate * 100).toFixed(1) + '%' : 'N/A';
+    document.getElementById('goldenAvgReward').textContent = 
+        golden.avg_reward ? golden.avg_reward.toFixed(3) : 'N/A';
+    document.getElementById('goldenAvgCost').textContent = 
+        golden.avg_cost ? golden.avg_cost.toFixed(4) : 'N/A';
+}
+
+function populateThresholdsTab(thresholds) {
+    document.getElementById('thDelta').textContent = thresholds.delta_reward_min || 'N/A';
+    document.getElementById('thCost').textContent = thresholds.cost_ratio_max || 'N/A';
+    document.getElementById('thPass').textContent = thresholds.golden_pass_target || 'N/A';
+}
+
+// Handle deprecation toggle
+function handleDeprecationToggle() {
+    const toggle = document.getElementById('showDeprecatedToggle');
+    if (!toggle) return;
+    
+    const deprecatedRows = document.querySelectorAll('.deprecated-row');
+    const show = toggle.checked;
+    
+    deprecatedRows.forEach(row => {
+        row.style.display = show ? '' : 'none';
+    });
+    
+    // Update toggle label with count
+    const count = deprecatedRows.length;
+    const label = document.querySelector('label[for="showDeprecatedToggle"]');
+    if (label) {
+        label.textContent = `Show deprecated (${count})`;
+    }
+}
+
+// Error handling
+function showAnalyticsError(message) {
+    // Show error in all tab containers
+    const tabs = ['overview','operators','voices','judges','golden','thresholds'];
+    tabs.forEach(tab => {
+        const container = document.getElementById(`tab-${tab}`);
+        if (container) {
+            container.innerHTML = `
+                <div class="result-card" style="border-color:var(--danger)">
+                    <h4 style="color:var(--danger)">❌ Analytics Error</h4>
+                    <p class="text-muted">${message}</p>
+                    <button onclick="loadAnalyticsV2()" class="secondary-btn">Retry</button>
+                </div>
+            `;
+        }
+    });
+}
+
+// Auto-refresh functionality  
+let analyticsRefreshInterval = null;
+
+function startAnalyticsAutoRefresh() {
+    // Auto-refresh every 5s while runs are active
+    if (analyticsRefreshInterval) clearInterval(analyticsRefreshInterval);
+    
+    analyticsRefreshInterval = setInterval(() => {
+        // Check if any evolution is running
+        if (document.querySelector('.spinner')) {
+            loadAnalyticsV2();
+        }
+    }, 5000);
+}
+
+function stopAnalyticsAutoRefresh() {
+    if (analyticsRefreshInterval) {
+        clearInterval(analyticsRefreshInterval);
+        analyticsRefreshInterval = null;
     }
 }
 
 window.selectAnalyticsTab = selectAnalyticsTab;
+window.loadAnalyticsV2 = loadAnalyticsV2;
+window.handleDeprecationToggle = handleDeprecationToggle;
 
 // Golden Set runner with streaming
 async function runGoldenSet() {

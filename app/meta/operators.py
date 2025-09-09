@@ -95,6 +95,7 @@ def build_plan(operator_name: str, base_recipe: Optional[Dict] = None) -> Dict[s
     elif operator_name == "toggle_web":
         plan["use_web"] = not plan["use_web"]
         
+    # Adjust top_k sampling parameter
     elif operator_name == "raise_top_k":
         current_k = plan["params"].get("top_k", 40)
         plan["params"]["top_k"] = min(100, current_k + random.randint(5, 15))

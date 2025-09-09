@@ -1,0 +1,29 @@
+meta_evolution:
+  max_tokens: 2048
+  timeout_seconds: 180
+  judge_scoring_weight: 0.9
+  semantic_similarity_weight: 0.1
+
+ollama:
+  timeout_seconds: 180
+  max_tokens: 2048
+  default_model: "qwen3:4b"
+
+server:
+  port: 8000
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8000"
+  rate_limit_per_minute: 30
+  log_level: "info"
+
+feature_flags:
+  code_loop_enabled: true
+  memory_integration: true
+  rag_tools: true
+  web_search: true
+
+performance:
+  cache_ttl_seconds: 300
+  max_memory_entries: 1000
+  embedding_batch_size: 32
