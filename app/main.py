@@ -44,6 +44,14 @@ CORS_ALLOW = [x for x in os.getenv("CORS_ALLOW", "http://localhost:3000,http://l
 # Global dictionary to store streaming queues for different run types
 streaming_queues = {}
 
+# DGM Streaming queues for different event types
+dgm_streaming_queues = {
+    "proposals": {},      # proposal_id -> queue
+    "canary": {},         # canary_test_id -> queue  
+    "commits": {},        # commit_id -> queue
+    "rollbacks": {}       # rollback_id -> queue
+}
+
 
 app = FastAPI()
 
@@ -207,6 +215,142 @@ async def meta_stream(run_id: int):
     headers = {
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
+        "X-Accel-Buffering": "no"
+    }
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
+
+@app.get("/api/dgm/stream/proposals/{proposal_id}")
+async def dgm_proposals_stream(proposal_id: str):
+    """Server-Sent Events stream for DGM proposal updates."""
+    from app.config import FF_DGM
+    
+    if not FF_DGM:
+        return JSONResponse({"error": "DGM system disabled"}, status_code=404)
+    
+    if proposal_id not in dgm_streaming_queues["proposals"]:
+        return JSONResponse({"error": "Proposal stream not found"}, status_code=404)
+    
+    q = dgm_streaming_queues["proposals"][proposal_id]
+    
+    async def event_generator():
+        try:
+            while True:
+                try:
+                    event = q.get(timeout=1)
+                    yield f"data: {json.dumps(event)}\n\n"
+                    if event.get("event") == "completed":
+                        break
+                except:
+                    yield f"data: {json.dumps({'event': 'ping', 'timestamp': time.time()})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'event': 'error', 'error': str(e)})}\n\n"
+    
+    headers = {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive", 
+        "Content-Type": "text/event-stream",
+        "X-Accel-Buffering": "no"
+    }
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
+
+@app.get("/api/dgm/stream/canary/{test_id}")
+async def dgm_canary_stream(test_id: str):
+    """Server-Sent Events stream for DGM canary test updates."""
+    from app.config import FF_DGM
+    
+    if not FF_DGM:
+        return JSONResponse({"error": "DGM system disabled"}, status_code=404)
+    
+    if test_id not in dgm_streaming_queues["canary"]:
+        return JSONResponse({"error": "Canary stream not found"}, status_code=404)
+    
+    q = dgm_streaming_queues["canary"][test_id]
+    
+    async def event_generator():
+        try:
+            while True:
+                try:
+                    event = q.get(timeout=1)
+                    yield f"data: {json.dumps(event)}\n\n"
+                    if event.get("event") in ["completed", "failed", "aborted"]:
+                        break
+                except:
+                    yield f"data: {json.dumps({'event': 'ping', 'timestamp': time.time()})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'event': 'error', 'error': str(e)})}\n\n"
+    
+    headers = {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Content-Type": "text/event-stream", 
+        "X-Accel-Buffering": "no"
+    }
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
+
+@app.get("/api/dgm/stream/commits/{commit_id}")
+async def dgm_commits_stream(commit_id: str):
+    """Server-Sent Events stream for DGM commit updates."""
+    from app.config import FF_DGM
+    
+    if not FF_DGM:
+        return JSONResponse({"error": "DGM system disabled"}, status_code=404)
+    
+    if commit_id not in dgm_streaming_queues["commits"]:
+        return JSONResponse({"error": "Commit stream not found"}, status_code=404)
+    
+    q = dgm_streaming_queues["commits"][commit_id]
+    
+    async def event_generator():
+        try:
+            while True:
+                try:
+                    event = q.get(timeout=1)
+                    yield f"data: {json.dumps(event)}\n\n"
+                    if event.get("event") in ["committed", "failed"]:
+                        break
+                except:
+                    yield f"data: {json.dumps({'event': 'ping', 'timestamp': time.time()})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'event': 'error', 'error': str(e)})}\n\n"
+    
+    headers = {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Content-Type": "text/event-stream",
+        "X-Accel-Buffering": "no"
+    }
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
+
+@app.get("/api/dgm/stream/rollbacks/{rollback_id}")
+async def dgm_rollbacks_stream(rollback_id: str):
+    """Server-Sent Events stream for DGM rollback updates."""
+    from app.config import FF_DGM
+    
+    if not FF_DGM:
+        return JSONResponse({"error": "DGM system disabled"}, status_code=404)
+    
+    if rollback_id not in dgm_streaming_queues["rollbacks"]:
+        return JSONResponse({"error": "Rollback stream not found"}, status_code=404)
+    
+    q = dgm_streaming_queues["rollbacks"][rollback_id]
+    
+    async def event_generator():
+        try:
+            while True:
+                try:
+                    event = q.get(timeout=1)
+                    yield f"data: {json.dumps(event)}\n\n"
+                    if event.get("event") in ["rolled_back", "failed"]:
+                        break
+                except:
+                    yield f"data: {json.dumps({'event': 'ping', 'timestamp': time.time()})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'event': 'error', 'error': str(e)})}\n\n"
+    
+    headers = {
+        "Cache-Control": "no-cache", 
+        "Connection": "keep-alive",
+        "Content-Type": "text/event-stream",
         "X-Accel-Buffering": "no"
     }
     return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
@@ -1002,6 +1146,444 @@ async def get_analytics():
             })
     except Exception as e:
         return handle_exception(e, "analytics_failed")
+
+@app.get("/api/meta/analytics/snapshot")
+async def get_analytics_snapshot(window: str = "30d"):
+    """Get analytics snapshot with caching and normalization."""
+    try:
+        from app.meta.analytics_v2 import get_snapshot_manager
+        
+        # Parse window parameter
+        if window == "7d":
+            window_days = 7
+        elif window == "30d":
+            window_days = 30
+        elif window == "all":
+            window_days = -1
+        else:
+            return JSONResponse({"error": "Invalid window. Use 7d, 30d, or all"}, status_code=400)
+        
+        # Get snapshot
+        manager = get_snapshot_manager()
+        snapshot = manager.get_snapshot(window_days)
+        
+        return JSONResponse(snapshot)
+        
+    except Exception as e:
+        return handle_exception(e, "analytics_snapshot_failed")
+
+@app.get("/api/dgm/health")
+async def dgm_health():
+    """Get Darwin Gödel Machine system health and status."""
+    from app.config import FF_DGM
+    
+    if not FF_DGM:
+        return JSONResponse({
+            "enabled": False,
+            "status": "disabled",
+            "message": "DGM system is disabled via FF_DGM=0"
+        })
+    
+    try:
+        from app.dgm.core import get_dgm_core
+        dgm_core = get_dgm_core()
+        status = dgm_core.get_status()
+        return JSONResponse(status)
+    except Exception as e:
+        return JSONResponse({
+            "enabled": True,
+            "status": "error",
+            "error": str(e),
+            "timestamp": time.time()
+        }, status_code=500)
+
+@app.post("/api/dgm/propose")
+async def dgm_propose(dry_run: bool = Query(True)):
+    """Generate and validate system modification proposals."""
+    from app.config import FF_DGM, DGM_PROPOSALS, DGM_ALLOWED_AREAS
+    
+    if not FF_DGM:
+        return JSONResponse({
+            "error": "DGM system disabled",
+            "message": "Set FF_DGM=1 to enable DGM functionality"
+        }, status_code=403)
+    
+    if not dry_run:
+        return JSONResponse({
+            "error": "Live application not supported",
+            "message": "Only dry_run=true is supported in Stage-1"
+        }, status_code=400)
+    
+    try:
+        import uuid
+        session_id = str(uuid.uuid4())
+        
+        # Import DGM components
+        from app.dgm.proposer import generate
+        from app.dgm.apply import batch_try_patches
+        from app.server.sse import get_dgm_sse_manager
+        
+        # Get SSE manager
+        sse_manager = get_dgm_sse_manager()
+        
+        # Emit start event
+        sse_manager.emit_proposal_start(DGM_PROPOSALS, DGM_ALLOWED_AREAS, session_id)
+        
+        # Generate proposals
+        logging.info(f"DGM generating {DGM_PROPOSALS} proposals (session: {session_id})")
+        proposal_response = generate(DGM_PROPOSALS, DGM_ALLOWED_AREAS)
+        
+        # Emit progress for each generated patch
+        for i, patch in enumerate(proposal_response.patches):
+            sse_manager.emit_proposal_progress(
+                current=i + 1,
+                total=len(proposal_response.patches),
+                patch_summary=patch.to_summary_dict(),
+                session_id=session_id
+            )
+        
+        # Apply patches in dry-run mode
+        logging.info(f"DGM applying {len(proposal_response.patches)} patches in dry-run mode")
+        apply_results = batch_try_patches(proposal_response.patches, dry_run=True)
+        
+        # Update patches with apply results
+        for patch, result in zip(proposal_response.patches, apply_results):
+            patch.apply_ok = result.apply_ok
+            patch.lint_ok = result.lint_ok
+            patch.tests_ok = result.tests_ok
+            patch.stdout_snippet = result.stdout_snippet
+        
+        # Shadow evaluation for patches that passed dry-run tests
+        valid_patches = [p for p in proposal_response.patches if p.is_valid()]
+        shadow_results = []
+        
+        if valid_patches:
+            logging.info(f"DGM running shadow evaluation on {len(valid_patches)} valid patches")
+            
+            from app.dgm.eval import shadow_eval, register_shadow_eval
+            
+            for i, patch in enumerate(valid_patches):
+                # Emit canary start event
+                sse_manager.emit_canary_update(
+                    test_id=patch.id,
+                    status="running",
+                    results={"progress": f"{i+1}/{len(valid_patches)}"},
+                    session_id=session_id
+                )
+                
+                # Run shadow evaluation
+                shadow_result = shadow_eval(patch)
+                shadow_results.append(shadow_result)
+                
+                # Register result
+                register_shadow_eval(shadow_result)
+                
+                # Emit canary update with metrics
+                sse_manager.emit_canary_update(
+                    test_id=patch.id,
+                    status=shadow_result.status,
+                    results=shadow_result.to_dict(),
+                    session_id=session_id
+                )
+                
+                logging.info(f"Shadow eval for {patch.id}: {shadow_result.status}, reward_delta={shadow_result.reward_delta}")
+        
+        # Emit completion event
+        sse_manager.emit_proposal_complete(
+            patches=proposal_response.patches,
+            rejected=proposal_response.rejected,
+            execution_time_ms=proposal_response.execution_time_ms,
+            session_id=session_id
+        )
+        
+        # Prepare response
+        response_data = proposal_response.to_dict()
+        
+        # Add validation summary
+        successful_patches = [p for p in proposal_response.patches if p.is_valid()]
+        response_data["validation_summary"] = {
+            "total_generated": len(proposal_response.patches),
+            "total_rejected": len(proposal_response.rejected),
+            "validation_passed": len(successful_patches),
+            "validation_failed": len(proposal_response.patches) - len(successful_patches)
+        }
+        
+        # Guard checks and selection
+        selection_result = None
+        if shadow_results:
+            logging.info("DGM running guard checks and selection")
+            
+            from app.dgm.selector import rank_and_pick
+            from app.dgm.guards import get_violation_summary
+            
+            # Run ranking and selection
+            selection_result = rank_and_pick(shadow_results)
+            
+            # Get violation summary
+            guard_results = [c.guard_result for c in selection_result.candidates]
+            violation_summary = get_violation_summary(guard_results)
+            
+            logging.info(f"DGM selection: winner={'yes' if selection_result.winner else 'no'}, "
+                        f"safe={violation_summary['passed_patches']}/{violation_summary['total_patches']}")
+        
+        # Add shadow evaluation results
+        if shadow_results:
+            response_data["shadow_evaluation"] = {
+                "patches_evaluated": len(shadow_results),
+                "completed": len([r for r in shadow_results if r.status == "completed"]),
+                "improvements": len([r for r in shadow_results if r.is_improvement]),
+                "results": [r.to_dict() for r in shadow_results]
+            }
+            
+            # Add guard results and selection
+            if selection_result:
+                response_data["guards_and_selection"] = {
+                    "winner": selection_result.winner.to_dict() if selection_result.winner else None,
+                    "violation_summary": violation_summary,
+                    "selection_summary": selection_result.selection_criteria,
+                    "candidates": [c.to_dict() for c in selection_result.candidates]
+                }
+            
+            # Add enhanced patch data with violations and rankings
+            shadow_by_id = {r.patch_id: r for r in shadow_results}
+            candidate_by_id = {c.shadow_result.patch_id: c for c in selection_result.candidates} if selection_result else {}
+            
+            for patch_data in response_data.get("patches", []):
+                patch_id = patch_data.get("id")
+                if patch_id in shadow_by_id:
+                    shadow_result = shadow_by_id[patch_id]
+                    patch_data["reward_delta"] = shadow_result.reward_delta
+                    patch_data["shadow_status"] = shadow_result.status
+                    patch_data["is_improvement"] = shadow_result.is_improvement
+                    
+                    # Add guard and selection data
+                    if patch_id in candidate_by_id:
+                        candidate = candidate_by_id[patch_id]
+                        patch_data["guard_passed"] = candidate.guard_result.passed
+                        patch_data["violations"] = [v.to_dict() if hasattr(v, 'to_dict') else {
+                            "guard_name": v.guard_name,
+                            "threshold": v.threshold,
+                            "actual_value": v.actual_value,
+                            "severity": v.severity,
+                            "description": v.description
+                        } for v in candidate.guard_result.violations]
+                        patch_data["rank_position"] = candidate.rank_position
+                        patch_data["rank_score"] = candidate.rank_score
+                        patch_data["is_winner"] = selection_result.winner is not None and selection_result.winner.shadow_result.patch_id == patch_id
+        else:
+            response_data["shadow_evaluation"] = {
+                "patches_evaluated": 0,
+                "reason": "No patches passed dry-run validation"
+            }
+            response_data["guards_and_selection"] = {
+                "winner": None,
+                "reason": "No shadow evaluation results to analyze"
+            }
+        
+        # Add session info for SSE streaming
+        response_data["session_id"] = session_id
+        response_data["sse_topics"] = ["dgm.proposals"]
+        
+        logging.info(f"DGM proposal complete: {len(successful_patches)}/{len(proposal_response.patches)} valid patches")
+        
+        return JSONResponse(response_data)
+        
+    except Exception as e:
+        logging.error(f"DGM proposal generation failed: {e}")
+        
+        # Try to emit error event if we have a session
+        try:
+            if 'session_id' in locals():
+                sse_manager.emit_proposal_error(str(e), session_id)
+        except:
+            pass
+        
+        return JSONResponse({
+            "error": "Proposal generation failed",
+            "detail": str(e),
+            "patches": [],
+            "rejected": [],
+            "count": 0
+        }, status_code=500)
+
+@app.post("/api/dgm/commit")
+async def dgm_commit(request: Request):
+    """Commit a validated patch to the live repository."""
+    from app.config import FF_DGM, DGM_ALLOW_COMMITS
+    
+    if not FF_DGM:
+        return JSONResponse({
+            "error": "DGM system disabled",
+            "message": "Set FF_DGM=1 to enable DGM functionality"
+        }, status_code=403)
+    
+    if not DGM_ALLOW_COMMITS:
+        return JSONResponse({
+            "error": "Commits disabled",
+            "message": "Set DGM_ALLOW_COMMITS=1 to enable live commits (dangerous!)"
+        }, status_code=403)
+    
+    try:
+        body = await request.json()
+        patch_id = body.get("patch_id")
+        
+        if not patch_id:
+            return JSONResponse({
+                "error": "Missing patch_id",
+                "message": "Request body must include patch_id"
+            }, status_code=400)
+        
+        # Import DGM components
+        from app.dgm.eval import get_shadow_eval
+        from app.dgm.storage import get_patch_storage
+        from app.dgm.apply import commit_patch
+        from app.server.sse import get_dgm_sse_manager
+        from app.dgm.types import MetaPatch
+        
+        # Get SSE manager
+        sse_manager = get_dgm_sse_manager()
+        
+        # Retrieve shadow evaluation results
+        shadow_result = get_shadow_eval(patch_id)
+        
+        # Check if patch exists in storage or registry
+        storage = get_patch_storage()
+        artifact = storage.get_patch_artifact(patch_id)
+        
+        if artifact:
+            return JSONResponse({
+                "error": "Patch already committed",
+                "patch_id": patch_id,
+                "commit_sha": artifact.commit_sha,
+                "status": artifact.status
+            }, status_code=409)
+        
+        # We need the original patch - for now, create from request
+        # In production, would retrieve from proposal storage
+        patch_data = body.get("patch", {})
+        if not patch_data:
+            return JSONResponse({
+                "error": "Missing patch data",
+                "message": "Request body must include patch data"
+            }, status_code=400)
+        
+        patch = MetaPatch(
+            id=patch_id,
+            area=patch_data.get("area", "unknown"),
+            origin=patch_data.get("origin", "unknown"),
+            notes=patch_data.get("notes", ""),
+            diff=patch_data.get("diff", ""),
+            loc_delta=patch_data.get("loc_delta", 0)
+        )
+        
+        # Emit start event
+        sse_manager.emit_commit_update(
+            commit_id=patch_id,
+            status="committing",
+            details={"area": patch.area, "notes": patch.notes}
+        )
+        
+        # Commit the patch
+        logging.info(f"DGM committing patch {patch_id}")
+        commit_result = commit_patch(patch, shadow_result)
+        
+        # Emit result event
+        if commit_result["status"] == "committed":
+            sse_manager.emit_commit_update(
+                commit_id=patch_id,
+                status="committed",
+                details={
+                    "commit_sha": commit_result["commit_sha"],
+                    "artifact_path": commit_result["artifact_path"]
+                }
+            )
+            logging.info(f"DGM successfully committed patch {patch_id}: {commit_result['commit_sha'][:8]}")
+        else:
+            sse_manager.emit_rollback_update(
+                rollback_id=patch_id,
+                status="failed",
+                details={"error": commit_result["error"]}
+            )
+            logging.error(f"DGM commit failed for {patch_id}: {commit_result['error']}")
+        
+        return JSONResponse(commit_result)
+        
+    except Exception as e:
+        logging.error(f"DGM commit endpoint failed: {e}")
+        return JSONResponse({
+            "error": "Commit failed",
+            "detail": str(e)
+        }, status_code=500)
+
+@app.post("/api/dgm/rollback")
+async def dgm_rollback(request: Request):
+    """Rollback a previously committed patch."""
+    from app.config import FF_DGM, DGM_ALLOW_COMMITS
+    
+    if not FF_DGM:
+        return JSONResponse({
+            "error": "DGM system disabled",
+            "message": "Set FF_DGM=1 to enable DGM functionality"
+        }, status_code=403)
+    
+    if not DGM_ALLOW_COMMITS:
+        return JSONResponse({
+            "error": "Rollback disabled",
+            "message": "Set DGM_ALLOW_COMMITS=1 to enable rollback"
+        }, status_code=403)
+    
+    try:
+        body = await request.json()
+        commit_sha = body.get("commit_sha")
+        
+        if not commit_sha:
+            return JSONResponse({
+                "error": "Missing commit_sha",
+                "message": "Request body must include commit_sha"
+            }, status_code=400)
+        
+        # Import DGM components
+        from app.dgm.apply import rollback_commit
+        from app.server.sse import get_dgm_sse_manager
+        
+        # Get SSE manager
+        sse_manager = get_dgm_sse_manager()
+        
+        # Emit start event
+        sse_manager.emit_rollback_update(
+            rollback_id=commit_sha[:8],
+            status="rolling_back",
+            details={"commit_sha": commit_sha}
+        )
+        
+        # Perform rollback
+        logging.info(f"DGM rolling back commit {commit_sha}")
+        rollback_result = rollback_commit(commit_sha)
+        
+        # Emit result event
+        if rollback_result["status"] == "rolled_back":
+            sse_manager.emit_rollback_update(
+                rollback_id=commit_sha[:8],
+                status="rolled_back",
+                details={"rollback_sha": rollback_result["rollback_sha"]}
+            )
+            logging.info(f"DGM successfully rolled back {commit_sha[:8]} with {rollback_result['rollback_sha'][:8]}")
+        else:
+            sse_manager.emit_rollback_update(
+                rollback_id=commit_sha[:8],
+                status="failed",
+                details={"error": rollback_result["error"]}
+            )
+            logging.error(f"DGM rollback failed for {commit_sha}: {rollback_result['error']}")
+        
+        return JSONResponse(rollback_result)
+        
+    except Exception as e:
+        logging.error(f"DGM rollback endpoint failed: {e}")
+        return JSONResponse({
+            "error": "Rollback failed",
+            "detail": str(e)
+        }, status_code=500)
 
 @app.post("/api/meta/reset")
 async def reset_learning():
