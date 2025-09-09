@@ -45,6 +45,29 @@ from app.groq_client import chat_complete, available as groq_available
 import time as _time
 from app.evolve.loop import score_output  # Fallback semantic scoring
 
+def extract_json_from_response(response: str) -> dict:
+    """
+    Extract JSON from response that may be wrapped in markdown code blocks.
+    
+    This handles responses like:
+    ```json
+    {"score": 0.9, ...}
+    ```
+    
+    Or plain JSON:
+    {"score": 0.9, ...}
+    """
+    s = response.strip()
+    
+    # First try to find JSON between { and }
+    start = s.find("{")
+    end = s.rfind("}")
+    if start != -1 and end != -1 and start < end:
+        s = s[start : end + 1]
+    
+    # Parse the JSON
+    return json.loads(s)
+
 # Available judge models for evaluation
 JUDGE_MODELS = [
     "llama-3.3-70b-versatile",
@@ -63,14 +86,27 @@ JUDGE_MODELS = [
 _model_usage_counts = {model: 0 for model in JUDGE_MODELS}
 
 # System prompt for quality evaluation
-QUALITY_JUDGE_SYSTEM = """You are an expert evaluator. Rate the quality of an AI response for the given task.
+QUALITY_JUDGE_SYSTEM = """You are an expert evaluator. Rate the quality of an AI response using this precise scoring rubric:
 
-Consider:
-- Accuracy and correctness
-- Completeness and thoroughness  
-- Clarity and coherence
-- Relevance to the task
-- Practical usefulness
+SCORING SCALE:
+0.9-1.0: Exceptional - Perfect or near-perfect response that fully meets all requirements
+0.8-0.89: Excellent - High quality with minor issues, exceeds most expectations  
+0.7-0.79: Good - Solid response that meets requirements with some room for improvement
+0.6-0.69: Satisfactory - Acceptable response with notable limitations or gaps
+0.5-0.59: Mediocre - Below average, missing key elements or has significant issues
+0.4-0.49: Poor - Major problems, partially addresses task but inadequately
+0.3-0.39: Very Poor - Severely lacking, minimal value or mostly incorrect
+0.2-0.29: Failing - Fundamentally flawed, fails to address the task meaningfully
+0.0-0.19: Completely Inadequate - No useful content, completely off-target
+
+EVALUATION CRITERIA:
+- Accuracy and correctness (40% weight) - If the response is factually wrong, misleading, or doesn't actually solve the task, score below 0.5
+- Completeness and thoroughness (25% weight) - Does it fully address what was asked?
+- Clarity and coherence (20% weight) - Is it well-structured and understandable?
+- Relevance to the task (10% weight) - Does it directly answer the question?
+- Practical usefulness (5% weight) - Can someone actually use this?
+
+CRITICAL: Be harsh on accuracy. If the response doesn't correctly solve the problem or provides wrong information, it must score below 0.5 regardless of how well-written it is. A beautifully written wrong answer is still wrong.
 
 Return ONLY a JSON object with:
 {
@@ -306,9 +342,9 @@ def groq_quality_score(task: str, assertions: List[str], output: str, disagreeme
             response = chat_complete(messages, model_id=model, temperature=0.1)
             elapsed_ms = int((_time.time() - start) * 1000)
             
-            # Parse JSON response
-            if response.strip().startswith('{'):
-                data = json.loads(response.strip())
+            # Parse JSON response (handles both plain JSON and markdown-wrapped JSON)
+            try:
+                data = extract_json_from_response(response)
                 score = float(data.get("score", 0.0))
                 # Ensure score is in valid range
                 score = max(0.0, min(1.0, score))
@@ -326,8 +362,8 @@ def groq_quality_score(task: str, assertions: List[str], output: str, disagreeme
                 
                 judge_results.append(judge_result)
                 successful_scores.append(score)
-            else:
-                # Record failure
+            except Exception:
+                # Record failure - JSON parsing failed
                 judge_results.append({
                     "model": model,
                     "error": "invalid_json",
@@ -394,9 +430,9 @@ def groq_quality_score(task: str, assertions: List[str], output: str, disagreeme
             response = chat_complete(messages, model_id=tie_breaker_model, temperature=0.1)
             elapsed_tb_ms = int((_time.time() - start_tb) * 1000)
             
-            # Parse tie-breaker response
-            if response.strip().startswith('{'):
-                data = json.loads(response.strip())
+            # Parse tie-breaker response (handles both plain JSON and markdown-wrapped JSON)
+            try:
+                data = extract_json_from_response(response)
                 tie_breaker_score = float(data.get("score", 0.0))
                 tie_breaker_score = max(0.0, min(1.0, tie_breaker_score))
                 
@@ -412,7 +448,7 @@ def groq_quality_score(task: str, assertions: List[str], output: str, disagreeme
                 }
                 
                 final_score = tie_breaker_score
-            else:
+            except Exception:
                 # Tie-breaker failed, use average
                 final_score = sum(successful_scores) / len(successful_scores)
                 tie_breaker_result = {

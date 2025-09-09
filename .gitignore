@@ -54,3 +54,15 @@ node_modules/
 # Temporary files
 tmp/
 temp/
+
+# Runtime artifacts
+logs/
+runs/
+backups/
+.reset_live.out
+.uvicorn.pid
+SYSTEM_TEST_REPORT.md
+.claude/
+
+# Database files (already covered but being explicit)
+storage/*.db

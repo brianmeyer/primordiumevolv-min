@@ -52,7 +52,8 @@ def compute_outcome_reward(
     task: str = "",
     test_cmd: Optional[str] = None,
     test_weight: float = 0.0,
-    use_groq_judge: bool = True
+    use_groq_judge: bool = True,
+    variant_id: Optional[str] = None
 ) -> Tuple[float, Dict[str, Any]]:
     """
     Compute outcome reward - the primary quality assessment of the AI response.
@@ -70,7 +71,13 @@ def compute_outcome_reward(
        - Runs provided shell command with output saved to artifacts/out.txt
        - Blends test result with primary score based on test_weight
        
-    3. **Fallback Semantic**: If AI judges fail, uses pure semantic similarity
+    3. **Human Rating Modifier (when available)**: Direct human feedback integration
+       - Scale: 1-10 (1=terrible, 5=neutral, 10=excellent)  
+       - 1→0.2x modifier (80% penalty), 5→1.0x (no change), 10→1.8x (80% boost)
+       - Applied only when variant_id is provided and human rating exists
+       - Modifies the final outcome score before returning
+       
+    4. **Fallback Semantic**: If AI judges fail, uses pure semantic similarity
     
     Args:
         output (str): The AI-generated response to evaluate
@@ -119,6 +126,39 @@ def compute_outcome_reward(
                     metadata["test_score"] = test_score
                 except Exception as e:
                     metadata["test_error"] = str(e)
+            
+            # Apply human rating modifier if variant_id provided
+            if variant_id:
+                try:
+                    from app.meta.store import _conn
+                    conn = _conn()
+                    cursor = conn.execute("SELECT human_score FROM human_ratings WHERE variant_id = ? ORDER BY created_at DESC LIMIT 1", (variant_id,))
+                    result = cursor.fetchone()
+                    conn.close()
+                    
+                    if result:
+                        human_score = float(result[0])
+                        # Convert 1-10 scale to modifier: 1-4=penalty, 5=neutral(1.0), 6-10=boost
+                        if human_score < 5:
+                            # 1→0.2, 4→0.8, linear
+                            human_modifier = 0.2 + (human_score - 1) * 0.2
+                        elif human_score == 5:
+                            # Neutral
+                            human_modifier = 1.0
+                        else:
+                            # 6→1.2, 10→2.0, linear
+                            human_modifier = 1.0 + (human_score - 5) * 0.2
+                        original_score = score
+                        score = min(1.0, max(0.0, score * human_modifier))  # Clamp to [0, 1]
+                        
+                        metadata["human_rating"] = {
+                            "score": human_score,
+                            "modifier": human_modifier,
+                            "original_score": original_score,
+                            "adjusted_score": score
+                        }
+                except Exception as e:
+                    metadata["human_rating_error"] = str(e)
                     
             return score, metadata
             
@@ -158,6 +198,7 @@ def compute_process_reward(
     **Operator-Specific Bonuses:**
     - add_fewshot: Bonus for including examples or demonstrations
     - inject_rag: Bonus for referencing external information appropriately
+    - toggle_web: Bonus for effectively using web search context
     - temperature operators: Bonus for balancing creativity with structure
     
     Args:
@@ -205,6 +246,8 @@ def compute_process_reward(
     if operator_name == "add_fewshot" and has_examples(output):
         process_reward += 0.05
     elif operator_name == "inject_rag" and has_references(output):
+        process_reward += 0.05
+    elif operator_name == "toggle_web" and has_web_context(output):
         process_reward += 0.05
     elif operator_name in ["raise_temp", "lower_temp"] and has_creativity_balance(output):
         process_reward += 0.03
@@ -257,7 +300,8 @@ def compute_total_reward(
     execution_context: Dict[str, Any],
     test_cmd: Optional[str] = None,
     test_weight: float = 0.0,
-    task_baseline: Optional[Dict[str, float]] = None
+    task_baseline: Optional[Dict[str, float]] = None,
+    variant_id: Optional[str] = None
 ) -> Tuple[Dict[str, float], float]:
     """
     Compute total reward and breakdown components.
@@ -268,7 +312,7 @@ def compute_total_reward(
                           "cost_penalty": float, "total_reward": float}
     """
     # Compute components (now returns tuple with metadata)
-    outcome_reward, outcome_metadata = compute_outcome_reward(output, assertions, task, test_cmd, test_weight)
+    outcome_reward, outcome_metadata = compute_outcome_reward(output, assertions, task, test_cmd, test_weight, variant_id=variant_id)
     process_reward = compute_process_reward(output, execution_context, operator_name)
     
     # Estimate token usage if not provided
@@ -385,3 +429,19 @@ def has_creativity_balance(output: str) -> bool:
     structured = sum(1 for word in ["systematic", "structured", "organized", "methodical"] 
                      if word in output.lower())
     return creative > 0 and structured > 0
+
+
+def has_web_context(output: str) -> bool:
+    """Check if output effectively uses web search context or external information."""
+    web_signals = [
+        "according to", "based on", "research shows", "studies indicate",
+        "current", "recent", "latest", "up-to-date", "as of", 
+        "source:", "reference:", "cited", "documentation",
+        "web search", "online", "internet", "website", "url",
+        "found that", "reported", "published", "article", "paper"
+    ]
+    
+    # Look for multiple web context signals for higher confidence
+    signal_count = sum(1 for signal in web_signals if signal in output.lower())
+    
+    return signal_count >= 2

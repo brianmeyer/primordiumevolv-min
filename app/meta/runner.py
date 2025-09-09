@@ -374,10 +374,31 @@ def meta_run(
             # Log generation timing
             log_generation_timing(run_id, i, selected_op, generation_time_ms, logs_dir)
             
-            # Score output (legacy) and compute total reward
+            # Score output (legacy) for initial variant save
             score = score_output(output, assertions, task, test_cmd, test_weight)
             
-            # Compute comprehensive reward breakdown
+            # Save preliminary variant first to get variant_id for human rating lookup
+            model_id_value = model_used if plan.get("engine") == "groq" else OLLAMA_MODEL_ID
+            variant_id = store.save_variant(
+                run_id, 
+                execution["system"],
+                plan["nudge"],
+                plan["params"],
+                execution["prompt"],
+                output,
+                score,
+                operator_name=selected_op,
+                groups_json=json.dumps(groups),
+                execution_time_ms=generation_time_ms,
+                model_id=model_id_value,
+                total_reward=0.0,  # Placeholder, will be updated below
+                outcome_reward=0.0,  # Placeholder
+                process_reward=0.0,  # Placeholder
+                cost_penalty=0.0,  # Placeholder
+                reward_metadata=None  # Placeholder
+            )
+            
+            # Now compute comprehensive reward breakdown with variant_id for human ratings
             execution_context = {
                 "tool_success_rate": 1.0,  # Assume success unless we have failures
                 "tool_calls": 0,  # Could be enhanced to track actual tool usage
@@ -393,7 +414,8 @@ def meta_run(
                 execution_context=execution_context,
                 test_cmd=test_cmd,
                 test_weight=test_weight,
-                task_baseline=task_baseline
+                task_baseline=task_baseline,
+                variant_id=variant_id
             )
 
             # Publish score/judge info as soon as available (before DB save)
@@ -432,13 +454,6 @@ def meta_run(
                             "tie_breaker_used": False,
                             "final_score": score
                         }
-                    else:
-                        # For ollama-only runs, still provide judge structure
-                        judge_info = {
-                            "judges": [{"model": "ollama", "score": score}],
-                            "tie_breaker_used": False,
-                            "final_score": score
-                        }
                 else:
                     # Fallback for engines without groq metadata
                     judge_info = {
@@ -462,27 +477,27 @@ def meta_run(
             except Exception:
                 pass
             
-            # Save variant with analytics
-            model_id_value = model_used if plan.get("engine") == "groq" else OLLAMA_MODEL_ID
-
-            variant_id = store.save_variant(
-                run_id, 
-                execution["system"],
-                plan["nudge"],
-                plan["params"],
-                execution["prompt"],
-                output,
-                score,
-                operator_name=selected_op,
-                groups_json=json.dumps(groups),
-                execution_time_ms=generation_time_ms,
-                model_id=model_id_value,
-                total_reward=total_reward,
-                outcome_reward=reward_breakdown["outcome_reward"],
-                process_reward=reward_breakdown["process_reward"],
-                cost_penalty=reward_breakdown["cost_penalty"],
-                reward_metadata=reward_breakdown.get("outcome_metadata")
-            )
+            # Update variant with final reward calculations
+            store_conn = store._conn()
+            reward_metadata_json = json.dumps(reward_breakdown.get("outcome_metadata")) if reward_breakdown.get("outcome_metadata") else None
+            store_conn.execute("""
+                UPDATE variants SET 
+                    total_reward = ?, 
+                    outcome_reward = ?, 
+                    process_reward = ?, 
+                    cost_penalty = ?,
+                    reward_metadata_json = ?
+                WHERE id = ?
+            """, (
+                total_reward,
+                reward_breakdown["outcome_reward"],
+                reward_breakdown["process_reward"],
+                reward_breakdown["cost_penalty"],
+                reward_metadata_json,
+                variant_id
+            ))
+            store_conn.commit()
+            store_conn.close()
 
             # Publish persisted variant id for rating UI
             try:

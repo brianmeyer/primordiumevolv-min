@@ -35,11 +35,11 @@ groq_judges:
     - model: "qwen/qwen3-32b"
       description: "Advanced multilingual capabilities"
       role: "tiebreaker"
-      weight: 0.03
+      weight: 0.04
     - model: "moonshotai/kimi-k2-instruct"
-      description: "Specialized instruction understanding"
+      description: "Specialized instruction understanding (use sparingly - expensive)"
       role: "tiebreaker"
-      weight: 0.02
+      weight: 0.01
   selection_strategy:
     judge_1_pool: ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant", "groq/compound"]
     judge_2_pool: ["openai/gpt-oss-20b", "groq/compound-mini", "meta-llama/llama-4-maverick-17b-128e-instruct"]

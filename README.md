@@ -25,6 +25,7 @@ make run      # http://localhost:8000
 - RAG: Local vector search (FAISS + sentence‑transformers) over files in `data/`.
 - Web Search: Tavily (if key) with DDG fallback.
 - **Advanced AI Scoring**: Two-judge evaluation system with 10 rotating Groq models, automatic tie-breaker for disagreements, and 90/10 AI/semantic weighting for robust quality assessment.
+- **Human-in-the-Loop Rating**: Direct human feedback integration with 1-10 scale modifying AI response scores (penalties for 1-4, neutral at 5, boosts for 6-10).
 - Realtime: Async runs + SSE live updates; inspect full variant output.
 - Adaptive Chat: Simple thumbs‑based learning for temperature (opt‑in via buttons).
 - Hardened: GZip, structured errors, rate‑limit exemptions for streams.
@@ -204,16 +205,30 @@ The interface has been completely redesigned with human-centered design principl
 - `GET /api/meta/variants/{variant_id}` - Full output for a specific variant
 
 ### Human-in-the-Loop Rating
-- UI shows a rating panel during iterations when a response is received.
-- SSE `iter` events now include `variant_id` and `output` (preview) to enable rating.
-- API: `POST /api/meta/rate`
-  - Request: `{ "variant_id": number, "human_score": number (0.0–1.0), "feedback": string? }`
-  - Behavior: server stores 1–10 scores in `human_ratings` linked to the variant.
-  - Use `GET /api/meta/variants/{variant_id}` to fetch the full response text for review.
 
-Preferences
-- ratings_mode: `off | prompted` (default `prompted`). When off, ratings UI is hidden and disabled.
-- reading_delay_ms: integer 0–8000 (default 2000). When prompted, delays panel display to allow reading first.
+The system integrates direct human feedback to influence AI response quality scoring:
+
+**Rating Scale & Impact:**
+- **1-4**: Negative modifiers (penalties) - 1→0.2x, 4→0.8x
+- **5**: Neutral (1.0x) - no change to score
+- **6-10**: Positive modifiers (boosts) - 6→1.2x, 10→2.0x
+
+**How It Works:**
+1. UI shows rating panel during evolution iterations
+2. Human rates response quality on 1-10 scale via UI
+3. Rating is stored in `human_ratings` table linked to `variant_id`
+4. **Next time that variant is evaluated**, the human rating directly modifies the outcome score
+5. Modified score affects operator learning and recipe promotion
+
+**API Integration:**
+- `POST /api/meta/rate`
+  - Request: `{ "variant_id": number, "human_score": number (1-10), "feedback": string? }`
+  - Behavior: Stores rating in database, applied during next evaluation
+- `GET /api/meta/variants/{variant_id}` - Fetch full response text for review
+
+**Configuration:**
+- `ratings_mode`: `off | prompted` (default `prompted`) - Hide/show rating UI
+- `reading_delay_ms`: 0–8000ms (default 2000ms) - Delay before showing rating panel
 - Preferences are stored in browser localStorage and recorded in run metadata.
 
 ### Tools
