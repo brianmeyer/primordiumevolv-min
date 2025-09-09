@@ -92,11 +92,6 @@
   .rating-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
   @keyframes slideIn{0%{opacity:0;transform:translateY(-10px)}100%{opacity:1;transform:translateY(0)}}
   
-  /* Analytics V2 */
-  .analytics-tab-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
-  .deprecated-row{opacity:0.6;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(255,87,87,0.1) 10px,rgba(255,87,87,0.1) 20px)}
-  .deprecated-row:hover{opacity:0.8}
-
   /* Utility */
   .hidden{display:none}
   .text-center{text-align:center}
@@ -275,94 +270,49 @@
           <span class="text-muted">Open tabs to explore details</span>
         </div>
 
-        <!-- Analytics V2 Controls -->
-        <div class="flex flex-between flex-align mb-2">
-          <div class="flex gap-2 flex-align">
-            <label class="flex flex-align gap-2">
-              <span class="text-muted">Window:</span>
-              <select id="analyticsWindow" onchange="loadAnalyticsV2()" style="padding:4px 8px">
-                <option value="7d">7 days</option>
-                <option value="30d" selected>30 days</option>
-                <option value="all">All time</option>
-              </select>
-            </label>
-            <label class="flex flex-align gap-2">
-              <input type="checkbox" id="showDeprecatedToggle" onchange="handleDeprecationToggle()">
-              <span class="text-muted">Show deprecated (0)</span>
-            </label>
-          </div>
-          <div class="flex gap-2 flex-align">
-            <span id="analyticsLastUpdated" class="text-muted" style="font-size:0.8em">Last updated: --:--:--</span>
-            <button class="secondary-btn" onclick="loadAnalyticsV2()" style="padding:4px 8px;font-size:0.8em">🔄 Refresh</button>
-          </div>
-        </div>
-
         <!-- Tabs Navigation -->
         <div class="flex gap-2 mb-2">
-          <button class="analytics-tab-btn secondary-btn active" data-tab="overview" onclick="selectAnalyticsTab('overview')">Overview</button>
-          <button class="analytics-tab-btn secondary-btn" data-tab="runs" onclick="selectAnalyticsTab('runs')">Runs</button>
-          <button class="analytics-tab-btn secondary-btn" data-tab="operators" onclick="selectAnalyticsTab('operators')">Operators</button>
-          <button class="analytics-tab-btn secondary-btn" data-tab="voices" onclick="selectAnalyticsTab('voices')">Voices</button>
-          <button class="analytics-tab-btn secondary-btn" data-tab="judges" onclick="selectAnalyticsTab('judges')">Judges</button>
-          <button class="analytics-tab-btn secondary-btn" data-tab="golden" onclick="selectAnalyticsTab('golden')">Golden</button>
-          <button class="analytics-tab-btn secondary-btn" data-tab="thresholds" onclick="selectAnalyticsTab('thresholds')">Thresholds</button>
-          <button class="analytics-tab-btn secondary-btn" data-tab="memory" onclick="selectAnalyticsTab('memory')">Memory</button>
+          <button class="secondary-btn" onclick="selectAnalyticsTab('overview')">Overview</button>
+          <button class="secondary-btn" onclick="selectAnalyticsTab('runs')">Runs</button>
+          <button class="secondary-btn" onclick="selectAnalyticsTab('operators')">Operators</button>
+          <button class="secondary-btn" onclick="selectAnalyticsTab('voices')">Voices</button>
+          <button class="secondary-btn" onclick="selectAnalyticsTab('judges')">Judges</button>
+          <button class="secondary-btn" onclick="selectAnalyticsTab('golden')">Golden</button>
+          <button class="secondary-btn" onclick="selectAnalyticsTab('costs')">Costs</button>
+          <button class="secondary-btn" onclick="selectAnalyticsTab('thresholds')">Thresholds</button>
+          <button class="secondary-btn" onclick="selectAnalyticsTab('memory')">Memory</button>
         </div>
 
         <!-- Tab: Overview -->
         <div id="tab-overview" class="tab-pane">
-          <!-- KPIs Row 1: Core Metrics -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
-            <div class="result-card" style="text-align:center;padding:12px">
-              <h5 style="margin:0;color:var(--accent);font-size:0.9em">Total Runs</h5>
-              <div id="totalRuns" class="result-score" style="font-size:1.5em">-</div>
-            </div>
-            <div class="result-card" style="text-align:center;padding:12px">
-              <h5 style="margin:0;color:var(--accent);font-size:0.9em">Avg Score</h5>
-              <div id="avgScore" class="result-score" style="font-size:1.5em">-</div>
-            </div>
-            <div class="result-card" style="text-align:center;padding:12px">
-              <h5 style="margin:0;color:var(--accent);font-size:0.9em">Δ Improvement</h5>
-              <div id="deltaImprovement" class="result-score" style="font-size:1.5em">-</div>
-            </div>
-            <div class="result-card" style="text-align:center;padding:12px">
-              <h5 style="margin:0;color:var(--accent);font-size:0.9em">Avg Latency</h5>
-              <div id="avgLatency" class="result-score" style="font-size:1.5em">-</div>
-            </div>
-          </div>
-
-          <!-- KPIs Row 2: Memory & Cost -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
-            <div class="result-card" style="text-align:center;padding:12px">
-              <h5 style="margin:0;color:var(--accent);font-size:0.9em">Memory Hit Rate</h5>
-              <div id="memoryHitRate" class="result-score" style="font-size:1.5em">-</div>
-            </div>
-            <div class="result-card" style="text-align:center;padding:12px">
-              <h5 style="margin:0;color:var(--accent);font-size:0.9em">Memory Lift</h5>
-              <div id="memoryLift" class="result-score" style="font-size:1.5em">-</div>
-            </div>
-            <div class="result-card" style="text-align:center;padding:12px">
-              <h5 style="margin:0;color:var(--accent);font-size:0.9em">Store Size</h5>
-              <div id="memoryStoreSize" class="result-score" style="font-size:1.5em">-</div>
-            </div>
-            <div class="result-card" style="text-align:center;padding:12px">
-              <h5 style="margin:0;color:var(--accent);font-size:0.9em">Avg Cost Penalty</h5>
-              <div id="avgCostPenalty" class="result-score" style="font-size:1.5em">-</div>
+          <div id="analyticsOverview" class="hidden">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+              <div class="result-card" style="text-align:center;padding:16px">
+                <h4 style="margin:0;color:var(--accent)">Total Runs</h4>
+                <div id="totalRuns" class="result-score" style="font-size:1.8em">-</div>
+                <div id="timespanDays" class="text-muted" style="font-size:0.9em">-</div>
+              </div>
+              <div class="result-card" style="text-align:center;padding:16px">
+                <h4 style="margin:0;color:var(--accent)">Improvement</h4>
+                <div id="improvementPercent" class="result-score" style="font-size:1.8em">-</div>
+                <div class="text-muted" style="font-size:0.9em">Recent vs Early</div>
+              </div>
+              <div class="result-card" style="text-align:center;padding:16px">
+                <h4 style="margin:0;color:var(--accent)">Avg Score</h4>
+                <div id="overallAvgScore" class="result-score" style="font-size:1.8em">-</div>
+                <div class="text-muted" style="font-size:0.9em">All Time</div>
+              </div>
             </div>
           </div>
-
           <div class="result-card" style="margin-bottom:16px">
-            <h4 style="margin:0 0 12px 0;color:var(--primary)">📈 Score Progression</h4>
-            <div id="scoreChartOverview" style="height:200px;background:var(--surface);border-radius:8px;padding:16px;display:flex;align-items:center;justify-content:center;color:var(--muted)">
-              Chart will be implemented with series data
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">🎯 Score Progression Over Time</h4>
+            <div id="scoreChart" style="height:200px;background:var(--surface);border-radius:8px;padding:16px;position:relative;overflow:hidden">
+              <div id="scoreChartContent"></div>
             </div>
           </div>
-
           <div class="result-card">
-            <h4 style="margin:0 0 12px 0;color:var(--primary)">📋 Runs by Task Class</h4>
-            <div id="taskClassBreakdown" style="min-height:100px;color:var(--muted);text-align:center;padding:20px">
-              Task class breakdown will load here
-            </div>
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">📋 Performance by Task Type</h4>
+            <div id="taskChart" style="max-height:200px;overflow:auto"></div>
           </div>
         </div>
 
@@ -374,87 +324,49 @@
 
         <!-- Tab: Operators -->
         <div id="tab-operators" class="tab-pane hidden">
-          <div class="result-card">
+          <div class="result-card" style="margin-bottom:16px">
             <h4 style="margin:0 0 12px 0;color:var(--primary)">🚀 Operator Performance</h4>
-            <div id="operatorsTable" style="max-height:400px;overflow:auto">
-              <div class="text-center" style="padding:40px;color:var(--muted)">
-                <div class="spinner" style="margin:0 auto 12px"></div>
-                Loading operator analytics...
-              </div>
-            </div>
+            <div id="operatorsChart" style="max-height:300px;overflow:auto"></div>
+            <div class="text-muted" style="margin-top:8px">Coverage (first 5 iterations): <span id="operatorCoverageK">-</span></div>
           </div>
         </div>
 
         <!-- Tab: Voices -->
         <div id="tab-voices" class="tab-pane hidden">
-          <div class="result-card">
-            <h4 style="margin:0 0 12px 0;color:var(--primary)">🎙️ System Voice Performance</h4>
-            <div id="voicesTable" style="max-height:400px;overflow:auto">
-              <div class="text-center" style="padding:40px;color:var(--muted)">
-                <div class="spinner" style="margin:0 auto 12px"></div>
-                Loading voice analytics...
-              </div>
-            </div>
-          </div>
+          <div id="voicesChart" class="text-muted">Voice analytics will appear here when enabled.</div>
         </div>
 
         <!-- Tab: Judges -->
         <div id="tab-judges" class="tab-pane hidden">
           <div class="result-card">
-            <h4 style="margin:0 0 12px 0;color:var(--primary)">🧑‍⚖️ Judge Performance</h4>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px">
-              <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
-                <div style="color:var(--muted);font-size:0.9em">Evaluated</div>
-                <div id="judgesEvaluated" class="result-score">-</div>
-              </div>
-              <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
-                <div style="color:var(--muted);font-size:0.9em">Tie-breaker Rate</div>
-                <div id="judgesTieBreakerRate" class="result-score">-</div>
-              </div>
-              <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
-                <div style="color:var(--muted);font-size:0.9em">Latency P50</div>
-                <div id="judgesLatencyP50" class="result-score">-</div>
-              </div>
-              <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
-                <div style="color:var(--muted);font-size:0.9em">Latency P90</div>
-                <div id="judgesLatencyP90" class="result-score">-</div>
-              </div>
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">🧑‍⚖️ Judges</h4>
+            <div style="display:flex;gap:16px;flex-wrap:wrap">
+              <div>Evaluated: <strong id="judgeEvaluated">-</strong></div>
+              <div>Tie-breaker rate: <strong id="tieBreakerRate">-</strong></div>
+              <div>Eval latency p50: <strong id="evalP50">-</strong> ms</div>
+              <div>Eval latency p90: <strong id="evalP90">-</strong> ms</div>
             </div>
           </div>
         </div>
 
         <!-- Tab: Golden -->
         <div id="tab-golden" class="tab-pane hidden">
-          <div class="flex gap-2 mb-2">
+          <div class="flex gap-2 mb-1">
             <button onclick="runGoldenSet()" class="secondary-btn">🏁 Run Golden Set</button>
           </div>
-          
-          <!-- Golden Set KPIs (includes cost metrics from former costs tab) -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
-            <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
-              <div style="color:var(--muted);font-size:0.9em">Total Tests</div>
-              <div id="goldenTotalTests" class="result-score">-</div>
-            </div>
-            <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
-              <div style="color:var(--muted);font-size:0.9em">Pass Rate</div>
-              <div id="goldenPassRate" class="result-score">-</div>
-            </div>
-            <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
-              <div style="color:var(--muted);font-size:0.9em">Avg Reward</div>
-              <div id="goldenAvgReward" class="result-score">-</div>
-            </div>
-            <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
-              <div style="color:var(--muted);font-size:0.9em">Avg Cost</div>
-              <div id="goldenAvgCost" class="result-score">-</div>
-            </div>
-          </div>
-
           <div class="result-card">
-            <h4 style="margin:0 0 12px 0;color:var(--primary)">📊 Golden Set Details</h4>
-            <div id="goldenSummary" style="max-height:260px;overflow:auto;color:var(--muted);text-align:center;padding:20px">
-              Golden Set details will load here
-            </div>
-            <div id="goldenRunResult" class="text-muted" style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px"></div>
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">🏁 Golden Set Summary</h4>
+            <div id="goldenSummary" style="max-height:260px;overflow:auto"></div>
+            <div id="goldenRunResult" class="text-muted" style="margin-top:8px"></div>
+          </div>
+        </div>
+
+        <!-- Tab: Costs -->
+        <div id="tab-costs" class="tab-pane hidden">
+          <div class="result-card">
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">💰 Costs & Latency</h4>
+            <div class="text-muted">Evaluation latency p50/p90: <span id="costEvalP50">-</span> / <span id="costEvalP90">-</span> ms</div>
+            <div class="text-muted">Golden avg cost penalty: <span id="goldenAvgCost">-</span></div>
           </div>
         </div>
 

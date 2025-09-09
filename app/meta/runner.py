@@ -305,17 +305,9 @@ def meta_run(
             if plan.get("use_web"):
                 try:
                     web_results = web_search(task, top_k=EVO_DEFAULTS["web_k"])
-                    if web_results:
-                        web_snippets = [f"{r['title']}: {r['snippet'][:300]}" for r in web_results]
-                        context["web_context"] = stitch_context([], [], web_snippets)
-                    else:
-                        # Web search returned empty results - disable web for this variant
-                        plan["use_web"] = False
-                        context["web_context"] = ""
-                except Exception as e:
-                    # Both Tavily and DDG failed - disable web search for this variant
-                    print(f"[WARNING] Web search failed completely: {e}")
-                    plan["use_web"] = False
+                    web_snippets = [f"{r['title']}: {r['snippet'][:300]}" for r in web_results]
+                    context["web_context"] = stitch_context([], [], web_snippets)
+                except Exception:
                     context["web_context"] = ""
             
             # Groq is evaluation-only; generation always uses Ollama

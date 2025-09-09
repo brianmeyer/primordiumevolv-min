@@ -188,17 +188,6 @@ def init_db():
     
     c.commit()
     c.close()
-    
-    # Run Analytics V2 migrations
-    try:
-        from app.meta.migrations import run_migrations
-        applied = run_migrations()
-        if applied:
-            print("Applied Analytics V2 migrations:")
-            for migration in applied:
-                print(f"  - {migration}")
-    except Exception as e:
-        print(f"Warning: Failed to run Analytics V2 migrations: {e}")
 
 def get_chat_temp_stats() -> Dict[float, Dict]:
     c = _conn()
