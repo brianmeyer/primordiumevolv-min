@@ -1,0 +1,36 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-05T18:36:26.698317+00:00",
+  "unix_timestamp": 1757097386.698324,
+  "data": {
+    "run_id": 6,
+    "task_class": "briefing",
+    "task": "I want to create an on device medical assistant for military medics in a combat zone",
+    "config": {
+      "n": 5,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web",
+        "use_groq",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.1,
+      "use_bandit": true,
+      "framework_mask": null,
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": true,
+      "judge_mode": "off"
+    }
+  }
+}

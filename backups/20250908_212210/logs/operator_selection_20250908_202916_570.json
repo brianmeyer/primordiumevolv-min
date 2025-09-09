@@ -1,0 +1,11 @@
+{
+  "artifact_type": "operator_selection",
+  "timestamp": "2025-09-08T20:29:16.571036+00:00",
+  "unix_timestamp": 1757363356.571063,
+  "data": {
+    "run_id": 114,
+    "iteration": 11,
+    "operator": "toggle_web",
+    "selection_method": "ucb"
+  }
+}

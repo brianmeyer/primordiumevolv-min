@@ -1,0 +1,10 @@
+{
+  "artifact_type": "meta_run_finish",
+  "timestamp": "2025-09-07T21:25:40.978593+00:00",
+  "unix_timestamp": 1757280340.978602,
+  "data": {
+    "run_id": 51,
+    "best_score": 0.5731654502773751,
+    "total_iterations": 3
+  }
+}

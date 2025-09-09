@@ -1,0 +1,36 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-07T14:31:37.389829+00:00",
+  "unix_timestamp": 1757255497.389833,
+  "data": {
+    "run_id": 32,
+    "task_class": "code",
+    "task": "Write a simple function to check if a number is even",
+    "config": {
+      "n": 1,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.1,
+      "use_bandit": true,
+      "bandit_algorithm": "ucb",
+      "framework_mask": null,
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": "groq",
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

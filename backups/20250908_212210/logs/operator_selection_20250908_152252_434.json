@@ -1,0 +1,11 @@
+{
+  "artifact_type": "operator_selection",
+  "timestamp": "2025-09-08T15:22:52.434875+00:00",
+  "unix_timestamp": 1757344972.434879,
+  "data": {
+    "run_id": 105,
+    "iteration": 1,
+    "operator": "raise_temp",
+    "selection_method": "ucb"
+  }
+}

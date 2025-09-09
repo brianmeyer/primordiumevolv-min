@@ -1,0 +1,37 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-05T12:57:26.925216+00:00",
+  "unix_timestamp": 1757077046.9252212,
+  "data": {
+    "run_id": 4,
+    "task_class": "brainstorm",
+    "task": "I'm trying to create an on device LLM to help military medics with documentation of care and basically a medical assistant while treating combat casualties. It needs to be edge running, voice activated, be able to take in everything the medic is saying in noisy combat environments, put that into a structured TCCC FHIR compliant database for each patient. Give me a plan for this.",
+    "config": {
+      "n": 6,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web"
+      ],
+      "eps": 0.1,
+      "use_bandit": true,
+      "framework_mask": [
+        "SEAL",
+        "WEB",
+        "ALPHA"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

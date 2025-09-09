@@ -1,0 +1,36 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-06T12:48:34.352510+00:00",
+  "unix_timestamp": 1757162914.352513,
+  "data": {
+    "run_id": 14,
+    "task_class": "test",
+    "task": "Write a hello world function",
+    "config": {
+      "n": 2,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "toggle_web",
+        "use_groq",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.1,
+      "use_bandit": true,
+      "framework_mask": null,
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": null,
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

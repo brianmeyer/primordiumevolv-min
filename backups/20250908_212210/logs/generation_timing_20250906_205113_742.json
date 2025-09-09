@@ -1,0 +1,11 @@
+{
+  "artifact_type": "generation_timing",
+  "timestamp": "2025-09-06T20:51:13.742650+00:00",
+  "unix_timestamp": 1757191873.742669,
+  "data": {
+    "run_id": 27,
+    "iteration": 0,
+    "operator": "use_groq",
+    "duration_ms": 1953
+  }
+}

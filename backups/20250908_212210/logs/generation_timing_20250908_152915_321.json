@@ -1,0 +1,11 @@
+{
+  "artifact_type": "generation_timing",
+  "timestamp": "2025-09-08T15:29:15.321502+00:00",
+  "unix_timestamp": 1757345355.321513,
+  "data": {
+    "run_id": 106,
+    "iteration": 0,
+    "operator": "lower_top_k",
+    "duration_ms": 28274
+  }
+}

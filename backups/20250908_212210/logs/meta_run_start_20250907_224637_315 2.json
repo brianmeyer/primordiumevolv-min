@@ -1,0 +1,38 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-07T22:46:37.315128+00:00",
+  "unix_timestamp": 1757285197.3151329,
+  "data": {
+    "run_id": 72,
+    "task_class": "code",
+    "task": "Write a Python function dedupe_list(xs) that returns a list preserving order with duplicates removed.",
+    "config": {
+      "n": 3,
+      "memory_k": 0,
+      "rag_k": 0,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.6,
+      "use_bandit": true,
+      "bandit_algorithm": null,
+      "framework_mask": [
+        "SEAL",
+        "SAMPLING"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": "ollama",
+      "compare_with_groq": false,
+      "judge_mode": "off"
+    }
+  }
+}

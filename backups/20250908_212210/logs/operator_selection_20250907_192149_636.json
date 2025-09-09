@@ -1,0 +1,11 @@
+{
+  "artifact_type": "operator_selection",
+  "timestamp": "2025-09-07T19:21:49.636670+00:00",
+  "unix_timestamp": 1757272909.636676,
+  "data": {
+    "run_id": 36,
+    "iteration": 4,
+    "operator": "change_nudge",
+    "selection_method": null
+  }
+}

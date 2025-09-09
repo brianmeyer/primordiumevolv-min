@@ -1,0 +1,39 @@
+{
+  "artifact_type": "meta_run_start",
+  "timestamp": "2025-09-05T19:24:19.306173+00:00",
+  "unix_timestamp": 1757100259.306185,
+  "data": {
+    "run_id": 9,
+    "task_class": "briefing",
+    "task": "Give me research into possible AI use for a defense startup with technical founders that need back office support.",
+    "config": {
+      "n": 5,
+      "memory_k": 3,
+      "rag_k": 3,
+      "operators": [
+        "change_system",
+        "change_nudge",
+        "raise_temp",
+        "lower_temp",
+        "add_fewshot",
+        "inject_memory",
+        "inject_rag",
+        "use_groq",
+        "raise_top_k",
+        "lower_top_k"
+      ],
+      "eps": 0.1,
+      "use_bandit": true,
+      "framework_mask": [
+        "SEAL",
+        "SAMPLING",
+        "ENGINE"
+      ],
+      "test_cmd": null,
+      "test_weight": 0.0,
+      "force_engine": "ollama",
+      "compare_with_groq": true,
+      "judge_mode": "off"
+    }
+  }
+}
