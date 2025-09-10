@@ -1,0 +1,163 @@
+{
+  "nudges": [
+    {
+      "id": "bullet_points",
+      "text": "Respond in bullet points.",
+      "tags": ["format", "structured", "concise"],
+      "suitable_tasks": ["analysis", "debug", "planning"],
+      "unsuitable_tasks": ["creative", "storytelling", "prose"],
+      "description": "Forces responses into bullet point format for clarity"
+    },
+    {
+      "id": "correctness_test",
+      "text": "Prioritize correctness and include one test example.",
+      "tags": ["accuracy", "testing", "verification"],
+      "suitable_tasks": ["code", "debug", "analysis"],
+      "unsuitable_tasks": ["creative", "brainstorming"],
+      "description": "Emphasizes accuracy with concrete test cases"
+    },
+    {
+      "id": "checklist_end",
+      "text": "Add a short checklist at the end.",
+      "tags": ["checklist", "actionable", "structured"],
+      "suitable_tasks": ["planning", "process", "debug"],
+      "unsuitable_tasks": ["creative", "storytelling"],
+      "description": "Provides actionable checklist for follow-up"
+    },
+    {
+      "id": "technical_language",
+      "text": "Use concise, technical language.",
+      "tags": ["technical", "concise", "precise"],
+      "suitable_tasks": ["code", "debug", "analysis"],
+      "unsuitable_tasks": ["creative", "explanation", "tutorial"],
+      "description": "Optimizes for technical precision and brevity"
+    },
+    {
+      "id": "step_by_step",
+      "text": "Provide step-by-step reasoning.",
+      "tags": ["reasoning", "logical", "detailed"],
+      "suitable_tasks": ["debug", "analysis", "planning", "tutorial"],
+      "unsuitable_tasks": ["creative", "brainstorming"],
+      "description": "Breaks down complex processes into clear steps"
+    },
+    {
+      "id": "edge_cases",
+      "text": "Include potential edge cases.",
+      "tags": ["comprehensive", "safety", "robustness"],
+      "suitable_tasks": ["code", "debug", "analysis", "planning"],
+      "unsuitable_tasks": ["creative", "brainstorming"],
+      "description": "Considers boundary conditions and failure modes"
+    },
+    {
+      "id": "structured_sections",
+      "text": "Format as structured sections.",
+      "tags": ["format", "organized", "clear"],
+      "suitable_tasks": ["analysis", "planning", "tutorial"],
+      "unsuitable_tasks": ["creative", "conversation"],
+      "description": "Organizes content into clear sections with headers"
+    },
+    {
+      "id": "creative_flow",
+      "text": "Use natural, flowing language with creative expression.",
+      "tags": ["creative", "natural", "expressive"],
+      "suitable_tasks": ["creative", "storytelling", "brainstorming"],
+      "unsuitable_tasks": ["code", "debug"],
+      "description": "Encourages creative and natural expression"
+    },
+    {
+      "id": "conversational",
+      "text": "Use a conversational, friendly tone.",
+      "tags": ["friendly", "approachable", "casual"],
+      "suitable_tasks": ["explanation", "tutorial", "conversation"],
+      "unsuitable_tasks": ["code", "technical"],
+      "description": "Makes content accessible and engaging"
+    },
+    {
+      "id": "comprehensive_detail",
+      "text": "Provide comprehensive detail and context.",
+      "tags": ["detailed", "thorough", "contextual"],
+      "suitable_tasks": ["tutorial", "explanation", "analysis"],
+      "unsuitable_tasks": ["quick_answer", "summary"],
+      "description": "Delivers in-depth coverage with background context"
+    },
+    {
+      "id": "examples_focused",
+      "text": "Include multiple concrete examples.",
+      "tags": ["examples", "practical", "illustrative"],
+      "suitable_tasks": ["tutorial", "explanation", "code"],
+      "unsuitable_tasks": ["abstract", "theoretical"],
+      "description": "Uses examples to clarify concepts and usage"
+    },
+    {
+      "id": "brevity_focus",
+      "text": "Be extremely concise and direct.",
+      "tags": ["brief", "direct", "efficient"],
+      "suitable_tasks": ["quick_answer", "summary", "code"],
+      "unsuitable_tasks": ["tutorial", "explanation"],
+      "description": "Minimizes words while maintaining clarity"
+    }
+  ],
+  "task_mappings": {
+    "code": {
+      "preferred": ["correctness_test", "technical_language", "edge_cases", "examples_focused"],
+      "suitable": ["step_by_step", "structured_sections", "brevity_focus"],
+      "unsuitable": ["bullet_points", "creative_flow", "conversational"]
+    },
+    "debug": {
+      "preferred": ["step_by_step", "correctness_test", "checklist_end", "edge_cases"],
+      "suitable": ["technical_language", "structured_sections", "bullet_points"],
+      "unsuitable": ["creative_flow", "conversational"]
+    },
+    "creative": {
+      "preferred": ["creative_flow", "conversational", "comprehensive_detail"],
+      "suitable": ["examples_focused"],
+      "unsuitable": ["bullet_points", "technical_language", "checklist_end", "edge_cases", "brevity_focus"]
+    },
+    "analysis": {
+      "preferred": ["structured_sections", "step_by_step", "comprehensive_detail"],
+      "suitable": ["bullet_points", "correctness_test", "edge_cases"],
+      "unsuitable": ["creative_flow", "brevity_focus"]
+    },
+    "tutorial": {
+      "preferred": ["step_by_step", "examples_focused", "comprehensive_detail"],
+      "suitable": ["structured_sections", "conversational", "checklist_end"],
+      "unsuitable": ["brevity_focus", "technical_language"]
+    },
+    "explanation": {
+      "preferred": ["conversational", "examples_focused", "comprehensive_detail"],
+      "suitable": ["step_by_step", "structured_sections"],
+      "unsuitable": ["technical_language", "brevity_focus"]
+    },
+    "planning": {
+      "preferred": ["structured_sections", "checklist_end", "step_by_step"],
+      "suitable": ["bullet_points", "edge_cases", "comprehensive_detail"],
+      "unsuitable": ["creative_flow", "conversational"]
+    },
+    "brainstorming": {
+      "preferred": ["creative_flow", "conversational", "examples_focused"],
+      "suitable": ["comprehensive_detail"],
+      "unsuitable": ["technical_language", "checklist_end", "edge_cases", "brevity_focus"]
+    },
+    "conversation": {
+      "preferred": ["conversational", "creative_flow"],
+      "suitable": ["examples_focused", "comprehensive_detail"],
+      "unsuitable": ["technical_language", "bullet_points", "structured_sections"]
+    },
+    "quick_answer": {
+      "preferred": ["brevity_focus", "technical_language"],
+      "suitable": ["bullet_points"],
+      "unsuitable": ["comprehensive_detail", "examples_focused", "step_by_step"]
+    },
+    "summary": {
+      "preferred": ["brevity_focus", "structured_sections", "bullet_points"],
+      "suitable": ["technical_language"],
+      "unsuitable": ["comprehensive_detail", "creative_flow", "conversational"]
+    }
+  },
+  "default_task": "explanation",
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-01-10",
+    "description": "Adaptive nudge library for context-aware prompt optimization"
+  }
+}

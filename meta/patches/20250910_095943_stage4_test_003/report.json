@@ -1,0 +1,9 @@
+{
+  "patch_id": "stage4_test_003",
+  "area": "prompts",
+  "origin": "stage4_test",
+  "notes": "Simple test patch that adds a new file for Stage-4 testing",
+  "timestamp": "20250910_095943",
+  "diff_path": "meta/patches/20250910_095943_stage4_test_003/diff.patch",
+  "commit_branch": "dgm/active"
+}

@@ -1,0 +1,18 @@
+{
+  "patches": [
+    {
+      "patch_id": "test_patch_001",
+      "timestamp": 1757451424.277011,
+      "area": "bandit",
+      "commit_sha": "c2202aa4475f3e4670d789c2a921cfc8594c3bb4",
+      "reward_delta": 0.050000000000000044,
+      "status": "committed"
+    }
+  ],
+  "stats": {
+    "total_patches": 1,
+    "committed_patches": 1,
+    "rolled_back_patches": 0,
+    "last_updated": 1757451424.2775629
+  }
+}

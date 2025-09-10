@@ -1,0 +1,9 @@
+{
+  "patch_id": "test_patch_001",
+  "area": "prompts",
+  "origin": "test_origin",
+  "notes": "Test patch for commit testing",
+  "timestamp": "20250910_095347",
+  "diff_path": "test/artifacts/20250910_095347_test_patch_001/diff.patch",
+  "commit_branch": "dgm/active"
+}

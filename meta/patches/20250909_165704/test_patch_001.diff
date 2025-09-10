@@ -1,0 +1,10 @@
+--- a/app/meta/operators.py
++++ b/app/meta/operators.py
+@@ -95,6 +95,7 @@ def apply_operator(plan, operator_name):
+     elif operator_name == "toggle_web":
+         plan["use_web"] = not plan["use_web"]
+         
++    # Adjust top_k sampling parameter
+     elif operator_name == "raise_top_k":
+         current_k = plan["params"].get("top_k", 40)
+         plan["params"]["top_k"] = min(100, current_k + random.randint(5, 15))

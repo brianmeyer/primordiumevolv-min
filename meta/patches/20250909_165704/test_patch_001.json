@@ -1,0 +1,17 @@
+{
+  "patch_id": "test_patch_001",
+  "commit_sha": "c2202aa4475f3e4670d789c2a921cfc8594c3bb4",
+  "timestamp": 1757451424.277011,
+  "area": "bandit",
+  "origin": "test_script",
+  "notes": "Test patch: Add clarifying comment",
+  "diff": "--- a/app/meta/operators.py\n+++ b/app/meta/operators.py\n@@ -95,6 +95,7 @@ def apply_operator(plan, operator_name):\n     elif operator_name == \"toggle_web\":\n         plan[\"use_web\"] = not plan[\"use_web\"]\n         \n+    # Adjust top_k sampling parameter\n     elif operator_name == \"raise_top_k\":\n         current_k = plan[\"params\"].get(\"top_k\", 40)\n         plan[\"params\"][\"top_k\"] = min(100, current_k + random.randint(5, 15))\n",
+  "loc_delta": 1,
+  "reward_delta": 0.050000000000000044,
+  "error_rate_delta": -0.010000000000000002,
+  "latency_p95_delta": -20.0,
+  "commit_message": "[DGM] test_pat bandit - Test patch: Add clarifying comment",
+  "test_results": null,
+  "rollback_sha": null,
+  "status": "committed"
+}
