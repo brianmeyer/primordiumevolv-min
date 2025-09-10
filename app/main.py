@@ -442,23 +442,8 @@ async def chat_stream(prompt: str, session_id: int, system: Optional[str] = None
         enriched = prompt + context
         max_tokens = None
 
-        # Adaptive temperature for stream
-        try:
-            from app.meta import store as meta_store
-            stats = meta_store.get_chat_temp_stats()
-        except Exception:
-            stats = {}
-        import random
-        candidates = [0.3, 0.7, 1.0]
-        eps = 0.2
-        if stats:
-            if random.random() < eps:
-                chosen_temp = random.choice(candidates)
-            else:
-                by_avg = sorted(candidates, key=lambda t: stats.get(t, {}).get("avg_reward", 0.0), reverse=True)
-                chosen_temp = by_avg[0]
-        else:
-            chosen_temp = 0.7
+        # Use default temperature for stream
+        chosen_temp = 0.7
 
         async def _gen():
             full = []
