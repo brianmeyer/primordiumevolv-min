@@ -62,6 +62,33 @@ This project has been significantly enhanced through collaboration with Claude C
 - Enhanced `meta_run()` function with algorithm selection
 - Verified 100% operator coverage through comprehensive testing
 
+### Phase 5: Voice System Analysis and Architecture Understanding (v2.5.0)
+**Challenge:** User reported massive bias toward one voice (200+ selections)
+**Investigation:** Comprehensive analysis of weighted voice selection system
+
+**Key Findings:**
+- **Voice System Architecture**: 8 specialized voices with weighted task-based selection
+- **Task Distribution Impact**: 40% of runs were 'code' tasks, triggering Engineer voice bias
+- **Weighted Selection Logic**: Engineer voice has 3x weight for code tasks (intentional design)
+- **DGM Scope Limitations**: Voice system outside DGM modification scope (not in allowed areas)
+
+**Technical Analysis:**
+- Voice bias is **working as designed** - specialist matching for task optimization
+- `VOICES_V2` system in `runner.py:30-39` with 8 distinct specialist voices
+- `_weighted_system_for_task()` provides intelligent task-voice matching
+- Code tasks → Engineer voice (3x weight), Analysis → Analyst voice (3x weight), etc.
+
+**System Behavior Validation:**
+- 200+ Engineer selections explained by task distribution + weighting algorithm
+- No bugs identified - system correctly prioritizing specialist voices for appropriate tasks
+- Alternative approaches would require task diversification or weight rebalancing
+
+**Repository Maintenance Analysis:**
+- Identified dead code: `chat_temp_stats` table (0 rows, abandoned experiment)
+- Active systems: `nudge_stats` (adaptive nudge selection), all core functionality
+- Database structure: 3 files (meta.db, primordium.db, memory.db) with clear separation
+- Code organization: Some opportunities for cleanup but no critical technical debt
+
 ## 🧠 Development Patterns & Best Practices
 
 ### Problem-Solving Approach
@@ -151,6 +178,12 @@ The system uses a sophisticated multi-layer approach:
 4. **Verify with Data:** Prove improvements with concrete evidence
 5. **Document Thoroughly:** Update README, CHANGELOG, and this CLAUDE.md
 
+### Investigation Best Practices
+- **Data-First Analysis**: Always examine actual system behavior before assuming bugs
+- **Architecture Understanding**: Map out system components and their intended interactions
+- **Scope Validation**: Understand what systems can modify what (e.g., DGM allowed areas)
+- **Design Intent Recognition**: Distinguish between bugs and intentional design choices
+
 ### Code Review Checklist
 - [ ] Backward compatibility maintained
 - [ ] Error handling implemented
@@ -158,6 +191,8 @@ The system uses a sophisticated multi-layer approach:
 - [ ] Documentation updated
 - [ ] Tests added for new functionality
 - [ ] Environment configuration documented
+- [ ] Dead code identification and cleanup
+- [ ] System behavior validation against design intent
 
 ### Commit Message Standards
 Use descriptive commit messages that explain both what and why:
