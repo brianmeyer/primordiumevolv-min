@@ -836,7 +836,7 @@ async function loadMemoryAnalytics() {
 
 // Tab switching for Analytics
 function selectAnalyticsTab(name) {
-    const tabs = ['overview','runs','operators','voices','judges','golden','costs','thresholds','memory'];
+    const tabs = ['overview','runs','operators','voices','judges','golden','dgm','costs','thresholds','memory'];
     tabs.forEach(t => {
         const el = document.getElementById(`tab-${t}`);
         if (el) el.classList.toggle('hidden', t !== name);
@@ -845,6 +845,8 @@ function selectAnalyticsTab(name) {
         loadEvolutionHistory();
     } else if (name === 'memory') {
         loadMemoryAnalytics();
+    } else if (name === 'dgm') {
+        dgmCheckHealth();
     } else {
         // Load analytics data for all other tabs (overview, operators, voices, etc.)
         loadAnalytics();
@@ -852,6 +854,68 @@ function selectAnalyticsTab(name) {
 }
 
 window.selectAnalyticsTab = selectAnalyticsTab;
+
+// ---- DGM helpers ----
+async function dgmCheckHealth() {
+    const el = document.getElementById('dgmHealth');
+    if (!el) return;
+    el.textContent = 'DGM: checking…';
+    try {
+        const res = await fetch('/api/dgm/health');
+        const data = await res.json();
+        if (res.ok && data && (data.enabled === undefined || data.enabled === true)) {
+            const st = data.status || 'ok';
+            const state = data.state || 'idle';
+            el.textContent = `DGM: ${st} (state: ${state})`;
+        } else {
+            el.textContent = `DGM: disabled`;
+        }
+    } catch (e) {
+        el.textContent = `DGM: error (${e.message})`;
+    }
+}
+
+async function dgmPropose() {
+    const out = document.getElementById('dgmProposeOut');
+    if (out) out.textContent = 'Starting dry‑run propose…';
+    try {
+        const res = await fetch('/api/dgm/propose?dry_run=true', { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data && (data.message || data.error) || `HTTP ${res.status}`);
+        }
+        // Show validation summary and a few patch ids
+        const sum = data.validation_summary || {};
+        const patches = Array.isArray(data.patches) ? data.patches : [];
+        const ids = patches.slice(0, 5).map(p => p.id || '(no-id)');
+        const summary = `Validation: generated=${sum.total_generated ?? patches.length}, passed=${sum.validation_passed ?? '-'}, failed=${sum.validation_failed ?? '-'}\nPatches: ${ids.join(', ')}`;
+        if (out) out.textContent = summary;
+        dgmCheckHealth();
+    } catch (e) {
+        if (out) out.textContent = `❌ Propose failed: ${e.message}`;
+    }
+}
+
+async function dgmLoadLastPropose() {
+    const out = document.getElementById('dgmProposeOut');
+    if (out) out.textContent = 'Loading last propose…';
+    try {
+        const res = await fetch('/api/dgm/debug/last_propose');
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data && (data.message || data.error) || `HTTP ${res.status}`);
+        }
+        const patches = Array.isArray(data.patches) ? data.patches : [];
+        const ids = patches.slice(0, 5).map(p => p.id || '(no-id)');
+        const summary = `Last Propose: patches=${patches.length}, rejected=${(data.rejected||[]).length}, first_ids=[${ids.join(', ')}]`;
+        if (out) out.textContent = summary;
+    } catch (e) {
+        if (out) out.textContent = `❌ Load failed: ${e.message}`;
+    }
+}
+
+window.dgmPropose = dgmPropose;
+window.dgmLoadLastPropose = dgmLoadLastPropose;
 
 // Golden Set runner with streaming
 async function runGoldenSet() {

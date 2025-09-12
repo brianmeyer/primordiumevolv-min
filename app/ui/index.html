@@ -278,6 +278,7 @@
           <button class="secondary-btn" onclick="selectAnalyticsTab('voices')">Voices</button>
           <button class="secondary-btn" onclick="selectAnalyticsTab('judges')">Judges</button>
           <button class="secondary-btn" onclick="selectAnalyticsTab('golden')">Golden</button>
+          <button class="secondary-btn" onclick="selectAnalyticsTab('dgm')">DGM</button>
           <button class="secondary-btn" onclick="selectAnalyticsTab('costs')">Costs</button>
           <button class="secondary-btn" onclick="selectAnalyticsTab('thresholds')">Thresholds</button>
           <button class="secondary-btn" onclick="selectAnalyticsTab('memory')">Memory</button>
@@ -358,6 +359,23 @@
             <h4 style="margin:0 0 12px 0;color:var(--primary)">🏁 Golden Set Summary</h4>
             <div id="goldenSummary" style="max-height:260px;overflow:auto"></div>
             <div id="goldenRunResult" class="text-muted" style="margin-top:8px"></div>
+          </div>
+        </div>
+
+        <!-- Tab: DGM -->
+        <div id="tab-dgm" class="tab-pane hidden">
+          <div class="result-card" style="margin-bottom:12px">
+            <h4 style="margin:0 0 12px 0;color:var(--primary)">🧪 Darwin Gödel Machine (Stage‑1)</h4>
+            <div class="text-muted" id="dgmHealth">DGM: checking…</div>
+          </div>
+          <div class="result-card" style="margin-bottom:12px">
+            <h5 style="margin:0 0 8px 0;color:var(--accent)">Dry‑run Propose</h5>
+            <div class="text-muted" style="margin-bottom:8px">Generates proposals and validates them in isolation. No live changes.</div>
+            <div class="flex gap-2 mb-2">
+              <button class="secondary-btn" onclick="dgmPropose()">🧪 Propose (dry_run)</button>
+              <button class="secondary-btn" onclick="dgmLoadLastPropose()">📄 View Last Propose</button>
+            </div>
+            <div id="dgmProposeOut" class="text-muted" style="white-space:pre-wrap"></div>
           </div>
         </div>
 
@@ -469,6 +487,6 @@
     <div id="groqModels"></div>
   </div>
 
-  <script src="/static/app.js?v=20250906"></script>
+  <script src="/static/app.js?v=20250912"></script>
 </body>
 </html>

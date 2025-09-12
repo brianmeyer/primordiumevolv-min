@@ -235,8 +235,40 @@ The system integrates direct human feedback to influence AI response quality sco
 
 ### Tools
 - `POST /api/web/search` - Web search
-- `POST /api/rag/build` - Build vector index
+- `POST /api/rag/build` - Build vector index (requires `ack=true` when `rebuild=true`)
 - `POST /api/rag/query` - Query vector index
+
+### Darwin Gödel Machine (DGM)
+- `GET /api/dgm/health` - DGM system health/status
+- `POST /api/dgm/propose?dry_run=true` - Generate and validate proposals (dry-run only)
+- `POST /api/dgm/commit` - Commit a validated patch (requires `confirm_commit=true`)
+- `POST /api/dgm/rollback` - Roll back a commit (requires `confirm_rollback=true`)
+- `GET /api/dgm/debug/last_propose` - Inspect last proposal batch
+
+UI: DGM tab lives under Analytics & Improvement. It shows health, dry‑run propose, and last‑propose viewer. Live commit/rollback UI is intentionally omitted for safety.
+
+### Autonomous Evolution Policies
+The server starts three guarded background policies on startup:
+
+1) Preflight + Golden Gate (applies to `/api/meta/run*`)
+- Before a run: checks app/ollama/groq/DGM health. If any unhealthy → returns error contract with `code: upstream_error`, `retryable: true`, `operator: "meta.run"`.
+- After a run: executes a small Golden subset gate (proxies for S02: RAG and S07: DGM) and marks the run `promotable` or `blocked` in run config.
+
+2) Nightly Self‑Evolve Sweep (02:00 local)
+- Refreshes indexes (`/api/rag/build?rebuild=true&ack=true`, `/api/memory/build?rebuild=true&ack=true`).
+- Launches several small meta runs (code/qa). If lift ≥ +0.02 vs 7‑day median, proposes dry‑run patches, commits guarded, and immediately gates; auto‑rolls back on regress.
+
+3) Continuous Regression Watcher (15 min)
+- Monitors analytics. On triggers (success/latency/error/confirm/cost), throttles exploration and logs rollback intent; otherwise emits a healthy heartbeat.
+
+Safety confirmations enforced
+- `dgm.commit`: requires `confirm_commit=true`.
+- `dgm.rollback`: requires `confirm_rollback=true`.
+- Builders with `rebuild=true`: require `ack=true`.
+- Streaming persistence: `/api/chat/stream` persists assistant message only after the final `{"done": true, "message_id": "…"}` frame.
+
+Run logs
+- Policy actions append JSON lines to `logs/autonomy.log` with `ts`, `operator`, `inputs`, `result`, and `trace_id`.
 
 ## Quick Test
 

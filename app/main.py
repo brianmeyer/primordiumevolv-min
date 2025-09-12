@@ -27,6 +27,7 @@ from app.models import (
 from app import memory
 from app.middleware import RateLimiter
 from app.meta.runner import meta_run
+from app.policies.autonomy import preflight_check, run_log, golden_subset_gate, nightly_scheduler_start, regression_watcher_start
 from app.meta import store
 from app.errors import (
     ModelError, MemoryError, RAGError, MetaError, ValidationError,
@@ -111,6 +112,12 @@ async def startup_event():
                 pass
         threading.Thread(target=_warm_embeddings, daemon=True).start()
         threading.Thread(target=_warm_groq, daemon=True).start()
+    except Exception:
+        pass
+    # Start background autonomy policies (nightly + watcher)
+    try:
+        nightly_scheduler_start()
+        regression_watcher_start()
     except Exception:
         pass
 
@@ -483,8 +490,19 @@ async def web_search_ep(body: WebSearchRequest):
 
 # RAG
 @app.post("/api/rag/build")
-async def rag_build_ep():
+async def rag_build_ep(rebuild: bool = Query(False), ack: bool = Query(False)):
     try:
+        if rebuild and not ack:
+            return JSONResponse({
+                "error": {
+                    "code": "confirmation_required",
+                    "message": "Rebuild requires explicit ack=true",
+                    "hint": "Retry with ack=true to rebuild RAG index",
+                    "retryable": True,
+                    "operator": "rag.build",
+                    "trace_id": f"rag-{int(time.time())}"
+                }
+            }, status_code=400)
         build_or_update_index("data")
         return JSONResponse({"status": "ok"})
     except Exception as e:
@@ -533,8 +551,19 @@ async def append_message_ep(session_id: int, body: MessageAppendRequest):
 
 # Memory management
 @app.post("/api/memory/build")
-async def build_memory_ep():
+async def build_memory_ep(rebuild: bool = Query(False), ack: bool = Query(False)):
     try:
+        if rebuild and not ack:
+            return JSONResponse({
+                "error": {
+                    "code": "confirmation_required",
+                    "message": "Rebuild requires explicit ack=true",
+                    "hint": "Retry with ack=true to rebuild memory index",
+                    "retryable": True,
+                    "operator": "memory.build",
+                    "trace_id": f"mem-{int(time.time())}"
+                }
+            }, status_code=400)
         memory.build_index()
         return JSONResponse({"status": "ok"})
     except Exception as e:
@@ -552,6 +581,20 @@ async def query_memory_ep(body: MemoryQueryRequest):
 @app.post("/api/meta/run")
 async def meta_run_ep(body: MetaRunRequest):
     try:
+        # Preflight health gate
+        ok, details = preflight_check()
+        if not ok:
+            return JSONResponse({
+                "error": {
+                    "code": "upstream_error",
+                    "message": "Preflight health checks failed",
+                    "hint": "Ensure app, ollama, groq, and DGM health are ok",
+                    "retryable": True,
+                    "operator": "meta.run",
+                    "trace_id": f"pre-{int(time.time())}"
+                },
+                "details": details
+            }, status_code=503)
         res = meta_run(
             body.task_class, 
             body.task, 
@@ -570,6 +613,13 @@ async def meta_run_ep(body: MetaRunRequest):
             judge_mode=body.judge_mode,
             judge_include_rationale=body.judge_include_rationale,
         )
+        # Golden gate subset (RAG/DGM proxies)
+        try:
+            agg = golden_subset_gate(["search_capital_france", "code_dedupe"])  # proxy for S02/S07
+            gate_ok = agg.get("pass_rate", 0) >= 0.95
+            res["gate"] = {"status": "promotable" if gate_ok else "blocked", "metrics": agg}
+        except Exception as ge:
+            res["gate"] = {"status": "blocked", "error": str(ge)}
         return JSONResponse(res)
     except Exception as e:
         return handle_exception(e, "meta_run_failed")
@@ -605,7 +655,7 @@ async def meta_run_async_ep(body: MetaRunRequest, request: Request):
             from app.job_manager import JobContext
             try:
                 with JobContext("evolution"):
-                    meta_run(
+                    out = meta_run(
                         body.task_class,
                         body.task,
                         body.assertions or [],
@@ -624,6 +674,15 @@ async def meta_run_async_ep(body: MetaRunRequest, request: Request):
                         judge_include_rationale=body.judge_include_rationale,
                         pre_run_id=run_id,
                     )
+                    # Golden gate subset and persist gate status into run config
+                    try:
+                        agg = golden_subset_gate(["search_capital_france", "code_dedupe"])  # proxy for S02/S07
+                        gate_ok = agg.get("pass_rate", 0) >= 0.95
+                        store.update_run_config(run_id, {"gate": {"status": "promotable" if gate_ok else "blocked", "metrics": agg}})
+                        run_log({"trace_id": f"gate-{run_id}", "operator": "golden.gate", "inputs": {"ids": ["search_capital_france","code_dedupe"]}, "result": "ok", "gate_ok": gate_ok, "metrics": agg})
+                    except Exception as ge:
+                        store.update_run_config(run_id, {"gate": {"status": "blocked", "error": str(ge)}})
+                        run_log({"trace_id": f"gate-{run_id}", "operator": "golden.gate", "result": "error", "error": str(ge)})
             except Exception as e:
                 print(f"[meta_run_async] worker failed: {e}")
 
@@ -1185,7 +1244,7 @@ async def dgm_health():
 @app.post("/api/dgm/propose")
 async def dgm_propose(dry_run: bool = Query(True)):
     """Generate and validate system modification proposals."""
-    from app.config import FF_DGM, DGM_PROPOSALS, DGM_ALLOWED_AREAS
+    from app.config import FF_DGM, DGM_PROPOSALS, DGM_ALLOWED_AREAS, DGM_LAST_PROPOSE_FILE
     
     if not FF_DGM:
         return JSONResponse({
@@ -1371,6 +1430,31 @@ async def dgm_propose(dry_run: bool = Query(True)):
         
         logging.info(f"DGM proposal complete: {len(successful_patches)}/{len(proposal_response.patches)} valid patches")
         
+        # Persist response data for debugging (atomic write)
+        try:
+            import tempfile
+            import shutil
+            
+            persist_data = {
+                "timestamp": time.time(),
+                "session_id": session_id,
+                "response": response_data
+            }
+            
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(DGM_LAST_PROPOSE_FILE), exist_ok=True)
+            
+            # Atomic write: tmp + rename
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.tmp', dir=os.path.dirname(DGM_LAST_PROPOSE_FILE), delete=False) as tmp_file:
+                json.dump(persist_data, tmp_file, indent=2)
+                tmp_path = tmp_file.name
+            
+            shutil.move(tmp_path, DGM_LAST_PROPOSE_FILE)
+            logging.debug(f"Persisted proposal data to {DGM_LAST_PROPOSE_FILE}")
+            
+        except Exception as persist_error:
+            logging.warning(f"Failed to persist proposal data: {persist_error}")
+        
         return JSONResponse(response_data)
         
     except Exception as e:
@@ -1410,6 +1494,18 @@ async def dgm_commit(request: Request):
     
     try:
         body = await request.json()
+        if not (body.get("confirm_commit") is True):
+            return JSONResponse({
+                "error": {
+                    "code": "confirmation_required",
+                    "message": "Commit requires explicit confirmation",
+                    "hint": "Retry with confirm_commit=true",
+                    "field": "confirm_commit",
+                    "retryable": True,
+                    "operator": "dgm.commit",
+                    "trace_id": f"dgm-commit-{int(time.time())}"
+                }
+            }, status_code=400)
         patch_id = body.get("patch_id")
         
         if not patch_id:
@@ -1519,6 +1615,18 @@ async def dgm_rollback(request: Request):
     
     try:
         body = await request.json()
+        if not (body.get("confirm_rollback") is True):
+            return JSONResponse({
+                "error": {
+                    "code": "confirmation_required",
+                    "message": "Rollback requires explicit confirmation",
+                    "hint": "Retry with confirm_rollback=true",
+                    "field": "confirm_rollback",
+                    "retryable": True,
+                    "operator": "dgm.rollback",
+                    "trace_id": f"dgm-rollback-{int(time.time())}"
+                }
+            }, status_code=400)
         commit_sha = body.get("commit_sha")
         
         if not commit_sha:
@@ -1567,6 +1675,37 @@ async def dgm_rollback(request: Request):
         logging.error(f"DGM rollback endpoint failed: {e}")
         return JSONResponse({
             "error": "Rollback failed",
+            "detail": str(e)
+        }, status_code=500)
+
+@app.get("/api/dgm/debug/last_propose")
+async def dgm_debug_last_propose():
+    """Get the last DGM proposal data for debugging."""
+    from app.config import FF_DGM, DGM_LAST_PROPOSE_FILE
+    
+    if not FF_DGM:
+        return JSONResponse({
+            "error": "DGM system disabled",
+            "message": "Set FF_DGM=1 to enable DGM functionality"
+        }, status_code=403)
+    
+    try:
+        if not os.path.exists(DGM_LAST_PROPOSE_FILE):
+            return JSONResponse({
+                "error": "No proposal data found",
+                "message": f"No data found at {DGM_LAST_PROPOSE_FILE}",
+                "data": None
+            }, status_code=404)
+        
+        with open(DGM_LAST_PROPOSE_FILE, 'r') as f:
+            data = json.load(f)
+        
+        return JSONResponse(data)
+        
+    except Exception as e:
+        logging.error(f"Failed to read last propose data: {e}")
+        return JSONResponse({
+            "error": "Failed to read proposal data",
             "detail": str(e)
         }, status_code=500)
 
