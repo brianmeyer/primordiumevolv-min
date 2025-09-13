@@ -1,0 +1,838 @@
+"""
+DGM Proposer - Generates system modification proposals using judge models
+
+The proposer generates small, safe meta-patches by randomly selecting models
+from the judge pool and instructing them to propose minimal system changes.
+"""
+
+import random
+import logging
+import time
+import difflib
+import glob
+import os
+from pathlib import Path
+from typing import List, Optional, Dict, Any
+from app.dgm.types import MetaPatch, ProposalResponse, calculate_loc_delta, is_safe_diff
+from app.config import (
+    DGM_USE_JUDGE_POOL, DGM_JUDGE_MODEL_POOL, DGM_LOCAL_MODEL, DGM_GROQ_MODEL,
+    DGM_PROPOSALS, DGM_ALLOWED_AREAS, DGM_MAX_LOC_DELTA
+)
+from app.engines import call_engine
+
+logger = logging.getLogger(__name__)
+
+
+def get_snapshot(area: str) -> List[Dict[str, str]]:
+    """
+    Get file snapshots for a specific modification area.
+    
+    Args:
+        area: Area to get snapshots for
+        
+    Returns:
+        List of dicts with path, content, and excerpt for each relevant file
+    """
+    snapshots = []
+    repo_path = Path(".")
+    
+    # Map areas to their target files
+    area_files = {
+        "bandit": ["app/config.py"],
+        "prompts": ["app/prompts.py", "app/main.py"],  # fallback if prompts.py doesn't exist
+        "rag": ["app/rag/*.py"],
+        "asi_lite": ["app/asi_lite/*.py"],
+        "memory_policy": ["app/memory/*.py"],
+        "ui_metrics": ["app/ui/*.py"]
+    }
+    
+    target_patterns = area_files.get(area, [])
+    if not target_patterns:
+        logger.warning(f"No file patterns defined for area: {area}")
+        return snapshots
+    
+    for pattern in target_patterns:
+        if "*" in pattern:
+            # Handle glob patterns
+            matching_files = list(glob.glob(pattern))
+            if matching_files:
+                # Pick the first existing file
+                file_path = matching_files[0]
+                break
+        else:
+            # Handle direct file paths
+            if os.path.exists(pattern):
+                file_path = pattern
+                break
+    else:
+        # No files found, allow creation in appropriate directory
+        if area == "prompts" and not os.path.exists("app/prompts.py"):
+            # For prompts, create a minimal template if file doesn't exist
+            snapshots.append({
+                "path": "app/prompts.py",
+                "content": "# System prompts and prompt templates\n",
+                "excerpt": "New file - prompts module"
+            })
+            return snapshots
+        elif area == "ui_metrics":
+            # Allow creation of new UI metric files
+            snapshots.append({
+                "path": "app/ui/metrics_new.py",
+                "content": "# New UI metrics module\n",
+                "excerpt": "New file - UI metrics"
+            })
+            return snapshots
+        else:
+            logger.warning(f"No existing files found for area: {area}")
+            return snapshots
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Create excerpt (trim to ~120 lines around relevant sections)
+        lines = content.split('\n')
+        if len(lines) <= 120:
+            excerpt = content
+        else:
+            # For config files, show the top section
+            if "config" in file_path.lower():
+                excerpt = '\n'.join(lines[:120])
+            else:
+                # For other files, show a middle section
+                start_line = max(0, len(lines) // 2 - 60)
+                end_line = min(len(lines), start_line + 120)
+                excerpt = '\n'.join(lines[start_line:end_line])
+        
+        snapshots.append({
+            "path": file_path,
+            "content": content,
+            "excerpt": excerpt
+        })
+        
+        logger.debug(f"Created snapshot for {area}: {file_path} ({len(content)} chars)")
+        
+    except Exception as e:
+        logger.error(f"Failed to read file {file_path} for area {area}: {e}")
+    
+    return snapshots
+
+
+def normalize_diff(diff: str) -> str:
+    """
+    Normalize diff format for better git apply compatibility.
+    
+    Args:
+        diff: Raw unified diff string
+        
+    Returns:
+        Normalized diff string
+    """
+    # Convert CRLF to LF
+    diff = diff.replace('\r\n', '\n').replace('\r', '\n')
+    
+    # Ensure diff ends with newline
+    if diff and not diff.endswith('\n'):
+        diff += '\n'
+    
+    lines = diff.split('\n')
+    normalized_lines = []
+    
+    for line in lines:
+        # Add a/ b/ prefixes to headers if missing
+        if line.startswith('---') and not line.startswith('--- a/'):
+            if not line.startswith('--- /dev/null'):
+                # Extract filename and add a/ prefix
+                parts = line.split()
+                if len(parts) >= 2:
+                    filename = parts[1]
+                    if not filename.startswith('a/'):
+                        normalized_lines.append(f"--- a/{filename}")
+                    else:
+                        normalized_lines.append(line)
+                else:
+                    normalized_lines.append(line)
+            else:
+                normalized_lines.append(line)
+        elif line.startswith('+++') and not line.startswith('+++ b/'):
+            if not line.startswith('+++ /dev/null'):
+                # Extract filename and add b/ prefix
+                parts = line.split()
+                if len(parts) >= 2:
+                    filename = parts[1]
+                    if not filename.startswith('b/'):
+                        normalized_lines.append(f"+++ b/{filename}")
+                    else:
+                        normalized_lines.append(line)
+                else:
+                    normalized_lines.append(line)
+            else:
+                normalized_lines.append(line)
+        else:
+            normalized_lines.append(line)
+    
+    return '\n'.join(normalized_lines)
+
+
+def repair_diff_on_apply_fail(diff: str, file_path: str) -> Optional[str]:
+    """
+    Attempt to repair a diff that failed git apply check.
+    
+    Args:
+        diff: The failing diff
+        file_path: Path to the target file
+        
+    Returns:
+        Repaired diff string or None if repair failed
+    """
+    try:
+        if not os.path.exists(file_path):
+            logger.warning(f"Cannot repair diff for non-existent file: {file_path}")
+            return None
+        
+        # Read current file content
+        with open(file_path, 'r', encoding='utf-8') as f:
+            current_content = f.read()
+        
+        current_lines = current_content.splitlines(keepends=True)
+        
+        # Try to extract the intended changes from the diff
+        diff_lines = diff.split('\n')
+        additions = []
+        deletions = []
+        
+        for line in diff_lines:
+            if line.startswith('+') and not line.startswith('+++'):
+                additions.append(line[1:])  # Remove the + prefix
+            elif line.startswith('-') and not line.startswith('---'):
+                deletions.append(line[1:])  # Remove the - prefix
+        
+        # If we have clear additions/deletions, try to reconstruct
+        if additions or deletions:
+            # Simple case: if it's just additions, append them
+            if additions and not deletions:
+                new_content = current_content
+                if not new_content.endswith('\n'):
+                    new_content += '\n'
+                new_content += '\n'.join(additions) + '\n'
+            
+            # Simple case: if it's substitution of similar content
+            elif len(deletions) == len(additions):
+                new_content = current_content
+                for old_line, new_line in zip(deletions, additions):
+                    new_content = new_content.replace(old_line.rstrip(), new_line.rstrip(), 1)
+            else:
+                # More complex case - give up for now
+                logger.debug("Complex diff repair not implemented")
+                return None
+            
+            # Generate a new diff using difflib
+            new_lines = new_content.splitlines(keepends=True)
+            
+            # Use difflib to create a proper unified diff
+            unified_diff = difflib.unified_diff(
+                current_lines,
+                new_lines,
+                fromfile=f"a/{file_path}",
+                tofile=f"b/{file_path}",
+                n=3
+            )
+            
+            repaired_diff = ''.join(unified_diff)
+            logger.debug(f"Repaired diff for {file_path}: {len(repaired_diff)} chars")
+            return repaired_diff
+        
+    except Exception as e:
+        logger.error(f"Failed to repair diff for {file_path}: {e}")
+    
+    return None
+
+
+def check_git_apply(diff: str) -> tuple[bool, str]:
+    """
+    Check if a diff can be applied using git apply --check.
+    
+    Args:
+        diff: Unified diff content
+        
+    Returns:
+        (success, error_message)
+    """
+    import subprocess
+    import tempfile
+    
+    try:
+        # Write diff to temporary file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.diff', delete=False) as f:
+            f.write(diff)
+            patch_file = f.name
+        
+        # Run git apply --check
+        result = subprocess.run(
+            ["git", "apply", "--check", patch_file],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        
+        success = result.returncode == 0
+        error_msg = result.stderr if result.stderr else ""
+        
+        # Clean up
+        os.unlink(patch_file)
+        
+        return success, error_msg
+        
+    except Exception as e:
+        logger.error(f"Failed to check git apply: {e}")
+        return False, str(e)
+
+
+def make_prompt(allowed_areas: List[str], max_loc: int, snapshots: Optional[List[Dict[str, str]]] = None) -> str:
+    """
+    Create instruction prompt for the model to propose a system modification.
+    
+    Args:
+        allowed_areas: List of allowed modification areas
+        max_loc: Maximum lines of code change allowed
+        snapshots: Optional file snapshots to include in prompt
+        
+    Returns:
+        Formatted prompt string
+    """
+    areas_str = ", ".join(allowed_areas)
+    
+    # Base prompt with enhanced instructions
+    prompt = f"""You are a system improvement AI. Propose ONE minimal, reversible change to the PrimordiumEvolv meta-learning system.
+
+REQUIREMENTS:
+- Choose area from: {areas_str}
+- Maximum {max_loc} lines of code change
+- Edit only the file(s) shown below
+- Use a unified diff with a/b headers, LF, and 3 lines of context
+- Must be safe, reversible, and minimal
+
+ALLOWED CHANGES BY AREA:
+- prompts: Small prompt tweaks, add clarity, fix typos
+- bandit: Epsilon adjustment ±0.02, confidence parameter tuning
+- asi_lite: Add lightweight safety check, adjust threshold
+- rag: RAG threshold tweak, similarity adjustment ±0.05
+- memory_policy: Memory weight adjustment ±0.05, decay parameter
+- ui_metrics: Add small metric tile, improve existing dashboard element
+
+YOU MUST OUTPUT ONLY VALID JSON IN THIS EXACT FORMAT:
+{{
+    "area": "bandit",
+    "rationale": "Increase exploration by adjusting UCB confidence parameter",
+    "diff": "--- a/app/config.py\\n+++ b/app/config.py\\n@@ -22,7 +22,7 @@\\n     # UCB Bandit Configuration\\n     \\"strategy\\": os.getenv(\\"BANDIT_STRATEGY\\", \\"ucb\\"),\\n-    \\"ucb_c\\": float(os.getenv(\\"UCB_C\\", \\"2.0\\")),\\n+    \\"ucb_c\\": float(os.getenv(\\"UCB_C\\", \\"2.02\\")),\\n     \\"warm_start_min_pulls\\": int(os.getenv(\\"WARM_START_MIN_PULLS\\", \\"1\\")),\\n }}"
+}}
+
+EXAMPLE RESPONSE (this is what you should return):
+{{
+    "area": "prompts",
+    "rationale": "Clarify instruction for better model understanding",
+    "diff": "--- a/app/prompts.py\\n+++ b/app/prompts.py\\n@@ -10,7 +10,7 @@\\n def get_system_prompt():\\n     return \\"\\"\\"\\n     You are an AI assistant.\\n-    Be helpful and concise.\\n+    Be helpful, accurate, and concise.\\n     \\"\\"\\"\\n \\n"
+}}"""
+
+    # Add file snapshots if provided
+    if snapshots:
+        prompt += "\n\nCURRENT FILES TO EDIT (USE THESE EXACT PATHS IN YOUR DIFF):\n"
+        for snapshot in snapshots:
+            prompt += f"\n=== FILE PATH: {snapshot['path']} ===\n"
+            prompt += "IMPORTANT: Use this EXACT path in your diff (e.g., --- a/{} +++ b/{})\n".format(snapshot['path'], snapshot['path'])
+            prompt += "---8<--- BEGIN CURRENT CONTENT\n"
+            prompt += snapshot['content']
+            prompt += "\n---8<--- END\n"
+        prompt += "\n⚠️ CRITICAL: Your diff MUST use the exact file paths shown above, not shortened versions!\n"
+    
+    prompt += "\n\nNow output ONLY the JSON object with your proposed change (no other text, just the JSON):"
+    
+    return prompt
+
+
+def pick_model() -> str:
+    """
+    Select a model for proposal generation.
+    
+    Returns:
+        Model ID to use for generation
+    """
+    if DGM_USE_JUDGE_POOL and DGM_JUDGE_MODEL_POOL:
+        # Randomly select from judge pool
+        model_id = random.choice(DGM_JUDGE_MODEL_POOL)
+        logger.info(f"Selected judge model for DGM proposal: {model_id}")
+        return model_id
+    else:
+        # Fall back to configured models
+        fallback = DGM_GROQ_MODEL if "groq" in DGM_GROQ_MODEL else DGM_LOCAL_MODEL
+        logger.info(f"Using fallback model for DGM proposal: {fallback}")
+        return fallback
+
+
+def _parse_response(response: str, model_id: str) -> Optional[Dict[str, str]]:
+    """
+    Parse model response to extract area, rationale, and diff.
+    
+    Args:
+        response: Raw model response
+        model_id: ID of model that generated response
+        
+    Returns:
+        Dict with parsed components or None if parsing failed
+    """
+    try:
+        import json
+        
+        # Handle None or empty responses
+        if response is None:
+            logger.warning(f"Got None response from {model_id}")
+            return None
+            
+        # Handle list responses (shouldn't happen but let's be defensive)
+        if isinstance(response, list):
+            logger.warning(f"Got list response from {model_id}: {response}")
+            if response:
+                response = response[0] if isinstance(response[0], str) else str(response[0])
+            else:
+                return None
+        
+        # Ensure response is a string
+        if not isinstance(response, str):
+            logger.warning(f"Got non-string response from {model_id}: type={type(response)}")
+            response = str(response)
+        
+        # Strip whitespace if we have a string
+        response_clean = response.strip() if response else ""
+        
+        if not response_clean:
+            logger.warning(f"Empty response from {model_id}")
+            return None
+        
+        # Remove markdown code blocks if present
+        if '```json' in response_clean:
+            # Extract JSON from markdown code block
+            start = response_clean.find('```json')
+            if start != -1:
+                # Move past ```json and newline
+                start = response_clean.find('\n', start) + 1
+                end = response_clean.find('```', start)
+                if end != -1:
+                    response_clean = response_clean[start:end].strip()
+                    logger.debug(f"Extracted JSON from markdown block, length: {len(response_clean)}")
+        elif '```' in response_clean:
+            # Extract from generic code block
+            start = response_clean.find('```')
+            if start != -1:
+                # Move past ``` and potential language identifier
+                newline_pos = response_clean.find('\n', start)
+                if newline_pos != -1:
+                    start = newline_pos + 1
+                    end = response_clean.find('```', start)
+                    if end != -1:
+                        response_clean = response_clean[start:end].strip()
+                        logger.debug(f"Extracted from code block, length: {len(response_clean)}")
+        
+        # Look for JSON object in the response
+        json_start = response_clean.find('{')
+        json_end = response_clean.rfind('}') + 1
+        
+        if json_start >= 0 and json_end > json_start:
+            json_str = response_clean[json_start:json_end]
+            
+            # Check if JSON might be truncated (missing closing brace in diff)
+            if '"diff"' in json_str and not json_str.rstrip().endswith('}'):
+                # Try to fix truncated JSON by adding closing quotes and braces
+                # Count open vs close braces to determine how many to add
+                open_braces = json_str.count('{')
+                close_braces = json_str.count('}')
+                missing_braces = open_braces - close_braces
+                
+                # If the last character is not a quote, add one
+                if not json_str.rstrip().endswith('"'):
+                    json_str = json_str.rstrip() + '"'
+                
+                # Add missing closing braces
+                json_str += '}' * missing_braces
+                logger.debug(f"Fixed truncated JSON by adding {missing_braces} closing braces")
+            
+            try:
+                parsed = json.loads(json_str)
+                # Safely get and strip values, handling None and non-string types
+                area_val = parsed.get('area', '')
+                area = area_val.strip() if isinstance(area_val, str) else str(area_val).strip() if area_val else ''
+                
+                rationale_val = parsed.get('rationale', '')
+                rationale = rationale_val.strip() if isinstance(rationale_val, str) else str(rationale_val).strip() if rationale_val else ''
+                
+                diff_val = parsed.get('diff', '')
+                diff = diff_val.strip() if isinstance(diff_val, str) else str(diff_val).strip() if diff_val else ''
+                
+                if area and rationale and diff:
+                    # Validate area is allowed
+                    if area not in DGM_ALLOWED_AREAS:
+                        logger.warning(f"Invalid area '{area}' from {model_id}")
+                        return None
+                    
+                    return {
+                        'area': area,
+                        'rationale': rationale,
+                        'diff': diff
+                    }
+            except json.JSONDecodeError:
+                logger.debug(f"Failed to parse JSON from {model_id}, trying legacy format")
+        
+        # Fall back to legacy parsing format
+        lines = response_clean.split('\n')
+        area = None
+        rationale = None
+        diff_lines = []
+        in_diff = False
+        
+        for line in lines:
+            if line.startswith('AREA:'):
+                area = line.replace('AREA:', '').strip()
+            elif line.startswith('RATIONALE:'):
+                rationale = line.replace('RATIONALE:', '').strip()
+            elif line.strip() == '```diff':
+                in_diff = True
+            elif line.strip() == '```' and in_diff:
+                break
+            elif in_diff:
+                diff_lines.append(line)
+        
+        if not all([area, rationale, diff_lines]):
+            logger.warning(f"Incomplete response from {model_id}: missing components")
+            return None
+        
+        diff = '\n'.join(diff_lines)
+        
+        # Validate area is allowed
+        if area not in DGM_ALLOWED_AREAS:
+            logger.warning(f"Invalid area '{area}' from {model_id}")
+            return None
+        
+        return {
+            'area': area,
+            'rationale': rationale,
+            'diff': diff
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to parse response from {model_id}: {e}")
+        return None
+
+
+def _route_model_call(model_id: str, prompt: str) -> tuple[str, str]:
+    """
+    Route model call to appropriate engine based on model ID.
+    
+    Args:
+        model_id: Model identifier
+        prompt: Prompt to send
+        
+    Returns:
+        (response, actual_model_id) tuple
+    """
+    try:
+        # System message to ensure proper JSON formatting
+        system_message = """You are a code modification assistant that generates structured JSON responses.
+Always respond with valid JSON containing exactly these three fields:
+1. "area" - one of the allowed modification areas
+2. "rationale" - brief explanation of the change
+3. "diff" - a unified diff patch in standard git format
+
+Your response must be valid JSON that can be parsed by json.loads().
+Do not include any text before or after the JSON object."""
+        
+        # Enhanced logging to capture full request
+        logger.info(f"===== API CALL START: {model_id} =====")
+        logger.info(f"Model: {model_id}")
+        logger.info(f"Prompt length: {len(prompt)} chars")
+        logger.debug(f"System message: {system_message}")
+        logger.debug(f"Full prompt being sent:")
+        logger.debug(prompt)
+        
+        # Determine engine based on model ID patterns
+        if any(pattern in model_id.lower() for pattern in ['groq', 'llama', 'qwen', 'gpt', 'kimi']):
+            # Use Groq engine for judge models with larger token limit for complete responses
+            logger.info(f"Using Groq engine for {model_id}")
+            
+            # Use consistent token limit for all models - they all have large context windows
+            max_tokens = 4096
+            logger.info(f"Max tokens requested: {max_tokens}")
+            
+            response, actual_id = call_engine("groq", prompt, system=system_message, options={
+                "max_tokens": max_tokens,  # Standard limit for JSON responses with diffs
+                "temperature": 0.7
+            })
+            
+            # Enhanced logging to capture full response
+            logger.info(f"===== API RESPONSE: {model_id} =====")
+            logger.info(f"Response length: {len(response) if response else 0} chars")
+            logger.info(f"Actual model ID returned: {actual_id}")
+            
+            if response:
+                logger.debug(f"Full raw API response:")
+                logger.debug(response)
+                
+                # Log response characteristics
+                if '```' in response:
+                    logger.info("Response contains markdown code blocks")
+                if response.strip().endswith('}'):
+                    logger.info("Response ends with closing brace (likely complete)")
+                else:
+                    logger.warning(f"Response does NOT end with closing brace (likely truncated). Last 100 chars: {response[-100:]}")
+                    
+            logger.info(f"===== API CALL END: {model_id} =====")
+            return response, actual_id
+        else:
+            # Use Ollama for local models
+            logger.info(f"Using Ollama engine for {model_id}")
+            response, actual_id = call_engine("ollama", prompt, system=system_message, options={
+                "num_predict": 8192,  # Increased to ensure full JSON responses with diffs
+                "temperature": 0.7
+            })
+            logger.info(f"Got response from Ollama, length: {len(response) if response else 0} chars")
+            logger.debug(f"Full response: {response}")
+            return response, actual_id
+            
+    except Exception as e:
+        logger.error(f"Model call failed for {model_id}: {e}")
+        logger.error(f"Exception details: {str(e)}")
+        raise
+
+
+def _gen_one(model_id: str, target_area: Optional[str] = None) -> Optional[MetaPatch]:
+    """
+    Generate one proposal using the specified model.
+    
+    Args:
+        model_id: Model to use for generation
+        target_area: Optional specific area to target (for enhanced snapshots)
+        
+    Returns:
+        MetaPatch if successful, None if failed
+    """
+    try:
+        # Always try to get snapshots - if no target area, pick a random one
+        snapshots = []
+        if target_area and target_area in DGM_ALLOWED_AREAS:
+            snapshots = get_snapshot(target_area)
+            logger.debug(f"Using {len(snapshots)} snapshots for area: {target_area}")
+        else:
+            # Pick a random area to get some context
+            import random
+            random_area = random.choice(DGM_ALLOWED_AREAS)
+            snapshots = get_snapshot(random_area)
+            logger.debug(f"Using {len(snapshots)} snapshots for random area: {random_area}")
+        
+        
+        # Create prompt with snapshots
+        prompt = make_prompt(DGM_ALLOWED_AREAS, DGM_MAX_LOC_DELTA, snapshots)
+        
+        # Call model
+        response, actual_model_id = _route_model_call(model_id, prompt)
+        
+        # Log the raw response for debugging
+        logger.debug(f"Raw response from {model_id} (length={len(response) if response else 0}): {response[:2000] if response else 'None'}")
+        
+        # Parse response
+        parsed = _parse_response(response, model_id)
+        if not parsed:
+            logger.warning(f"Failed to parse response from {model_id}. Response: {response[:500] if response else 'None'}")
+            return None
+        
+        area = parsed['area']
+        rationale = parsed['rationale']
+        diff = parsed['diff']
+        
+        # Normalize the diff
+        diff = normalize_diff(diff)
+        
+        # Check if git apply would work
+        apply_ok, apply_error = check_git_apply(diff)
+        
+        # If git apply fails, try to repair the diff
+        if not apply_ok:
+            logger.debug(f"Git apply check failed for {model_id}: {apply_error[:200]}")
+            
+            # Try to extract file path from diff for repair
+            diff_lines = diff.split('\n')
+            file_path = None
+            for line in diff_lines:
+                if line.startswith('--- a/') or line.startswith('+++ b/'):
+                    # Extract file path
+                    parts = line.split('/')
+                    if len(parts) > 1:
+                        file_path = '/'.join(parts[1:])
+                        break
+            
+            if file_path:
+                repaired_diff = repair_diff_on_apply_fail(diff, file_path)
+                if repaired_diff:
+                    # Check if repaired diff works
+                    repair_ok, repair_error = check_git_apply(repaired_diff)
+                    if repair_ok:
+                        logger.info(f"Successfully repaired diff for {model_id}")
+                        diff = repaired_diff
+                        apply_ok = True
+                    else:
+                        logger.warning(f"Repaired diff still fails: {repair_error[:200]}")
+            
+            # If repair didn't work, reject the patch
+            if not apply_ok:
+                logger.warning(f"Patch from {model_id} failed git apply check: {apply_error[:200]}")
+                return None
+        
+        # Calculate LOC delta
+        loc_delta = calculate_loc_delta(diff)
+        
+        # Check size limit
+        if loc_delta > DGM_MAX_LOC_DELTA:
+            logger.warning(f"Patch from {model_id} exceeds LOC limit: {loc_delta} > {DGM_MAX_LOC_DELTA}")
+            return None
+        
+        # Check safety
+        is_safe, safety_reason = is_safe_diff(diff)
+        if not is_safe:
+            logger.warning(f"Unsafe patch from {model_id}: {safety_reason}")
+            return None
+        
+        # Create MetaPatch
+        patch = MetaPatch.create(
+            area=area,
+            origin=actual_model_id,  # Use actual model ID returned by engine
+            notes=rationale,
+            diff=diff,
+            loc_delta=loc_delta
+        )
+        
+        logger.info(f"Generated patch {patch.id} from {model_id} (area: {area}, loc_delta: {loc_delta})")
+        return patch
+        
+    except Exception as e:
+        logger.error(f"Failed to generate patch with {model_id}: {e}")
+        return None
+
+
+def generate(n: int, allowed_areas: Optional[List[str]] = None) -> ProposalResponse:
+    """
+    Generate multiple system modification proposals.
+    
+    Args:
+        n: Number of proposals to attempt
+        allowed_areas: Override allowed areas (uses config default if None)
+        
+    Returns:
+        ProposalResponse with generated patches and metadata
+    """
+    start_time = time.time()
+    patches = []
+    rejected = []
+    
+    # Use provided areas or default from config
+    areas = allowed_areas or DGM_ALLOWED_AREAS
+    
+    logger.info(f"Generating {n} DGM proposals in areas: {areas}")
+    
+    for i in range(n):
+        try:
+            # Pick model for this proposal
+            model_id = pick_model()
+            
+            # Generate proposal
+            patch = _gen_one(model_id)
+            
+            if patch:
+                patches.append(patch)
+                logger.info(f"Proposal {i+1}/{n}: Success - {patch.id}")
+            else:
+                rejected.append({
+                    "index": i + 1,
+                    "origin": model_id,
+                    "reason": "Generation or validation failed",
+                    "area": "unknown"
+                })
+                logger.info(f"Proposal {i+1}/{n}: Rejected from {model_id}")
+                
+        except Exception as e:
+            logger.error(f"Proposal {i+1}/{n}: Exception - {e}")
+            rejected.append({
+                "index": i + 1,
+                "origin": "unknown",
+                "reason": f"Exception: {str(e)}",
+                "area": "unknown"  
+            })
+    
+    execution_time = int((time.time() - start_time) * 1000)
+    
+    logger.info(f"Generated {len(patches)} patches, rejected {len(rejected)}, took {execution_time}ms")
+    
+    return ProposalResponse(
+        patches=patches,
+        rejected=rejected,
+        total_generated=n,
+        execution_time_ms=execution_time
+    )
+
+
+def generate_single(area: str, model_id: Optional[str] = None) -> Optional[MetaPatch]:
+    """
+    Generate a single proposal for a specific area.
+    
+    Args:
+        area: Target modification area
+        model_id: Optional specific model to use
+        
+    Returns:
+        MetaPatch if successful, None if failed
+    """
+    if area not in DGM_ALLOWED_AREAS:
+        logger.error(f"Area '{area}' not in allowed areas: {DGM_ALLOWED_AREAS}")
+        return None
+    
+    # Override allowed areas for this generation
+    original_areas = DGM_ALLOWED_AREAS.copy()
+    try:
+        # Temporarily modify allowed areas to only include target
+        import app.config
+        app.config.DGM_ALLOWED_AREAS = [area]
+        
+        # Use specified model or pick one
+        target_model = model_id or pick_model()
+        
+        # Generate
+        patch = _gen_one(target_model)
+        return patch
+        
+    finally:
+        # Restore original allowed areas
+        import app.config
+        app.config.DGM_ALLOWED_AREAS = original_areas
+
+
+# Statistics and monitoring
+_generation_stats = {
+    "total_attempts": 0,
+    "successful_patches": 0,
+    "rejected_patches": 0,
+    "model_usage": {},
+    "area_distribution": {}
+}
+
+
+def get_generation_stats() -> Dict[str, Any]:
+    """Get statistics about proposal generation."""
+    return _generation_stats.copy()
+
+
+def reset_generation_stats():
+    """Reset generation statistics."""
+    global _generation_stats
+    _generation_stats = {
+        "total_attempts": 0,
+        "successful_patches": 0,
+        "rejected_patches": 0,
+        "model_usage": {},
+        "area_distribution": {}
+    }

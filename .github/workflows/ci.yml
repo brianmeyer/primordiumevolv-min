@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest ruff
+        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt || true; fi
+        if [ -f requirements.txt ]; then pip install -r requirements.txt || true; fi
+
+    - name: Lint with ruff
+      run: |
+        ruff check . --output-format=github
+        ruff format --check .
+
+    - name: Test with pytest
+      run: |
+        pytest -q tests/test_patcher.py
+        pytest -q tests/test_e2e_single_edit.py
+
+    - name: Test patcher smoke
+      run: |
+        mkdir -p app
+        printf 'X=1\n' > app/config.py
+        python scripts/patcher_smoke.py --path app/config.py --match 'X=1\n' --replace 'X=2\n' --goal ci_test --model ci/test
+
+    - name: Test E2E single edit
+      run: |
+        mkdir -p app
+        printf 'Y=1\n' > app/config.py
+        python scripts/e2e_single_edit.py --path app/config.py --match 'Y=1\n' --replace 'Y=2\n' --goal ci_e2e --model ci/test --run-id CI001
+
+    - name: Test edit package limits
+      run: |
+        export EDIT_PKG_MAX_EDITS=2
+        export EDIT_PKG_MAX_EDIT_STR_LEN=50
+        python -c "
+        from app.dgm.proposer import MAX_EDITS, MAX_EDIT_STR;
+        print(f'Edit limits configured: {MAX_EDITS} edits, {MAX_EDIT_STR} chars');
+        assert MAX_EDITS == 2, f'Expected 2 max edits, got {MAX_EDITS}';
+        assert MAX_EDIT_STR == 50, f'Expected 50 max chars, got {MAX_EDIT_STR}';
+        print('✓ Limits working correctly')
+        "
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install pre-commit
+      run: pip install pre-commit
+
+    - name: Run pre-commit
+      run: pre-commit run --all-files --show-diff-on-failure

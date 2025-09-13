@@ -1,0 +1,36 @@
+{
+  "timestamp": 1757720487.953268,
+  "session_id": "8dd1d1e8-8f78-4508-8445-c2e53a80c837",
+  "response": {
+    "patches": [],
+    "rejected": [
+      {
+        "index": 1,
+        "origin": "groq/compound",
+        "reason": "Generation or validation failed",
+        "area": "unknown"
+      }
+    ],
+    "total_generated": 1,
+    "execution_time_ms": 945,
+    "count": 0,
+    "validation_summary": {
+      "total_generated": 0,
+      "total_rejected": 1,
+      "validation_passed": 0,
+      "validation_failed": 0
+    },
+    "shadow_evaluation": {
+      "patches_evaluated": 0,
+      "reason": "No patches passed dry-run validation"
+    },
+    "guards_and_selection": {
+      "winner": null,
+      "reason": "No shadow evaluation results to analyze"
+    },
+    "session_id": "8dd1d1e8-8f78-4508-8445-c2e53a80c837",
+    "sse_topics": [
+      "dgm.proposals"
+    ]
+  }
+}

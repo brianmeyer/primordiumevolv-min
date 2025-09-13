@@ -1,0 +1,468 @@
+# Dead Code Sweep Report
+
+## Potentially Unused Modules (no imports found)
+- app.config_types (/Users/brianmeyer/Desktop/primordiumevolv-min/app/config_types.py)
+- app.dgm (/Users/brianmeyer/Desktop/primordiumevolv-min/app/dgm/__init__.py)
+- app.dgm.attribution (/Users/brianmeyer/Desktop/primordiumevolv-min/app/dgm/attribution.py)
+- app.dgm.canary (/Users/brianmeyer/Desktop/primordiumevolv-min/app/dgm/canary.py)
+- app.dgm.proposals (/Users/brianmeyer/Desktop/primordiumevolv-min/app/dgm/proposals.py)
+- app.meta.adaptive_nudges (/Users/brianmeyer/Desktop/primordiumevolv-min/app/meta/adaptive_nudges.py)
+- app.server (/Users/brianmeyer/Desktop/primordiumevolv-min/app/server/__init__.py)
+- app.util.gitops (/Users/brianmeyer/Desktop/primordiumevolv-min/app/util/gitops.py)
+- app.utils (/Users/brianmeyer/Desktop/primordiumevolv-min/app/utils/__init__.py)
+
+## Modules Imported Only In Tests
+- app.dgm.analytics
+- app.dgm.canary_state
+- app.dgm.mutations
+- app.dgm.registry
+- app.dgm.resources
+- app.dgm.shadow
+- app.dgm.smokepatch
+
+## Modules with Weak Signals (indirect use or only routes)
+- None
+
+## Potentially Unused Symbols (module imported but symbols not referenced)
+- app.code_loop:
+  - _hash_file
+  - _run_pytests
+  - _run_subset_avg
+  - _select_golden_subset
+  - _start_worker
+  - _within_rate_limit
+- app.dgm.apply:
+  - cleanup_applier
+  - commit
+  - get_applier
+  - revert
+- app.dgm.canary_state:
+  - CanaryDeployment
+  - CanaryManager
+  - CanaryMetrics
+- app.dgm.core:
+  - DGMCore
+- app.dgm.eval:
+  - ShadowEvaluator
+  - get_all_shadow_evals
+- app.dgm.guards:
+  - get_guard_preset
+  - get_guard_thresholds
+  - is_guard_enabled
+  - validate_thresholds
+- app.dgm.mutations:
+  - ASIMutation
+  - BanditMutation
+  - MemoryMutation
+  - MutationOp
+  - PromptMutation
+  - RAGMutation
+  - UIMutation
+- app.dgm.patch_enforcer:
+  - _count_changes
+  - _ensure_final_newline
+  - _fix_headers
+  - _json_loads_loose
+  - _reanchor_hunk
+  - _to_diff_lines
+  - _validate_headers
+- app.dgm.proposer:
+  - check_git_apply
+  - get_generation_stats
+  - pick_model
+  - reset_generation_stats
+- app.dgm.registry:
+  - get_registry
+- app.dgm.resources:
+  - ResourceError
+  - ResourceMonitor
+  - check_resource_guards
+  - create_resource_guard_sse_event
+  - get_cached_resource_status
+  - get_resource_status
+  - get_system_info
+  - monitor_operation_timeout
+- app.dgm.selector:
+  - SelectionResult
+  - compare_patches
+  - filter_safe_patches
+  - get_top_k_patches
+- app.dgm.shadow:
+  - _apply_patch_to_temp
+  - _evaluate_task_performance
+  - get_shadow_stats
+  - reset_shadow_stats
+- app.dgm.smokepatch:
+  - get_smoke_patch_variants
+  - make_bandit_smoke_patch
+  - make_memory_ui_patch
+  - select_smoke_patch
+- app.dgm.storage:
+  - CommitArtifact
+  - PatchStorage
+  - get_commit_by_patch_id
+- app.dgm.types:
+  - ProposalRequest
+  - validate_area
+- app.engines:
+  - health
+- app.errors:
+  - AppError
+  - MemoryError
+  - MetaError
+  - ValidationError
+  - error_response
+- app.eval.suite:
+  - safety_probes
+- app.evolve.loop:
+  - _cos
+- app.groq_client:
+  - GroqError
+  - _get_session
+  - _headers
+  - clear_cache
+  - generate
+  - health
+- app.job_manager:
+  - JobConflictError
+  - finish_job
+  - start_job
+- app.judge:
+  - build_judge_messages
+- app.memory.embed:
+  - _initialize_embedder
+  - get_embedding_dimension
+- app.memory.metrics:
+  - MemoryMetrics
+  - MemoryMetricsTracker
+  - _percentile
+- app.memory.retriever:
+  - _extract_output_excerpt
+  - _extract_plan_excerpt
+  - _get_evolution_instruction
+  - _infer_weaknesses
+  - format_memory_context
+  - truncate_to_token_limit
+- app.memory.store:
+  - MemoryStore
+  - normalize_task_class
+- app.meta.operators:
+  - get_default_plan
+- app.meta.rewards:
+  - compute_cost_penalty
+  - compute_outcome_reward
+  - compute_process_reward
+  - has_creativity_balance
+  - has_documentation
+  - has_error_handling
+  - has_examples
+  - has_proper_functions
+  - has_references
+  - has_structured_reasoning
+  - has_web_context
+  - is_code_related
+- app.meta.runner:
+  - _weighted_system_for_task
+- app.meta.store:
+  - get_operator_engine_stats
+  - increment_recipe_usage
+  - operator_time_series
+- app.middleware:
+  - TokenBucket
+- app.models:
+  - TodoAddRequest
+  - TodoIdRequest
+- app.ollama_client:
+  - OllamaError
+  - _get
+  - _get_session
+  - _post
+  - clear_cache
+  - models_list
+- app.quality_judge:
+  - build_quality_prompt
+  - build_tie_breaker_prompt
+  - extract_json_from_response
+  - groq_quality_score
+  - hybrid_quality_score
+  - select_judge_models
+- app.tools.rag:
+  - _chunk
+  - _load_docs
+  - query
+- app.tools.web_search:
+  - _ddg_search
+  - _tavily_search
+  - search
+- app.utils.logging:
+  - iso8601_now
+  - log_artifact
+  - log_error
+
+## Symbol Call Sites (for referenced symbols)
+- app.cache_manager:
+  - clear_all_caches: app/main.py:69, app/main.py:69
+  - clear_streaming_queues: app/main.py:70, app/main.py:70
+- app.code_loop:
+  - code_loop: app/main.py:1834, app/main.py:1834, tests/test_phase4_controls.py:7, tests/test_phase4_controls.py:8, tests/test_phase4_controls.py:17
+  - run_phase4: app/main.py:1834, app/main.py:1834, tests/test_phase4_controls.py:24, tests/test_phase4_controls.py:24
+  - _code_loop: app/meta/runner.py:925, app/meta/runner.py:925
+  - maybe_enqueue: app/meta/runner.py:925, app/meta/runner.py:925, tests/test_phase4_controls.py:7, tests/test_phase4_controls.py:8, tests/test_phase4_controls.py:19
+  - _run_timestamps: tests/test_phase4_controls.py:16, tests/test_phase4_controls.py:18, tests/test_phase4_controls.py:16, tests/test_phase4_controls.py:18
+  - _processed_ids: tests/test_phase4_controls.py:5, tests/test_phase4_controls.py:5
+  - _queue: tests/test_phase4_controls.py:6, tests/test_phase4_controls.py:6
+  - CODE_LOOP_MAX_PER_HOUR: tests/test_phase4_controls.py:17, tests/test_phase4_controls.py:17
+- app.config:
+  - CODE_LOOP_MODE: app/code_loop.py:146, app/code_loop.py:229, app/code_loop.py:146, app/code_loop.py:229
+  - GOLDEN_PASS_RATE_TARGET: app/code_loop.py:169, app/code_loop.py:195, app/code_loop.py:77, app/main.py:1113, app/code_loop.py:169
+  - PHASE4_COST_RATIO_MAX: app/code_loop.py:194, app/code_loop.py:168, app/main.py:1112, app/code_loop.py:194, app/code_loop.py:168
+  - PHASE4_DELTA_REWARD_MIN: app/code_loop.py:170, app/code_loop.py:193, app/code_loop.py:202, app/main.py:1111, app/code_loop.py:170
+  - CODE_LOOP_MAX_PER_HOUR: app/code_loop.py:219, app/code_loop.py:219
+  - CODE_LOOP_TIMEOUT_SECONDS: app/code_loop.py:256, app/code_loop.py:256
+  - FF_MEMORY: app/main.py:897, app/meta/runner.py:196, app/meta/runner.py:872, app/meta/runner.py:286, app/main.py:897
+  - DGM_LAST_PROPOSE_FILE: app/main.py:1393, app/main.py:1610, app/main.py:1617, app/main.py:1386, app/main.py:1394
+  - FF_DGM: app/main.py:227, app/main.py:261, app/main.py:295, app/main.py:329, app/main.py:1165
+  - DGM_ALLOWED_AREAS: app/main.py:1215, app/main.py:1219, app/dgm/types.py:157, app/dgm/proposer.py:1018, app/dgm/proposer.py:1074
+  - DGM_PROPOSALS: app/main.py:1215, app/main.py:1219, app/main.py:1218, app/main.py:1215, app/main.py:1219
+  - DGM_ALLOW_COMMITS: app/main.py:1430, app/main.py:1539, app/dgm/apply.py:442, app/dgm/apply.py:583, app/dgm/apply.py:248
+  - MEMORY_TASK_CLASS_FUZZY: app/memory/store.py:278, app/memory/store.py:278
+  - MEMORY_TIME_DECAY: app/memory/store.py:217, app/memory/store.py:217
+  - MEMORY_REWARD_WEIGHT: app/memory/store.py:224, app/memory/store.py:223, app/memory/store.py:224, app/memory/store.py:223
+  - MEMORY_MIN_CONFIDENCE: app/memory/store.py:149, app/memory/store.py:149
+  - MEMORY_REWARD_FLOOR: app/memory/store.py:148, app/meta/runner.py:207, app/memory/store.py:148, app/meta/runner.py:207
+  - MEMORY_POLLUTION_GUARD: app/memory/store.py:147, app/memory/store.py:147
+  - MEMORY_DECAY_DAYS: app/memory/store.py:219, app/memory/store.py:219
+  - MEMORY_BASELINE_REWARD: app/memory/store.py:68, app/memory/store.py:68
+- app.dgm.analytics:
+  - get_temporal_trends: tests/dgm/test_attribution_and_analytics.py:212, tests/dgm/test_attribution_and_analytics.py:212
+  - get_attribution_stats: tests/dgm/test_attribution_and_analytics.py:119, tests/dgm/test_attribution_and_analytics.py:181, tests/dgm/test_attribution_and_analytics.py:336, tests/dgm/test_attribution_and_analytics.py:363, tests/dgm/test_attribution_and_analytics.py:381
+  - get_rollback_stats: tests/dgm/test_attribution_and_analytics.py:290, tests/dgm/test_attribution_and_analytics.py:290
+  - get_performance_stats: tests/dgm/test_attribution_and_analytics.py:253, tests/dgm/test_attribution_and_analytics.py:253
+  - track_patch_lifecycle: tests/dgm/test_attribution_and_analytics.py:67, tests/dgm/test_attribution_and_analytics.py:68, tests/dgm/test_attribution_and_analytics.py:69, tests/dgm/test_attribution_and_analytics.py:70, tests/dgm/test_attribution_and_analytics.py:405
+  - cleanup_old_analytics: tests/dgm/test_attribution_and_analytics.py:307, tests/dgm/test_attribution_and_analytics.py:307
+  - calculate_success_metrics: tests/dgm/test_attribution_and_analytics.py:156, tests/dgm/test_attribution_and_analytics.py:156
+- app.dgm.apply:
+  - batch_try_patches: app/main.py:1232, app/main.py:1232, tests/dgm/test_apply_dryrun.py:254, tests/dgm/test_apply_dryrun.py:254
+  - rollback_commit: app/main.py:1571, test_dgm_rollback.py:27, app/main.py:1571, tests/dgm/test_commit_and_rollback.py:159, tests/dgm/test_commit_and_rollback.py:170
+  - commit_patch: app/main.py:1498, app/main.py:1498, tests/dgm/test_commit_and_rollback.py:43, tests/dgm/test_commit_and_rollback.py:55, tests/dgm/test_commit_and_rollback.py:75
+  - check_git_apply: tests/dgm/test_triage.py:118, tests/dgm/test_triage.py:132, tests/dgm/test_triage.py:145, tests/dgm/test_triage.py:118, tests/dgm/test_triage.py:132
+  - rollback_patch: tests/dgm/test_commit_and_rollback.py:261, tests/dgm/test_commit_and_rollback.py:283, tests/dgm/test_commit_and_rollback.py:236, tests/dgm/test_apply_dryrun.py:186, tests/dgm/test_apply_dryrun.py:160
+  - try_patch: tests/dgm/test_patchability.py:389, tests/dgm/test_patchability.py:426, tests/dgm/test_apply_dryrun.py:86, tests/dgm/test_apply_dryrun.py:276, tests/dgm/test_apply_dryrun.py:73
+  - DryRunApplier: tests/dgm/test_apply_dryrun.py:49, tests/dgm/test_apply_dryrun.py:49
+- app.dgm.canary_state:
+  - get_canary_manager: test_canary.py:66, test_canary.py:105
+- app.dgm.core:
+  - get_dgm_core: app/main.py:1174, app/main.py:1174
+- app.dgm.eval:
+  - get_shadow_eval: app/main.py:1457, app/main.py:1457, tests/dgm/test_shadow_eval_metrics.py:191, tests/dgm/test_shadow_eval_metrics.py:198, tests/dgm/test_shadow_eval_metrics.py:191
+  - shadow_eval: app/main.py:1260, app/main.py:1260, tests/dgm/test_shadow_eval_metrics.py:44, tests/dgm/test_shadow_eval_metrics.py:65, tests/dgm/test_shadow_eval_metrics.py:82
+  - register_shadow_eval: app/main.py:1264, app/main.py:1264, tests/dgm/test_shadow_eval_metrics.py:188, tests/dgm/test_shadow_eval_metrics.py:223, tests/dgm/test_shadow_eval_metrics.py:188
+  - ShadowEvalResult: app/dgm/guards.py:55, app/dgm/guards.py:144, app/dgm/selector.py:20, app/dgm/selector.py:295, app/dgm/selector.py:61
+  - clear_shadow_eval_registry: tests/dgm/test_shadow_eval_metrics.py:176, tests/dgm/test_shadow_eval_metrics.py:208, tests/dgm/test_shadow_eval_metrics.py:176, tests/dgm/test_shadow_eval_metrics.py:208
+  - batch_shadow_eval: tests/dgm/test_shadow_eval_metrics.py:164, tests/dgm/test_shadow_eval_metrics.py:164
+  - get_registry_stats: tests/dgm/test_shadow_eval_metrics.py:225, tests/dgm/test_shadow_eval_metrics.py:225
+- app.dgm.guards:
+  - get_violation_summary: app/main.py:1309, app/main.py:1309
+  - GuardResult: app/dgm/selector.py:21, app/dgm/selector.py:61, app/dgm/selector.py:21, app/dgm/selector.py:61, tests/dgm/test_shadow_guards.py:143
+  - violations: app/dgm/selector.py:252, app/dgm/selector.py:253, app/dgm/selector.py:136, app/dgm/selector.py:309, app/dgm/selector.py:252
+  - check_reward_delta: tests/dgm/test_guards_logic.py:76, tests/dgm/test_guards_logic.py:92, tests/dgm/test_guards_logic.py:104, tests/dgm/test_guards_logic.py:217, tests/dgm/test_guards_logic.py:76
+  - check_latency_regression: tests/dgm/test_guards_logic.py:50, tests/dgm/test_guards_logic.py:65, tests/dgm/test_guards_logic.py:183, tests/dgm/test_guards_logic.py:216, tests/dgm/test_guards_logic.py:50
+  - check_error_rate: tests/dgm/test_guards_logic.py:27, tests/dgm/test_guards_logic.py:39, tests/dgm/test_guards_logic.py:175, tests/dgm/test_guards_logic.py:179, tests/dgm/test_guards_logic.py:191
+  - GuardViolation: tests/dgm/test_shadow_guards.py:122, tests/dgm/test_shadow_guards.py:139, tests/dgm/test_shadow_guards.py:140, tests/dgm/test_shadow_guards.py:122, tests/dgm/test_shadow_guards.py:139
+  - batch_guard_check: tests/dgm/test_shadow_guards.py:206, tests/dgm/test_shadow_guards.py:206
+- app.dgm.mutations:
+  - generate_multiple_mutations: test_mutations.py:31
+  - MUTATION_REGISTRY: test_mutations.py:14
+  - generate_mutation: test_mutations.py:16
+  - keys: test_mutations.py:14
+- app.dgm.patch_enforcer:
+  - enforce_and_sanitize: app/dgm/proposer.py:712, test_patch_enforcer.py:65, app/dgm/proposer.py:712
+  - PatchFormatError: app/dgm/proposer.py:715, test_patch_enforcer.py:90, app/dgm/proposer.py:715
+- app.dgm.proposer:
+  - generate: app/main.py:1219, app/main.py:413, test_improved_prompt.py:30, test_mutations.py:49, test_mutations.py:58
+  - normalize_diff: app/dgm/apply.py:270, app/dgm/apply.py:270, tests/dgm/test_patchability.py:144, tests/dgm/test_patchability.py:149, tests/dgm/test_patchability.py:160
+  - repair_diff_on_apply_fail: app/dgm/apply.py:285, app/dgm/apply.py:285, tests/dgm/test_patchability.py:198, tests/dgm/test_patchability.py:462, tests/dgm/test_patchability.py:182
+  - generate_single: test_dgm_debug.py:108
+  - _parse_response: test_model_response.py:48, test_dgm.py:15, tests/dgm/test_triage.py:23, tests/dgm/test_triage.py:35, tests/dgm/test_triage.py:46
+  - make_prompt: test_model_response.py:20, tests/dgm/test_patchability.py:280, tests/dgm/test_proposer_validation.py:290, tests/dgm/test_proposer_validation.py:306, tests/dgm/test_proposer_validation.py:313
+  - _route_model_call: test_model_response.py:35, test_simple_prompt.py:36
+  - DGM_ALLOWED_AREAS: test_model_response.py:20, improved_prompt.py:103
+  - _gen_one: test_patch_quality.py:131, test_patch_quality.py:19, test_all_models.py:19, tests/dgm/test_triage.py:101, tests/dgm/test_triage.py:86
+  - build_prompt: test_failing_model.py:29
+  - DGM_MAX_LOC_DELTA: improved_prompt.py:103
+  - get_snapshot: improved_prompt.py:100, tests/dgm/test_patchability.py:125, tests/dgm/test_patchability.py:133, tests/dgm/test_patchability.py:97, tests/dgm/test_patchability.py:116
+  - _normalize_area: tests/dgm/test_proposer_validation.py:23, tests/dgm/test_proposer_validation.py:24, tests/dgm/test_proposer_validation.py:25, tests/dgm/test_proposer_validation.py:50, tests/dgm/test_proposer_validation.py:43
+  - _is_unified_diff: tests/dgm/test_proposer_validation.py:135, tests/dgm/test_proposer_validation.py:157, tests/dgm/test_proposer_validation.py:135, tests/dgm/test_proposer_validation.py:157
+  - _diff_touches_only_allowlist: tests/dgm/test_proposer_validation.py:168, tests/dgm/test_proposer_validation.py:177, tests/dgm/test_proposer_validation.py:191, tests/dgm/test_proposer_validation.py:168, tests/dgm/test_proposer_validation.py:177
+  - _infer_area_from_diff: tests/dgm/test_proposer_validation.py:81, tests/dgm/test_proposer_validation.py:94, tests/dgm/test_proposer_validation.py:81, tests/dgm/test_proposer_validation.py:94
+- app.dgm.registry:
+  - DGMRegistry: tests/dgm/test_registry_api.py:34, tests/dgm/test_registry_api.py:34
+- app.dgm.resources:
+  - ResourceStatus: tests/dgm/test_proposer_allowlists.py:192, tests/dgm/test_proposer_allowlists.py:192
+  - ResourceGuard: tests/dgm/test_proposer_allowlists.py:184, tests/dgm/test_proposer_allowlists.py:184
+- app.dgm.selector:
+  - rank_and_pick: app/main.py:1305, app/main.py:1305, tests/dgm/test_shadow_guards.py:292, tests/dgm/test_shadow_guards.py:317, tests/dgm/test_shadow_guards.py:341
+  - get_selection_summary: tests/dgm/test_shadow_guards.py:342, tests/dgm/test_shadow_guards.py:342
+  - SelectionCandidate: tests/dgm/test_shadow_guards.py:235, tests/dgm/test_shadow_guards.py:235
+  - _compute_rank_score: tests/dgm/test_shadow_guards.py:263, tests/dgm/test_shadow_guards.py:271, tests/dgm/test_selector_ranking.py:90, tests/dgm/test_selector_ranking.py:103, tests/dgm/test_shadow_guards.py:263
+- app.dgm.shadow:
+  - evaluate_patch_shadow: tests/dgm/test_shadow_guards.py:77, tests/dgm/test_shadow_guards.py:77
+  - evaluate_patches_shadow: tests/dgm/test_shadow_guards.py:107, tests/dgm/test_shadow_guards.py:107
+  - _get_golden_subset: tests/dgm/test_shadow_guards.py:45, tests/dgm/test_shadow_guards.py:50, tests/dgm/test_shadow_guards.py:54, tests/dgm/test_shadow_guards.py:55, tests/dgm/test_shadow_guards.py:45
+  - ShadowResult: tests/dgm/test_shadow_guards.py:22, tests/dgm/test_shadow_guards.py:365, tests/dgm/test_shadow_guards.py:97, tests/dgm/test_shadow_guards.py:22, tests/dgm/test_shadow_guards.py:365
+- app.dgm.simple_prompt:
+  - make_simple_prompt: app/dgm/proposer.py:915, app/dgm/proposer.py:915
+- app.dgm.smokepatch:
+  - make_smoke_patch: tests/dgm/test_triage.py:249, tests/dgm/test_triage.py:258, tests/dgm/test_triage.py:249, tests/dgm/test_triage.py:258
+  - validate_smoke_patch: tests/dgm/test_triage.py:260, tests/dgm/test_triage.py:269, tests/dgm/test_triage.py:283, tests/dgm/test_triage.py:302, tests/dgm/test_triage.py:260
+- app.dgm.storage:
+  - get_patch_storage: app/main.py:1460, app/dgm/apply.py:626, test_dgm_rollback.py:35, app/main.py:1460, app/dgm/apply.py:626
+  - save_commit_artifact: app/dgm/apply.py:541, app/dgm/apply.py:541
+- app.dgm.types:
+  - MetaPatch: app/main.py:1480, app/dgm/proposer.py:887, app/dgm/proposer.py:1063, app/dgm/proposer.py:986, app/dgm/storage.py:383
+  - ProposalResponse: app/dgm/proposer.py:1002, app/dgm/proposer.py:1055, app/dgm/proposer.py:1002, app/dgm/proposer.py:1055, tests/dgm/test_triage.py:317
+  - calculate_loc_delta: app/dgm/proposer.py:972, app/dgm/proposer.py:972
+  - is_safe_diff: app/dgm/proposer.py:980, app/dgm/proposer.py:980
+  - create: app/dgm/proposer.py:986, app/dgm/proposer.py:986, tests/dgm/test_shadow_guards.py:73, tests/dgm/test_shadow_guards.py:91, tests/dgm/test_shadow_guards.py:92
+  - ApplyResult: app/dgm/apply.py:234, app/dgm/apply.py:368, app/dgm/apply.py:252, app/dgm/apply.py:234, app/dgm/apply.py:368
+  - extract_diff_stats: app/dgm/apply.py:256, app/dgm/apply.py:256, tests/dgm/test_patchability.py:209, tests/dgm/test_patchability.py:231, tests/dgm/test_patchability.py:242
+  - ShadowEvalResult: tests/dgm/test_guards_logic.py:117, tests/dgm/test_guards_logic.py:139, tests/dgm/test_guards_logic.py:263, tests/dgm/test_shadow_eval_metrics.py:178, tests/dgm/test_shadow_eval_metrics.py:46
+  - GuardResult: tests/dgm/test_selector_ranking.py:84, tests/dgm/test_selector_ranking.py:84
+- app.embeddings:
+  - _get_model: app/memory.py:170, app/memory.py:134, app/memory.py:161, app/memory.py:203, app/tools/rag.py:53
+  - get_embedder: app/cache_manager.py:24, app/cache_manager.py:24
+  - cache_clear: app/cache_manager.py:24, app/cache_manager.py:24
+  - get_model: app/main.py:102, app/main.py:102
+- app.engines:
+  - h: app/main.py:171, app/main.py:171
+  - call_engine: app/dgm/proposer.py:845, app/dgm/proposer.py:873, app/meta/runner.py:353, app/meta/runner.py:744, app/meta/runner.py:754
+- app.errors:
+  - RAGError: app/main.py:491, app/main.py:491
+  - handle_exception: app/main.py:173, app/main.py:422, app/main.py:465, app/main.py:474, app/main.py:482
+  - ModelError: app/main.py:415, app/main.py:415
+- app.eval.suite:
+  - promotion_gate: app/meta/runner.py:778, app/meta/runner.py:778
+  - write_eval_artifact: app/meta/runner.py:780, app/meta/runner.py:780
+- app.evolve.loop:
+  - score_output: app/judge.py:45, app/judge.py:46, app/quality_judge.py:553, app/meta/runner.py:378, app/meta/runner.py:730
+  - evolve: app/main.py:471, app/main.py:471
+  - stitch_context: app/meta/runner.py:293, app/meta/runner.py:301, app/meta/runner.py:309, app/meta/runner.py:293, app/meta/runner.py:301
+- app.groq_client:
+  - clear_groq: app/cache_manager.py:17, app/cache_manager.py:17
+  - groq_health: app/engines.py:38, app/engines.py:38
+  - groq_gen: app/engines.py:31, app/engines.py:31
+  - groq_available: app/judge.py:30, app/quality_judge.py:329, app/meta/runner.py:726, app/meta/runner.py:743, app/meta/runner.py:753
+  - pick_model: app/judge.py:33, app/judge.py:33
+  - chat_complete: app/judge.py:33, app/quality_judge.py:345, app/quality_judge.py:433, app/judge.py:33, app/quality_judge.py:345
+  - list_models: app/main.py:181, app/main.py:109, app/main.py:181, app/main.py:109
+  - available: app/main.py:179, app/main.py:108, app/main.py:179, app/main.py:108
+  - groq_generate: test_dgm_debug.py:46, test_raw_outputs.py:62, test_failing_model.py:42
+- app.job_manager:
+  - JobContext: app/main.py:607, app/main.py:607
+  - is_job_running: app/main.py:583, app/main.py:156, app/main.py:157, app/main.py:158, app/main.py:583
+  - get_active_jobs: app/main.py:584, app/main.py:155, app/main.py:584, app/main.py:155
+- app.judge:
+  - judge_pair: app/meta/runner.py:745, app/meta/runner.py:755, app/meta/runner.py:745, app/meta/runner.py:755
+- app.memory:
+  - memory: app/main.py:396, app/main.py:418, app/main.py:429, app/main.py:505, app/main.py:513
+  - query_memory: app/main.py:546, app/main.py:401, app/main.py:434, app/main.py:546, app/main.py:401
+  - list_sessions: app/main.py:513, app/main.py:513
+  - list_messages: app/main.py:521, app/main.py:521
+  - build_index: app/main.py:538, app/main.py:538
+  - append_message: app/main.py:396, app/main.py:418, app/main.py:429, app/main.py:529, app/main.py:396
+  - append_message_meta: app/main.py:456, app/main.py:456
+  - create_session: app/main.py:505, app/main.py:505
+- app.memory.embed:
+  - get_embedding: app/memory/store.py:69, app/meta/runner.py:202, app/memory/store.py:69, app/meta/runner.py:202
+  - cosine_similarity: app/memory/store.py:210, app/memory/store.py:210
+  - estimate_tokens: app/memory/retriever.py:207, app/memory/retriever.py:59, app/memory/retriever.py:50, app/memory/retriever.py:207, app/memory/retriever.py:59
+- app.memory.metrics:
+  - get_memory_metrics_tracker: app/main.py:903, app/meta/runner.py:199, app/main.py:903, app/meta/runner.py:199
+- app.memory.retriever:
+  - build_memory_primer: app/meta/runner.py:214, app/meta/runner.py:214
+- app.memory.store:
+  - Experience: app/memory/retriever.py:124, app/memory/retriever.py:15, app/memory/retriever.py:173, app/meta/runner.py:875, app/memory/retriever.py:124
+  - get_memory_store: app/meta/runner.py:198, app/meta/runner.py:198
+  - create: app/meta/runner.py:875, app/meta/runner.py:875
+- app.meta.bandit:
+  - bandit: app/meta/runner.py:136, app/meta/runner.py:142, app/meta/runner.py:136, app/meta/runner.py:142
+  - UCB: app/meta/runner.py:136, app/meta/runner.py:136, tests/test_ucb.py:5, tests/test_ucb.py:5
+  - EpsilonGreedy: app/meta/runner.py:142, app/meta/runner.py:142
+- app.meta.operators:
+  - ops: app/meta/runner.py:268, app/meta/runner.py:319, app/meta/runner.py:268, app/meta/runner.py:319
+  - build_plan: app/meta/runner.py:268, app/meta/runner.py:268
+  - apply: app/meta/runner.py:319, app/meta/runner.py:319
+- app.meta.rewards:
+  - get_default_baseline: app/meta/runner.py:188, app/meta/runner.py:188
+  - compute_total_reward: app/meta/runner.py:408, app/meta/runner.py:408, tests/test_rewards.py:10, tests/test_rewards.py:12, tests/test_rewards.py:15
+- app.meta.runner:
+  - meta_run: app/code_loop.py:53, app/main.py:555, app/main.py:1729, app/main.py:838, app/main.py:608
+- app.meta.store:
+  - store: app/main.py:591, app/main.py:639, app/main.py:641, app/main.py:653, app/main.py:669
+  - init_db: app/main.py:639, app/meta/runner.py:109, app/main.py:639, app/meta/runner.py:109
+  - recipes_by_class: app/main.py:669, app/main.py:669
+  - _conn: app/main.py:688, app/main.py:731, app/main.py:994, app/main.py:1020, app/main.py:1051
+  - clear_operator_stats: app/main.py:1633, app/main.py:1633
+  - get_analytics_overview: app/main.py:922, app/main.py:922
+  - recent_runs: app/main.py:653, app/main.py:678, app/main.py:653, app/main.py:678
+  - save_run_start: app/main.py:591, app/meta/runner.py:151, app/main.py:591, app/meta/runner.py:151
+  - list_operator_stats: app/main.py:641, app/main.py:778, app/meta/runner.py:126, app/main.py:641, app/main.py:778
+  - save_human_rating: app/main.py:876, app/main.py:876
+  - update_run_config: app/main.py:598, app/main.py:598
+  - save_run_finish: app/meta/runner.py:682, app/meta/runner.py:682
+  - upsert_operator_engine_stat: app/meta/runner.py:594, app/meta/runner.py:594
+  - approve_recipe: app/meta/runner.py:716, app/meta/runner.py:716
+  - upsert_operator_stat: app/meta/runner.py:590, app/meta/runner.py:590
+  - save_variant: app/meta/runner.py:382, app/meta/runner.py:382
+  - top_recipes: app/meta/runner.py:147, app/meta/runner.py:147
+  - save_recipe: app/meta/runner.py:706, app/meta/runner.py:706
+- app.middleware:
+  - RateLimiter: app/main.py:130, app/main.py:130
+- app.models:
+  - RagQueryRequest: app/main.py:494, app/main.py:494
+  - HumanRatingRequest: app/main.py:873, app/main.py:873
+  - ChatRequest: app/main.py:393, app/main.py:393
+  - MessageAppendRequest: app/main.py:527, app/main.py:527
+  - WebSearchRequest: app/main.py:478, app/main.py:478
+  - EvolveRequest: app/main.py:469, app/main.py:469
+  - SessionCreateRequest: app/main.py:503, app/main.py:503
+  - MemoryQueryRequest: app/main.py:544, app/main.py:544
+  - MetaRunRequest: app/main.py:553, app/main.py:578, app/main.py:553, app/main.py:578
+- app.ollama_client:
+  - clear_ollama: app/cache_manager.py:10, app/cache_manager.py:10
+  - ollama_gen: app/engines.py:33, app/engines.py:33
+  - OLLAMA_MODEL_ID: app/engines.py:34, app/meta/runner.py:381, app/engines.py:34, app/meta/runner.py:381
+  - stream_generate: app/main.py:451, app/main.py:451
+  - validate_model: app/main.py:92, app/main.py:92
+  - MODEL_ID: app/main.py:92, app/main.py:415, app/main.py:92, app/main.py:415
+  - health: app/main.py:147, app/main.py:165, app/main.py:147, app/main.py:165
+  - generate: app/main.py:1219, app/main.py:413, app/evolve/loop.py:68, app/main.py:1219, app/main.py:413
+  - OLLAMA_TIMEOUT: app/meta/runner.py:352, app/meta/runner.py:352
+- app.quality_judge:
+  - DGM_JUDGE_MODEL_POOL: app/config.py:114, app/config.py:114
+  - evaluate_response_quality: app/meta/rewards.py:112, app/meta/rewards.py:112
+  - JUDGE_MODELS: test_raw_outputs.py:25
+- app.realtime:
+  - _rt: app/main.py:191, app/main.py:213, app/main.py:191, app/main.py:213
+  - subscribe: app/main.py:191, app/main.py:191
+  - unsubscribe: app/main.py:213, app/main.py:213
+  - realtime: app/meta/runner.py:217, app/meta/runner.py:867, app/meta/runner.py:897, app/meta/runner.py:218, app/meta/runner.py:253
+  - stream_event: app/meta/runner.py:218, app/meta/runner.py:898, app/meta/runner.py:218, app/meta/runner.py:898
+  - publish: app/meta/runner.py:867, app/meta/runner.py:253, app/meta/runner.py:343, app/meta/runner.py:363, app/meta/runner.py:464
+- app.tools.rag:
+  - rag_query: app/main.py:496, app/meta/runner.py:299, app/main.py:496, app/meta/runner.py:299
+  - build_or_update_index: app/main.py:488, app/main.py:488
+- app.tools.web_search:
+  - web_search: app/main.py:480, app/meta/runner.py:307, app/main.py:480, app/meta/runner.py:307
+- app.util.log:
+  - get_logger: app/util/gitops.py:13, app/dgm/registry.py:15, app/util/gitops.py:13, app/dgm/registry.py:15
+- app.utils.logging:
+  - log_meta_run_finish: app/meta/runner.py:687, app/meta/runner.py:687
+  - log_meta_run_start: app/meta/runner.py:167, app/meta/runner.py:167
+  - log_generation_timing: app/meta/runner.py:375, app/meta/runner.py:375
+  - log_operator_selection: app/meta/runner.py:243, app/meta/runner.py:243
+
+## Notes
+- This is heuristic. Double-check before deletion.
+- FastAPI routes are treated as used regardless of references.
+- Test-only imports are considered valid usage.

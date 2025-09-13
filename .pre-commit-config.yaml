@@ -1,0 +1,43 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: test-patcher
+        name: Test patcher module
+        entry: python -m pytest tests/test_patcher.py -q
+        language: system
+        pass_filenames: false
+        files: ^(app/dgm/patcher\.py|tests/test_patcher\.py)$
+
+      - id: test-e2e-single-edit
+        name: Test E2E single edit
+        entry: python -m pytest tests/test_e2e_single_edit.py -q
+        language: system
+        pass_filenames: false
+        files: ^(app/dgm/patcher\.py|app/dgm/proposer\.py|scripts/e2e_single_edit\.py)$
+
+      - id: check-edit-pkg-limits
+        name: Check edit package limits
+        entry: python -c "from app.dgm.proposer import MAX_EDITS, MAX_EDIT_STR; print(f'Edit limits: {MAX_EDITS} edits, {MAX_EDIT_STR} chars')"
+        language: system
+        pass_filenames: false
+        files: ^app/dgm/proposer\.py$
+
+exclude: ^(logs/|runs/|storage/|\.git/)
