@@ -62,30 +62,37 @@ This project has been significantly enhanced through collaboration with Claude C
 - Enhanced `meta_run()` function with algorithm selection
 - Verified 100% operator coverage through comprehensive testing
 
-### Phase 5: Voice System Analysis and Architecture Understanding (v2.5.0)
-**Challenge:** User reported massive bias toward one voice (200+ selections)
-**Investigation:** Comprehensive analysis of weighted voice selection system
+### Phase 5: Voice System Analysis and DGM Analytics Integration (v2.5.0)
+**Challenge:** User reported massive bias toward one voice + need for safe self-modification system with comprehensive analytics
+**Solution:** Combined voice system investigation and complete edit-based patcher implementation with dashboard integration
 
-**Key Findings:**
+**Voice System Analysis:**
 - **Voice System Architecture**: 8 specialized voices with weighted task-based selection
 - **Task Distribution Impact**: 40% of runs were 'code' tasks, triggering Engineer voice bias
 - **Weighted Selection Logic**: Engineer voice has 3x weight for code tasks (intentional design)
-- **DGM Scope Limitations**: Voice system outside DGM modification scope (not in allowed areas)
+- **System Behavior Validation**: Voice bias is **working as designed** - specialist matching for task optimization
 
-**Technical Analysis:**
-- Voice bias is **working as designed** - specialist matching for task optimization
-- `VOICES_V2` system in `runner.py:30-39` with 8 distinct specialist voices
-- `_weighted_system_for_task()` provides intelligent task-voice matching
-- Code tasks → Engineer voice (3x weight), Analysis → Analyst voice (3x weight), etc.
+**DGM Edit-Based Patcher:**
+- Replaced unsafe unified diffs with structured JSON "edits packages"
+- Implemented comprehensive edit-based patcher in `app/dgm/patcher.py`
+- Full test coverage with 14 unit tests and 11 E2E integration tests
+- CI/CD pipeline with pre-commit hooks for automated validation
 
-**System Behavior Validation:**
-- 200+ Engineer selections explained by task distribution + weighting algorithm
-- No bugs identified - system correctly prioritizing specialist voices for appropriate tasks
-- Alternative approaches would require task diversification or weight rebalancing
+**Technical Details:**
+- Edit-based patching using exact string matching and regex patterns
+- Safety limits: MAX_EDITS=8, MAX_EDIT_STR_LEN=4000
+- UTF-8 normalization and LF line ending enforcement
+- Git integration with `git apply --check` validation and rollback capability
+- Feature flags (FF_DGM, FF_ACCEPT_LEGACY_DIFFS) for controlled deployment
 
-**Repository Maintenance Analysis:**
+**Analytics Integration:**
+- Added DGM metrics to `/api/meta/analytics` endpoint
+- Dashboard displays attribution stats, success metrics, performance data
+- Real-time analytics: commit rates, execution times, rollback statistics
+- Interactive UI in dedicated DGM tab with propose/view functionality
+
+**Repository Maintenance:**
 - Identified dead code: `chat_temp_stats` table (0 rows, abandoned experiment)
-- Active systems: `nudge_stats` (adaptive nudge selection), all core functionality
 - Database structure: 3 files (meta.db, primordium.db, memory.db) with clear separation
 - Code organization: Some opportunities for cleanup but no critical technical debt
 
@@ -173,7 +180,7 @@ The system uses a sophisticated multi-layer approach:
 
 ### When Adding New Features
 1. **Start with Problem Analysis:** Gather data about current limitations
-2. **Design Multiple Solutions:** Consider trade-offs and alternatives  
+2. **Design Multiple Solutions:** Consider trade-offs and alternatives
 3. **Implement Incrementally:** Build and test components separately
 4. **Verify with Data:** Prove improvements with concrete evidence
 5. **Document Thoroughly:** Update README, CHANGELOG, and this CLAUDE.md

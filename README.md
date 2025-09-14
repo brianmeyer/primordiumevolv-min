@@ -1,5 +1,13 @@
-# PrimordiumEvolv Minimal (Self-Evolving Engine)
-Local UI, tools, evolution loop, and **self-evolving meta-system** calling a local Ollama model with validation, rate limiting, semantic scoring, persistent memory, and intelligent prompt optimization.
+# PrimordiumEvolv 🧬 The Self-Evolving AI That Writes Its Own Code
+
+**🚀 An autonomous AI system that literally evolves itself - complete with a Darwin Gödel Machine that safely modifies its own source code while you watch through a real-time analytics dashboard.**
+
+🧪 **Self-Modification**: Watch AI propose, validate, and commit changes to its own codebase using structured edit packages
+🧠 **Intelligent Evolution**: Multi-armed bandit algorithms optimize prompts, parameters, and strategies across 11+ operators
+📊 **Live Analytics**: Real-time dashboard tracks improvement trends, operator performance, and self-modification success rates
+🔒 **Safe & Controlled**: Git-based rollbacks, safety limits, and comprehensive testing ensure stable autonomous operation
+
+*The future of AI development is here - and it's evolving itself.*
 
 ## Prereqs
 - Python 3.11+
@@ -43,7 +51,7 @@ The system features a sophisticated **evaluation-only** system for robust qualit
 ### **Model Pool & Rotation**
 Ten cutting-edge models with intelligent rotation for fair distribution:
 - `llama-3.3-70b-versatile` - Advanced reasoning capabilities
-- `openai/gpt-oss-120b` - Large-scale language understanding  
+- `openai/gpt-oss-120b` - Large-scale language understanding
 - `openai/gpt-oss-20b` - Efficient high-quality evaluation
 - `llama-3.1-8b-instant` - Fast, reliable scoring
 - `groq/compound` - Multi-faceted analysis
@@ -111,7 +119,7 @@ Notes:
 - **UCB1 Bandit Algorithm**: Default strategy with warm start and stratified exploration for optimal operator diversity.
 - **Advanced Total Reward System**: Three-component reward with sophisticated outcome evaluation:
   - **Outcome Reward**: Two-judge AI evaluation (90%) + semantic similarity (10%) with automatic tie-breaker
-  - **Process Reward**: Structured reasoning, code quality, and methodology assessment  
+  - **Process Reward**: Structured reasoning, code quality, and methodology assessment
   - **Cost Penalty**: Resource efficiency (time, tokens, tool calls) vs baseline
   - **Promotion Policy**: Δ ≥ 0.05, cost ≤ 0.9×baseline with detailed AI judgment metadata
 - **Enhanced Artifacts**: Each run generates `reward_breakdown` with detailed judge evaluations and `bandit_state` snapshots for full transparency.
@@ -161,7 +169,7 @@ The interface has been completely redesigned with human-centered design principl
 ### 🚀 **Usage Flow**
 1. Enter task description (e.g., "Write Python functions with error handling")
 2. Select task type and iterations (2-15)
-3. Click "🚀 Start Evolution" 
+3. Click "🚀 Start Evolution"
 4. Watch real-time progress with step-by-step updates
 5. View results with improvement metrics and best strategies
 
@@ -336,7 +344,7 @@ Advanced episodic memory system that learns from past evolution runs to improve 
 ### Configuration
 Enable with `FF_MEMORY=1` in `.env`. Key settings:
 - `MEMORY_K=5` - Number of experiences to retrieve per run
-- `MEMORY_REWARD_FLOOR=0.6` - Minimum reward threshold for storing experiences  
+- `MEMORY_REWARD_FLOOR=0.6` - Minimum reward threshold for storing experiences
 - `MEMORY_PRIMER_TOKENS_MAX=800` - Maximum tokens for memory primer injection
 - `MEMORY_DECAY_DAYS=30` - Time decay period for experience relevance
 - `MEMORY_EMBEDDER=sentence-transformers/all-MiniLM-L6-v2` - HuggingFace embedding model
@@ -345,7 +353,7 @@ Enable with `FF_MEMORY=1` in `.env`. Key settings:
 ### Memory Analytics
 The Memory tab in Analytics provides comprehensive insights:
 - **Hit Rate**: Percentage of runs that successfully used memory
-- **Reward Lift**: Average performance improvement from memory usage  
+- **Reward Lift**: Average performance improvement from memory usage
 - **Store Metrics**: Current memory store size and primer token distribution
 - **Task Class Breakdown**: Memory performance segmented by task type
 - **Recent Runs**: Detailed view of memory usage in recent evolution runs
@@ -410,7 +418,7 @@ curl -X POST http://localhost:8000/api/meta/run \
   -H "Content-Type: application/json" \
   -d '{
     "session_id": 1,
-    "task_class": "code", 
+    "task_class": "code",
     "task": "Write a Python function to calculate fibonacci numbers",
     "assertions": ["def fibonacci", "recursive"],
     "n": 12,
@@ -423,10 +431,10 @@ curl -X POST http://localhost:8000/api/meta/run \
 All 11 operators systematically explored via UCB1 algorithm with warm start and stratified exploration:
 
 **SEAL Framework (7 operators):**
-- `change_system` - Switch system prompt (engineer, analyst, optimizer) 
+- `change_system` - Switch system prompt (engineer, analyst, optimizer)
 - `change_nudge` - Modify output format constraints
 - `raise_temp/lower_temp` - Adjust creativity vs consistency
-- `inject_rag` - Add document context from RAG  
+- `inject_rag` - Add document context from RAG
 - `inject_memory` - Include conversation history
 - `add_fewshot` - Inject domain examples
 
@@ -459,7 +467,7 @@ Each run creates `runs/{timestamp}/`:
 
 ## Current Results (examples)
 - Run 121 (simple_math): best_score=0.260, total_reward=0.798, improvement=+0.798
-- Run 120 (other): best_score=0.371, total_reward=0.879, improvement=+0.879  
+- Run 120 (other): best_score=0.371, total_reward=0.879, improvement=+0.879
 - Run 119 (research): best_score=0.337, total_reward=0.990, improvement=+0.990
 
 **Current Top Performing Operators:**
@@ -470,7 +478,7 @@ Each run creates `runs/{timestamp}/`:
 
 **Key Observations:**
 - System consistently shows positive improvement from baseline across task types
-- Web search (`toggle_web`) remains the highest-performing operator 
+- Web search (`toggle_web`) remains the highest-performing operator
 - **All generation uses local Ollama** - system optimizes local model performance
 - **Human rating integration** provides direct feedback to improve operator learning
 

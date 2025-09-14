@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         delayEl.value = localStorage.getItem('reading_delay_ms') || '2000';
         delayEl.addEventListener('change', () => localStorage.setItem('reading_delay_ms', String(delayEl.value)));
     }
-    
+
     // Auto-check health every 2 minutes (reduced from 30 seconds to reduce API calls)
     healthCheckInterval = setInterval(checkHealth, 120000);
 });
@@ -51,16 +51,16 @@ async function checkHealth() {
         console.log('Health check already in progress, skipping...');
         return;
     }
-    
+
     // Skip if tab is not visible (reduce API calls when user is not looking)
     if (document.hidden) {
         console.log('Tab not visible, skipping health check...');
         return;
     }
-    
+
     healthCheckInProgress = true;
     console.log('Checking health...');
-    
+
     try {
         // Check Ollama
         console.log('Checking Ollama health...');
@@ -72,8 +72,8 @@ async function checkHealth() {
             ollamaHealth.textContent = `Ollama: ${ollamaData.status}`;
             ollamaHealth.className = ollamaData.status === 'ok' ? 'status-badge status-ok' : 'status-badge status-error';
         }
-        
-        // Check Groq  
+
+        // Check Groq
         console.log('Checking Groq health...');
         const groqResponse = await fetch('/api/health/groq');
         const groqData = await groqResponse.json();
@@ -110,9 +110,9 @@ async function startEvolution() {
         alert('Please describe a task for the AI to get better at!');
         return;
     }
-    
+
     console.log('Starting evolution for task:', task);
-    
+
     const taskType = document.getElementById('taskType').value;
     const iterations = parseInt(document.getElementById('evolutionIterations').value);
     const epsilon = parseFloat(document.getElementById('advEpsilon').value);
@@ -120,17 +120,17 @@ async function startEvolution() {
     const strategy = document.getElementById('advStrategy').value;
     const ragK = parseInt(document.getElementById('advRagK').value);
     const useWeb = document.getElementById('advUseWeb').checked;
-    
+
     console.log('Evolution config:', { taskType, iterations, epsilon, memoryK, strategy, ragK, useWeb });
-    
+
     // Show progress UI
     showEvolutionProgress();
-    
+
     // Disable start button
     const startBtn = document.getElementById('startEvolution');
     startBtn.disabled = true;
     startBtn.textContent = '🧬 Evolving...';
-    
+
     try {
         console.log('Sending evolution request...');
         // Ensure a session exists
@@ -165,15 +165,15 @@ async function startEvolution() {
                 framework_mask: frameworkMask
             }),
         });
-        
+
         console.log('Evolution response status:', response.status);
-        
+
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Evolution request failed:', errorText);
             throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
-        
+
         const data = await response.json();
         if(data.run_id){
             console.log('Evolution started with run_id:', data.run_id);
@@ -182,7 +182,7 @@ async function startEvolution() {
         } else {
             throw new Error('No run_id returned');
         }
-        
+
     } catch (error) {
         console.error('Evolution failed:', error);
         showError('Evolution failed: ' + error.message);
@@ -193,7 +193,7 @@ async function startEvolution() {
 function showEvolutionProgress() {
     document.getElementById('evolutionProgress').classList.remove('hidden');
     document.getElementById('evolutionResults').classList.add('hidden');
-    
+
     // Reset progress
     document.getElementById('progressBar').style.width = '0%';
     document.getElementById('evolutionSteps').innerHTML = '';
@@ -202,13 +202,13 @@ function showEvolutionProgress() {
 
 function startEvolutionStream(runId, totalIterations) {
     console.log('Starting evolution stream for run_id:', runId);
-    
+
     if (evolutionEventSource) {
         evolutionEventSource.close();
     }
-    
+
     evolutionEventSource = new EventSource(`/api/meta/stream?run_id=${runId}`);
-    
+
     evolutionEventSource.onmessage = function(event) {
         console.log('Evolution stream event:', event.data);
         try {
@@ -220,7 +220,7 @@ function startEvolutionStream(runId, totalIterations) {
             console.error('Failed to parse evolution event:', error, 'Raw data:', event.data);
         }
     };
-    
+
     evolutionEventSource.onopen = function(event) {
         console.log('Evolution stream connected');
         addEvolutionStep('📡 Connected to evolution stream', 'running');
@@ -229,7 +229,7 @@ function startEvolutionStream(runId, totalIterations) {
         startElapsedTimer();
         setStreamStatus('Streaming…', true);
     };
-    
+
     evolutionEventSource.onerror = function(error) {
         console.error('Evolution stream error:', error);
         addEvolutionStep('❌ Stream connection error', 'error');
@@ -295,13 +295,13 @@ function handleEvolutionEvent(data, totalIterations) {
             const tieBreaker = data.judge_info.tie_breaker_used ? ' (tie-breaker)' : '';
             judgeInfo = ` | judges: ${judgeScores}${tieBreaker}`;
         }
-        
+
         addEvolutionStep(`🔄 Iteration ${data.i + 1}: ${data.operator} | score ${toFixedSafe(data.score, 3)}${judgeInfo}`, 'running');
         updateLastStep(`✅ Iteration ${data.i + 1}: ${data.operator} | score ${toFixedSafe(data.score, 3)}${judgeInfo}`, 'completed');
-        if (typeof totalIterations === 'number'){ 
+        if (typeof totalIterations === 'number'){
             updateProgress(Math.min(100, Math.round(100*(data.i+1)/Math.max(1,totalIterations))));
         }
-        
+
         // Enable rating for this iteration
         currentVariantId = data.variant_id || null;
         if (data.output) {
@@ -309,7 +309,7 @@ function handleEvolutionEvent(data, totalIterations) {
             document.getElementById('currentOutput').textContent = data.output;
             showRatingPanel();
         }
-        
+
         return;
     }
     if (data.type === 'judge'){
@@ -397,10 +397,10 @@ function handleEvolutionComplete(result) {
         evolutionEventSource.close();
         evolutionEventSource = null;
     }
-    
+
     // Complete progress
     updateProgress(100);
-    
+
     // Show results
     setTimeout(() => {
         showEvolutionResults(result);
@@ -411,7 +411,7 @@ function handleEvolutionComplete(result) {
 function showEvolutionResults(result) {
     document.getElementById('evolutionProgress').classList.add('hidden');
     document.getElementById('evolutionResults').classList.remove('hidden');
-    
+
     const baseline = (result && typeof result.baseline === 'number') ? result.baseline : 0.1;
     const bestScore = (result && typeof result.best_score === 'number') ? result.best_score : 0;
     let improvementStr = '0.0';
@@ -419,32 +419,32 @@ function showEvolutionResults(result) {
         const pct = (result.improvement / Math.max(baseline, 0.1)) * 100;
         improvementStr = `${pct > 0 ? '+' : ''}${pct.toFixed(1)}`;
     }
-    
+
     const resultsHTML = `
         <div class="result-card">
             <div class="result-score">${toFixedSafe(bestScore, 3)}</div>
             <div class="result-improvement">${improvementStr}% improvement</div>
             <div class="text-center text-muted">
-                Best strategy: ${(result && result.best_recipe && result.best_recipe.system) ? result.best_recipe.system : 'Default system'} 
+                Best strategy: ${(result && result.best_recipe && result.best_recipe.system) ? result.best_recipe.system : 'Default system'}
                 ${(result && result.best_recipe && result.best_recipe.use_web) ? '+ Web Research' : ''}
                 ${(result && result.best_recipe && result.best_recipe.use_memory) ? '+ Memory' : ''}
             </div>
         </div>
-        
+
         <details style="margin-top:16px">
             <summary style="cursor:pointer;color:var(--muted)">📊 View Detailed Results</summary>
             <div style="margin-top:12px;padding:12px;background:var(--code);border-radius:8px;font-family:monospace;font-size:0.9em">
                 ${JSON.stringify(result, null, 2)}
             </div>
         </details>
-        
+
         <div style="margin-top:16px;text-center">
             <button onclick="startNewEvolution()" class="primary-btn">
                 🚀 Start New Evolution
             </button>
         </div>
     `;
-    
+
     document.getElementById('resultsContent').innerHTML = resultsHTML;
 }
 
@@ -482,11 +482,11 @@ async function quickTest() {
         alert('Please enter a test prompt!');
         return;
     }
-    
+
     const output = document.getElementById('testOutput');
     output.style.display = 'block';
     output.textContent = 'Testing...';
-    
+
     try {
         const sessionId = await ensureSession();
         const response = await fetch('/api/chat', {
@@ -499,7 +499,7 @@ async function quickTest() {
                 session_id: sessionId
             }),
         });
-        
+
         const data = await response.json();
         output.textContent = data.response || 'No response';
     } catch (error) {
@@ -513,26 +513,26 @@ async function streamTest() {
         alert('Please enter a test prompt!');
         return;
     }
-    
+
     const output = document.getElementById('testOutput');
     output.style.display = 'block';
     output.textContent = 'Streaming...';
-    
+
     try {
         const sessionId = await ensureSession();
         const response = await fetch(`/api/chat/stream?prompt=${encodeURIComponent(prompt)}&session_id=${sessionId}`);
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        
+
         output.textContent = '';
-        
+
         while (true) {
             const { value, done } = await reader.read();
             if (done) break;
-            
+
             const chunk = decoder.decode(value);
             const lines = chunk.split('\n');
-            
+
             for (const line of lines) {
                 if (line.startsWith('data: ')) {
                     const data = line.slice(6);
@@ -557,7 +557,7 @@ function toggleEpsilonVisibility() {
     const strategy = document.getElementById('advStrategy').value;
     const epsilonGroup = document.getElementById('epsilonGroup');
     const epsilonInput = document.getElementById('advEpsilon');
-    
+
     if (strategy === 'epsilon_greedy') {
         epsilonGroup.style.opacity = '1';
         epsilonInput.disabled = false;
@@ -572,19 +572,19 @@ async function loadEvolutionHistory() {
     try {
         const response = await fetch('/api/meta/stats');
         const data = await response.json();
-        
+
         const historyDiv = document.getElementById('evolutionHistory');
-        
+
         if (data.recent_runs.length === 0) {
             historyDiv.innerHTML = '<p class="text-muted">No evolution runs yet.</p>';
             return;
         }
-        
+
         const historyHTML = data.recent_runs.map(run => {
             const status = run.finished_at ? '✅ Completed' : '⏳ Running';
             const score = run.best_score ? run.best_score.toFixed(3) : 'N/A';
             const date = new Date(run.started_at * 1000).toLocaleString();
-            
+
             return `
                 <div class="evolution-step" style="margin:4px 0">
                     <span>#${run.id} - ${run.task_class}</span>
@@ -592,7 +592,7 @@ async function loadEvolutionHistory() {
                 </div>
             `;
         }).join('');
-        
+
         historyDiv.innerHTML = historyHTML;
     } catch (error) {
         document.getElementById('evolutionHistory').innerHTML = '<p style="color:var(--danger)">Error loading history: ' + error.message + '</p>';
@@ -605,14 +605,14 @@ async function loadAnalytics() {
         const response = await fetch('/api/meta/analytics');
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
-        
+
         const overviewDiv = document.getElementById('analyticsOverview');
         const errorDiv = document.getElementById('analyticsError');
-        
+
         // Hide error, show content
         errorDiv.classList.add('hidden');
         overviewDiv.classList.remove('hidden');
-        
+
         // Update overview stats
         const bs = data.basic_stats || {};
         const it = data.improvement_trend || {};
@@ -622,7 +622,7 @@ async function loadAnalytics() {
         document.getElementById('improvementPercent').textContent = imp;
         const avgScore = (typeof bs.overall_avg_score === 'number') ? bs.overall_avg_score.toFixed(3) : 'N/A';
         document.getElementById('overallAvgScore').textContent = avgScore;
-        
+
         // Color improvement based on positive/negative
         const improvementEl = document.getElementById('improvementPercent');
         if ((it.improvement || 0) > 0) {
@@ -630,17 +630,17 @@ async function loadAnalytics() {
         } else if ((it.improvement || 0) < 0) {
             improvementEl.style.color = 'var(--danger)';
         }
-        
+
         // Render score progression chart
         renderScoreChart(data.score_progression);
-        
+
         // Render operators chart
         renderOperatorsChart(data.top_operators);
         // Operator coverage (first K)
         const coverage = (data.operators && typeof data.operators.coverage_first_k === 'number') ? data.operators.coverage_first_k : 'N/A';
         const covEl = document.getElementById('operatorCoverageK');
         if (covEl) covEl.textContent = coverage;
-        
+
         // Render task performance chart
         renderTaskChart(data.task_performance);
 
@@ -727,12 +727,12 @@ async function loadMemoryAnalytics() {
     try {
         const response = await fetch('/api/meta/analytics/memory');
         const data = await response.json();
-        
+
         // Update memory analytics
         const memoryOverview = document.getElementById('memoryOverview');
         const memoryRecentRuns = document.getElementById('memoryRecentRuns');
         const memoryError = document.getElementById('memoryError');
-        
+
         if (!data.enabled) {
             // Show disabled message
             memoryError.classList.remove('hidden');
@@ -741,29 +741,29 @@ async function loadMemoryAnalytics() {
             memoryRecentRuns.classList.add('hidden');
             return;
         }
-        
+
         // Hide error, show content
         memoryError.classList.add('hidden');
         memoryOverview.classList.remove('hidden');
         memoryRecentRuns.classList.remove('hidden');
-        
+
         const analytics = data.analytics || {};
         const recentRuns = data.recent_runs || [];
-        
+
         // Update overview statistics
-        document.getElementById('memoryHitRate').textContent = 
+        document.getElementById('memoryHitRate').textContent =
             analytics.hit_rate ? `${(analytics.hit_rate * 100).toFixed(1)}%` : '0%';
-        document.getElementById('memoryAvgRewardLift').textContent = 
+        document.getElementById('memoryAvgRewardLift').textContent =
             analytics.avg_reward_lift ? `+${(analytics.avg_reward_lift * 100).toFixed(1)}%` : 'N/A';
-        document.getElementById('memoryStoreSize').textContent = 
+        document.getElementById('memoryStoreSize').textContent =
             analytics.store_size || '0';
-        document.getElementById('memoryPrimerTokensP50').textContent = 
+        document.getElementById('memoryPrimerTokensP50').textContent =
             analytics.primer_tokens_p50 || '0';
-        document.getElementById('memoryPrimerTokensP95').textContent = 
+        document.getElementById('memoryPrimerTokensP95').textContent =
             analytics.primer_tokens_p95 || '0';
-        document.getElementById('memoryTotalRuns').textContent = 
+        document.getElementById('memoryTotalRuns').textContent =
             analytics.total_runs || '0';
-        
+
         // Render by-task-class breakdown
         if (analytics.by_task_class && analytics.by_task_class.length > 0) {
             let taskClassHTML = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">';
@@ -782,10 +782,10 @@ async function loadMemoryAnalytics() {
             taskClassHTML += '</div>';
             document.getElementById('memoryTaskClassBreakdown').innerHTML = taskClassHTML;
         } else {
-            document.getElementById('memoryTaskClassBreakdown').innerHTML = 
+            document.getElementById('memoryTaskClassBreakdown').innerHTML =
                 '<p class="text-muted">No task class data available</p>';
         }
-        
+
         // Render recent runs table
         if (recentRuns.length > 0) {
             let runsHTML = `
@@ -802,7 +802,7 @@ async function loadMemoryAnalytics() {
                     </thead>
                     <tbody>
             `;
-            
+
             recentRuns.forEach(run => {
                 const createdDate = new Date(run.created_at).toLocaleDateString();
                 const memoryUsed = run.used_memory ? '✅' : '❌';
@@ -817,13 +817,13 @@ async function loadMemoryAnalytics() {
                     </tr>
                 `;
             });
-            
+
             runsHTML += '</tbody></table>';
             document.getElementById('memoryRecentRunsTable').innerHTML = runsHTML;
         } else {
             document.getElementById('memoryRecentRunsTable').innerHTML = '<p class="text-muted">No recent memory runs</p>';
         }
-        
+
     } catch (error) {
         console.error('Failed to load memory analytics:', error);
         const memoryError = document.getElementById('memoryError');
@@ -847,6 +847,7 @@ function selectAnalyticsTab(name) {
         loadMemoryAnalytics();
     } else if (name === 'dgm') {
         dgmCheckHealth();
+        loadDgmAnalytics();
     } else {
         // Load analytics data for all other tabs (overview, operators, voices, etc.)
         loadAnalytics();
@@ -914,6 +915,97 @@ async function dgmLoadLastPropose() {
     }
 }
 
+// Load DGM Analytics
+async function loadDgmAnalytics() {
+    try {
+        const res = await fetch('/api/meta/analytics');
+        const data = await res.json();
+
+        if (!res.ok || !data.dgm) {
+            document.getElementById('dgmAnalytics').innerHTML = '<p class="text-muted">No DGM analytics data available</p>';
+            return;
+        }
+
+        const dgm = data.dgm;
+        let analyticsHTML = '';
+
+        // Attribution Stats
+        if (dgm.attribution) {
+            analyticsHTML += `
+                <div class="result-card" style="margin-bottom:12px">
+                    <h5 style="color:var(--accent);margin:0 0 8px 0">📊 Attribution Stats</h5>
+                    <div class="text-muted">
+                        Total Commits: ${dgm.attribution.total_commits || 0} |
+                        Success Rate: ${((dgm.attribution.success_rate || 0) * 100).toFixed(1)}%
+                    </div>
+                    <div style="margin-top:8px">
+                        <strong>By Origin:</strong>
+                        <ul style="margin:4px 0;padding-left:20px">
+                            <li>LLM Generation: ${dgm.attribution.by_origin?.llm_generation?.count || 0} commits (avg Δ: ${(dgm.attribution.by_origin?.llm_generation?.avg_reward_delta || 0).toFixed(3)})</li>
+                            <li>Mutation: ${dgm.attribution.by_origin?.mutation?.count || 0} commits (avg Δ: ${(dgm.attribution.by_origin?.mutation?.avg_reward_delta || 0).toFixed(3)})</li>
+                        </ul>
+                        <strong>By Area:</strong>
+                        <ul style="margin:4px 0;padding-left:20px">
+                            <li>Prompts: ${dgm.attribution.by_area?.prompts?.count || 0} commits</li>
+                            <li>Bandit: ${dgm.attribution.by_area?.bandit?.count || 0} commits</li>
+                            <li>UI Metrics: ${dgm.attribution.by_area?.ui_metrics?.count || 0} commits</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Success Metrics
+        if (dgm.success_metrics) {
+            analyticsHTML += `
+                <div class="result-card" style="margin-bottom:12px">
+                    <h5 style="color:var(--accent);margin:0 0 8px 0">✅ Success Metrics</h5>
+                    <div class="text-muted">
+                        Proposal → Commit Rate: ${((dgm.success_metrics.proposal_to_commit_rate || 0) * 100).toFixed(1)}%<br>
+                        Shadow Eval Success: ${((dgm.success_metrics.shadow_eval_success_rate || 0) * 100).toFixed(1)}%<br>
+                        Commit Success Rate: ${((dgm.success_metrics.commit_success_rate || 0) * 100).toFixed(1)}%<br>
+                        Avg Time to Commit: ${(dgm.success_metrics.avg_time_to_commit || 0).toFixed(1)}s
+                    </div>
+                </div>
+            `;
+        }
+
+        // Performance Stats
+        if (dgm.performance) {
+            analyticsHTML += `
+                <div class="result-card" style="margin-bottom:12px">
+                    <h5 style="color:var(--accent);margin:0 0 8px 0">⚡ Performance</h5>
+                    <div class="text-muted">
+                        Avg Execution Time: ${dgm.performance.avg_execution_time_ms || 0}ms<br>
+                        Avg Reward Improvement: ${(dgm.performance.avg_reward_improvement || 0).toFixed(3)}<br>
+                        Efficiency Score: ${((dgm.performance.efficiency_score || 0) * 100).toFixed(1)}%
+                    </div>
+                </div>
+            `;
+        }
+
+        // Rollback Stats
+        if (dgm.rollbacks) {
+            analyticsHTML += `
+                <div class="result-card" style="margin-bottom:12px">
+                    <h5 style="color:var(--accent);margin:0 0 8px 0">🔄 Rollbacks</h5>
+                    <div class="text-muted">
+                        Total Rollbacks: ${dgm.rollbacks.total_rollbacks || 0}<br>
+                        Rollback Rate: ${((dgm.rollbacks.rollback_rate || 0) * 100).toFixed(1)}%<br>
+                        Reasons: Guard Violation (${dgm.rollbacks.rollback_reasons?.guard_violation || 0}), Test Failure (${dgm.rollbacks.rollback_reasons?.test_failure || 0})
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById('dgmAnalytics').innerHTML = analyticsHTML;
+
+    } catch (error) {
+        console.error('Failed to load DGM analytics:', error);
+        document.getElementById('dgmAnalytics').innerHTML = `<p style="color:var(--danger)">❌ Error loading DGM analytics: ${error.message}</p>`;
+    }
+}
+
 window.dgmPropose = dgmPropose;
 window.dgmLoadLastPropose = dgmLoadLastPropose;
 
@@ -922,33 +1014,33 @@ async function runGoldenSet() {
     try {
         const out = document.getElementById('goldenRunResult');
         const button = document.querySelector('button[onclick="runGoldenSet()"]');
-        
+
         // Update UI to show it's running
         out.textContent = '🏁 Starting Golden Set evaluation...';
         if (button) {
             button.disabled = true;
             button.textContent = '🏁 Running...';
         }
-        
+
         // Start async golden run
-        const res = await fetch('/api/golden/run_async', { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({}) 
+        const res = await fetch('/api/golden/run_async', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
         });
-        
+
         if (!res.ok) {
             throw new Error(`HTTP ${res.status}`);
         }
-        
+
         const data = await res.json();
         if (!data.run_id) {
             throw new Error('No run_id returned');
         }
-        
+
         // Start streaming
         startGoldenStream(data.run_id, button, out);
-        
+
     } catch (e) {
         const out = document.getElementById('goldenRunResult');
         const button = document.querySelector('button[onclick="runGoldenSet()"]');
@@ -964,34 +1056,34 @@ function startGoldenStream(runId, button, outputElement) {
     const eventSource = new EventSource(`/api/golden/stream?run_id=${runId}`);
     let completed = 0;
     let total = 0;
-    
+
     eventSource.onmessage = function(event) {
         try {
             const data = JSON.parse(event.data);
             console.log('Golden Set event:', data);
-            
+
             switch (data.event) {
                 case 'connected':
                     outputElement.textContent = '📡 Connected to Golden Set stream...';
                     break;
-                    
+
                 case 'started':
                     total = data.total_tests || 0;
                     outputElement.textContent = `🏁 Starting ${total} Golden Set tests...`;
                     break;
-                    
+
                 case 'progress':
                     completed = data.completed || 0;
                     const percent = total > 0 ? ((completed / total) * 100).toFixed(0) : 0;
                     outputElement.textContent = `🏁 Running test ${data.test_id} (${completed}/${total} - ${percent}%)`;
                     break;
-                    
+
                 case 'test_complete':
                     const result = data.result || {};
                     const reward = (result.total_reward || 0).toFixed(3);
                     outputElement.textContent = `✅ Test ${data.test_id} complete: reward ${reward} (${completed}/${total})`;
                     break;
-                    
+
                 case 'completed':
                     const agg = data.aggregate || {};
                     outputElement.textContent = `✅ Golden Set complete: pass_rate ${(agg.pass_rate*100||0).toFixed(0)}%, reward ${(agg.avg_total_reward??0).toFixed(3)}, cost ${(agg.avg_cost_penalty??0).toFixed(3)}, steps ${(agg.avg_steps??0).toFixed(1)}`;
@@ -1003,7 +1095,7 @@ function startGoldenStream(runId, button, outputElement) {
                     // Refresh analytics
                     loadAnalytics();
                     break;
-                    
+
                 case 'error':
                     outputElement.textContent = `❌ Golden Set error: ${data.message}`;
                     eventSource.close();
@@ -1012,7 +1104,7 @@ function startGoldenStream(runId, button, outputElement) {
                         button.textContent = '🏁 Run Golden Set';
                     }
                     break;
-                    
+
                 case 'keep-alive':
                     // Just keep connection alive
                     break;
@@ -1021,7 +1113,7 @@ function startGoldenStream(runId, button, outputElement) {
             console.error('Error parsing Golden Set event:', e);
         }
     };
-    
+
     eventSource.onerror = function(event) {
         console.error('Golden Set stream error:', event);
         outputElement.textContent = '❌ Golden Set stream disconnected';
@@ -1039,15 +1131,15 @@ function renderScoreChart(scoreProgression) {
         chartContent.innerHTML = '<p class="text-muted" style="text-align:center;padding:40px">No score data available</p>';
         return;
     }
-    
+
     // Simple text-based chart showing score progression
     let html = '<div style="display:flex;flex-direction:column;gap:8px">';
-    
+
     scoreProgression.forEach((run, index) => {
         const score = run.score !== null ? run.score.toFixed(3) : 'N/A';
         const rollingAvg = run.rolling_avg ? run.rolling_avg.toFixed(3) : 'N/A';
         const date = new Date(run.timestamp * 1000).toLocaleDateString();
-        
+
         html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:${index % 2 === 0 ? 'var(--panel)' : 'var(--surface)'};border-radius:4px">
             <span class="text-muted">${date} (${run.task_class})</span>
             <div style="display:flex;gap:16px;align-items:center">
@@ -1056,7 +1148,7 @@ function renderScoreChart(scoreProgression) {
             </div>
         </div>`;
     });
-    
+
     html += '</div>';
     chartContent.innerHTML = html;
 }
@@ -1067,13 +1159,13 @@ function renderOperatorsChart(operators) {
         chartContent.innerHTML = '<p class="text-muted">No operator data available</p>';
         return;
     }
-    
+
     let html = '<div style="display:flex;flex-direction:column;gap:8px">';
-    
+
     operators.forEach((op, index) => {
         const rewardBar = Math.max(0, Math.min(100, (op.avg_reward / 30) * 100)); // Scale to 100px max
         const avgTimeMs = op.avg_time_per_use / 1000; // Convert to seconds
-        
+
         html += `<div style="padding:8px;background:var(--surface);border-radius:6px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
                 <strong>${op.name}</strong>
@@ -1092,7 +1184,7 @@ function renderOperatorsChart(operators) {
             </div>
         </div>`;
     });
-    
+
     html += '</div>';
     chartContent.innerHTML = html;
 }
@@ -1103,13 +1195,13 @@ function renderTaskChart(taskPerformance) {
         chartContent.innerHTML = '<p class="text-muted">No task performance data available</p>';
         return;
     }
-    
+
     let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
-    
+
     taskPerformance.forEach(task => {
         const avgScore = task.avg_score ? task.avg_score.toFixed(3) : 'N/A';
         const bestScore = task.best_score ? task.best_score.toFixed(3) : 'N/A';
-        
+
         html += `<div style="padding:12px;background:var(--surface);border-radius:6px;text-align:center">
             <div style="font-weight:bold;color:var(--primary);margin-bottom:4px">${task.task_class}</div>
             <div style="font-size:0.9em;margin-bottom:2px">Avg: <strong>${avgScore}</strong></div>
@@ -1117,7 +1209,7 @@ function renderTaskChart(taskPerformance) {
             <div style="font-size:0.8em;color:var(--muted)">${task.runs} runs</div>
         </div>`;
     });
-    
+
     html += '</div>';
     chartContent.innerHTML = html;
 }
@@ -1132,7 +1224,7 @@ function showError(message) {
             <p>${message}</p>
         </div>
     `;
-    
+
     document.getElementById('evolutionResults').classList.remove('hidden');
     document.getElementById('resultsContent').innerHTML = '';
     document.getElementById('resultsContent').appendChild(errorDiv);
@@ -1146,27 +1238,27 @@ function setupRatingSystem() {
     const rateGood = document.getElementById('rateGood');
     const ratePoor = document.getElementById('ratePoor');
     const submitRating = document.getElementById('submitRating');
-    
+
     if (!detailedRating) return; // Elements not ready yet
-    
+
     // Update rating display
     detailedRating.addEventListener('input', function() {
         ratingValue.textContent = `${this.value}/10`;
     });
-    
+
     // Quick rating buttons
     rateGood.addEventListener('click', function() {
         detailedRating.value = 8;
         ratingValue.textContent = '8/10';
         submitRating.style.background = 'var(--success)';
     });
-    
+
     ratePoor.addEventListener('click', function() {
         detailedRating.value = 3;
         ratingValue.textContent = '3/10';
         submitRating.style.background = 'var(--danger)';
     });
-    
+
     // Submit rating
     submitRating.addEventListener('click', submitHumanRating);
 }
@@ -1184,7 +1276,7 @@ function showRatingPanel() {
         setTimeout(() => {
             panel.classList.remove('hidden');
         }, Math.max(0, Math.min(8000, isNaN(delay) ? 2000 : delay)));
-        
+
         // Reset rating form
         document.getElementById('detailedRating').value = 5;
         document.getElementById('ratingValue').textContent = '5/10';
@@ -1206,14 +1298,14 @@ async function submitHumanRating() {
         showRatingStatus('❌ No response to rate', 'var(--danger)');
         return;
     }
-    
+
     const rating = parseInt(document.getElementById('detailedRating').value);
     const feedback = document.getElementById('ratingFeedback').value.trim();
     const humanScore = rating; // Use 1-10 scale directly
-    
+
     try {
         showRatingStatus('⏳ Submitting rating...', 'var(--muted)');
-        
+
         const response = await fetch('/api/meta/rate', {
             method: 'POST',
             headers: {
@@ -1225,19 +1317,19 @@ async function submitHumanRating() {
                 feedback: feedback
             }),
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
-        
+
         const result = await response.json();
         showRatingStatus(`✅ Rating submitted (${rating}/10)`, 'var(--success)');
-        
+
         // Hide panel after successful submission
         setTimeout(() => {
             hideRatingPanel();
         }, 2000);
-        
+
     } catch (error) {
         console.error('Rating submission failed:', error);
         showRatingStatus(`❌ Failed to submit rating: ${error.message}`, 'var(--danger)');
@@ -1284,26 +1376,26 @@ async function post(path, body){
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify(body||{})
-    }); 
+    });
     if(!r.ok){
-        const e=await r.json().catch(()=>({})); 
+        const e=await r.json().catch(()=>({}));
         throw new Error(e.detail||JSON.stringify(e));
-    } 
+    }
     return r.json();
 }
 
 async function get(path){
-    const r=await fetch(path); 
+    const r=await fetch(path);
     if(!r.ok){
-        const e=await r.json().catch(()=>({})); 
+        const e=await r.json().catch(()=>({}));
         throw new Error(e.detail||JSON.stringify(e));
-    } 
+    }
     return r.json();
 }
 
 const out = document.getElementById("out") || document.createElement('div');
-function show(x){ 
-    if(out) out.textContent = typeof x==="string"? x : JSON.stringify(x,null,2); 
+function show(x){
+    if(out) out.textContent = typeof x==="string"? x : JSON.stringify(x,null,2);
 }
 
 function getSelectedSession(){ return 1; } // Default session for compatibility

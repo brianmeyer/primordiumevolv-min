@@ -88,13 +88,14 @@ AREA_DISPLAY_NAMES = {
     "sampling": "🎲 Sampling",
     "web_search": "🔍 Web Search",
     "fewshot": "📝 Few-Shot Learning",
-    "ui_metrics": "📊 UI Metrics"
+    "ui_metrics": "📊 UI Metrics",
 }
 
 # Model Information
 MODEL_LOCAL = "🏠 Local Model"
 MODEL_CLOUD = "☁️ Cloud Model"
 MODEL_UNKNOWN = "❓ Unknown Model"
+
 
 # Time and Duration Formatting
 def format_duration_ms(ms: int) -> str:
@@ -106,9 +107,11 @@ def format_duration_ms(ms: int) -> str:
     else:
         return f"{ms/60000:.1f}min"
 
+
 def format_time_ago(timestamp: str) -> str:
     """Format timestamp as time ago (placeholder)"""
     return "just now"
+
 
 # Success Messages with Edits Terminology
 SUCCESS_EDITS_APPLIED = "🎉 Successfully applied {count} code edits!"

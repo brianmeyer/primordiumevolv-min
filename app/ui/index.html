@@ -36,12 +36,12 @@
     min-height:100vh;
   }
   body{max-width:1000px;margin:0 auto;padding:20px}
-  
+
   /* Evolution UI Styles */
   .main-container{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:32px;backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));box-shadow:var(--shadow);margin-bottom:24px}
   .section{background:var(--panel-2);border:1px solid var(--border);border-radius:16px;padding:24px;margin:16px 0;backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur))}
   .collapsed-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0;backdrop-filter:blur(calc(var(--blur) - 4px));-webkit-backdrop-filter:blur(calc(var(--blur) - 4px))}
-  
+
   /* Form Controls */
   input, select, textarea{
     background-color: var(--surface) !important;
@@ -55,13 +55,13 @@
   }
   input::placeholder, textarea::placeholder{ color: #9ca3af; opacity: 1; }
   input:focus, select:focus, textarea:focus{ outline: none; border-color: var(--accent) !important; box-shadow: 0 0 0 2px rgba(34,211,238,0.25); }
-  
+
   /* Buttons */
   .primary-btn{background:linear-gradient(135deg,var(--primary),var(--primary-700));color:white;border:none;padding:16px 32px;font-size:1.2em;font-weight:600;border-radius:12px;cursor:pointer;box-shadow:var(--shadow);transition:all 0.3s}
   .primary-btn:hover{transform:translateY(-1px);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
   .secondary-btn{background:var(--surface);color:var(--text);border:1px solid var(--border);padding:10px 18px;border-radius:8px;cursor:pointer;font-size:0.9em}
   .secondary-btn:hover{background:var(--panel);border-color:var(--accent)}
-  
+
   /* Progress & Status */
   .progress-container{background:var(--surface);height:12px;border-radius:6px;overflow:hidden;margin:16px 0}
   .progress-bar{background:linear-gradient(90deg,var(--primary),var(--accent));height:100%;width:0%;transition:width 0.5s ease;border-radius:6px}
@@ -70,28 +70,28 @@
   .status-error{border-left:4px solid var(--danger)}
   .spinner{display:inline-block;width:12px;height:12px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 0.9s linear infinite;vertical-align:middle;margin-right:6px}
   @keyframes spin{to{transform:rotate(360deg)}}
-  
+
   /* Evolution Steps */
   .evolution-step{padding:12px 16px;margin:8px 0;background:var(--surface);border-radius:10px;display:flex;justify-content:space-between;align-items:center;font-size:0.95em}
   .evolution-step.running{background:linear-gradient(90deg, var(--surface), rgba(139,92,246,0.15));animation:pulse 2s infinite}
   .evolution-step.completed{background:linear-gradient(90deg, var(--surface), rgba(34,197,94,0.15))}
   @keyframes pulse{0%{opacity:1}50%{opacity:0.7}100%{opacity:1}}
-  
+
   /* Collapsible sections */
   details summary{cursor:pointer;user-select:none;color:var(--muted);padding:8px 0}
   details[open] summary{color:var(--primary)}
   details > div{margin-top:12px}
-  
+
   /* Results */
   .result-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin:12px 0}
   .result-score{font-size:2em;font-weight:bold;color:var(--accent);text-align:center;margin:8px 0}
   .result-improvement{text-align:center;color:var(--success);font-size:1.1em;margin:8px 0}
-  
+
   /* Rating Panel */
   .rating-panel{animation:slideIn 0.3s ease}
   .rating-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
   @keyframes slideIn{0%{opacity:0;transform:translateY(-10px)}100%{opacity:1;transform:translateY(0)}}
-  
+
   /* Utility */
   .hidden{display:none}
   .text-center{text-align:center}
@@ -126,11 +126,11 @@
       <h2 style="margin:0 0 8px 0;font-size:1.4em;color:var(--text)">🎯 What should the AI get better at?</h2>
       <p class="text-muted" style="margin:0;font-size:0.95em">Describe a task and watch the AI evolve to become better at it</p>
     </div>
-    
-    <textarea id="evolutionTask" 
-              placeholder="e.g., 'Write Python functions with good error handling', 'Analyze business data and find insights', 'Create engaging marketing copy'..." 
+
+    <textarea id="evolutionTask"
+              placeholder="e.g., 'Write Python functions with good error handling', 'Analyze business data and find insights', 'Create engaging marketing copy'..."
               style="width:100%;height:120px;margin:16px 0;font-size:1.1em;resize:vertical"></textarea>
-    
+
     <div class="flex flex-between flex-align gap-2 mb-2">
       <div class="flex flex-align gap-2">
         <label class="flex flex-align gap-2">
@@ -144,19 +144,19 @@
             <option value="other">General Task</option>
           </select>
         </label>
-        
+
         <label class="flex flex-align gap-2">
           <span class="text-muted">Iterations:</span>
           <input id="evolutionIterations" type="number" value="12" min="2" max="24" style="width:80px;padding:8px">
         </label>
       </div>
-      
+
       <button id="startEvolution" onclick="startEvolution()" class="primary-btn">
         🚀 Start Evolution
       </button>
     </div>
   </div>
-  
+
   <!-- Evolution Progress -->
   <div id="evolutionProgress" class="section hidden">
     <h3 style="margin:0 0 16px 0">🧬 Evolution in Progress</h3>
@@ -169,7 +169,7 @@
     </div>
     <div id="evolutionSteps"></div>
     <div id="currentOutput" class="evolution-step" style="margin-top:16px;font-family:monospace;font-size:0.9em;background:var(--code);min-height:100px;max-height:400px;padding:16px;white-space:pre-wrap;overflow-y:auto;border-radius:8px;border:1px solid var(--border)"></div>
-    
+
     <!-- Human Rating Panel -->
     <div id="ratingPanel" class="rating-panel hidden" style="margin-top:16px;padding:16px;background:var(--panel);border-radius:10px;border:1px solid var(--accent)">
       <h4 style="margin:0 0 12px 0;color:var(--accent)">🧑‍⚖️ Rate This Response</h4>
@@ -187,7 +187,7 @@
       <div id="ratingStatus" class="text-muted" style="margin-top:8px;font-size:0.85em"></div>
     </div>
   </div>
-  
+
   <!-- Results -->
   <div id="evolutionResults" class="section hidden">
     <h3 style="margin:0 0 16px 0">🏆 Evolution Complete!</h3>
@@ -377,6 +377,11 @@
             </div>
             <div id="dgmProposeOut" class="text-muted" style="white-space:pre-wrap"></div>
           </div>
+
+          <!-- DGM Analytics -->
+          <div id="dgmAnalytics">
+            <p class="text-muted">Loading DGM analytics...</p>
+          </div>
         </div>
 
         <!-- Tab: Costs -->
@@ -401,11 +406,11 @@
         <!-- Tab: Memory -->
         <div id="tab-memory" class="tab-pane hidden">
           <div id="memoryError" class="hidden"></div>
-          
+
           <!-- Memory Overview -->
           <div id="memoryOverview" class="hidden">
             <h4 style="color:var(--primary);margin-bottom:16px">🧠 Memory System Analytics</h4>
-            
+
             <!-- Key Metrics -->
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">
               <div class="result-card" style="text-align:center;padding:16px">
@@ -444,7 +449,7 @@
               <div id="memoryTaskClassBreakdown">Loading...</div>
             </div>
           </div>
-          
+
           <!-- Recent Runs -->
           <div id="memoryRecentRuns" class="hidden">
             <div class="result-card">

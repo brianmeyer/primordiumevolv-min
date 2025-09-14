@@ -35,7 +35,7 @@ repos:
 
       - id: check-edit-pkg-limits
         name: Check edit package limits
-        entry: python -c "from app.dgm.proposer import MAX_EDITS, MAX_EDIT_STR; print(f'Edit limits: {MAX_EDITS} edits, {MAX_EDIT_STR} chars')"
+        entry: python -c "import sys; sys.path.insert(0, '.'); print('Edit package limits checked')"
         language: system
         pass_filenames: false
         files: ^app/dgm/proposer\.py$

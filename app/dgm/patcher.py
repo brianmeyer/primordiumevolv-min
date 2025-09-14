@@ -11,8 +11,7 @@ import re
 import subprocess
 import tempfile
 import hashlib
-from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Dict, Any, Tuple
 import difflib
 import os
 
@@ -28,10 +27,10 @@ def _normalize_text(text: str) -> str:
         Normalized text
     """
     # Convert CRLF and CR to LF
-    text = text.replace('\r\n', '\n').replace('\r', '\n')
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
 
     # Ensure single trailing newline
-    text = text.rstrip('\n') + '\n'
+    text = text.rstrip("\n") + "\n"
 
     return text
 
@@ -46,7 +45,7 @@ def _read_text_norm(path: str) -> str:
     Returns:
         Normalized text content
     """
-    with open(path, 'r', encoding='utf-8', errors='replace') as f:
+    with open(path, "r", encoding="utf-8", errors="replace") as f:
         content = f.read()
     return _normalize_text(content)
 
@@ -60,7 +59,7 @@ def _write_text_norm(path: str, content: str) -> None:
         content: Text content to write
     """
     normalized = _normalize_text(content)
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write(normalized)
 
 
@@ -79,17 +78,14 @@ def _get_file_sha(path: str) -> str:
 
     try:
         result = subprocess.run(
-            ["git", "hash-object", path],
-            capture_output=True,
-            text=True,
-            check=True
+            ["git", "hash-object", path], capture_output=True, text=True, check=True
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError:
         # Fallback to manual hash calculation
         content = _read_text_norm(path)
         blob_content = f"blob {len(content.encode('utf-8'))}\0{content}"
-        return hashlib.sha1(blob_content.encode('utf-8')).hexdigest()
+        return hashlib.sha1(blob_content.encode("utf-8")).hexdigest()
 
 
 def _write_temp_patch(diff_text: str) -> str:
@@ -102,7 +98,7 @@ def _write_temp_patch(diff_text: str) -> str:
     Returns:
         Path to temporary patch file
     """
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.patch', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".patch", delete=False) as f:
         f.write(diff_text)
         return f.name
 
@@ -121,10 +117,10 @@ def apply_one_edit(content: str, edit: Dict[str, Any]) -> str:
     Raises:
         ValueError: If match not found or edit specification invalid
     """
-    if 'match' in edit:
+    if "match" in edit:
         # Exact string matching
-        match_str = edit['match']
-        replace_str = edit['replace']
+        match_str = edit["match"]
+        replace_str = edit["replace"]
 
         if match_str not in content:
             raise ValueError(f"Exact match not found: {repr(match_str)}")
@@ -132,10 +128,10 @@ def apply_one_edit(content: str, edit: Dict[str, Any]) -> str:
         # Replace first occurrence only
         return content.replace(match_str, replace_str, 1)
 
-    elif 'match_re' in edit:
+    elif "match_re" in edit:
         # Regex matching
-        pattern = edit['match_re']
-        replacement = edit['group_replacement']
+        pattern = edit["match_re"]
+        replacement = edit["group_replacement"]
 
         # Use MULTILINE flag for regex
         regex = re.compile(pattern, re.MULTILINE)
@@ -167,19 +163,21 @@ def synth_unified_diff(path: str, before: str, after: str, context: int = 3) -> 
     before_lines = before.splitlines(keepends=True)
     after_lines = after.splitlines(keepends=True)
 
-    diff_lines = list(difflib.unified_diff(
-        before_lines,
-        after_lines,
-        fromfile=f"a/{path}",
-        tofile=f"b/{path}",
-        n=context
-    ))
+    diff_lines = list(
+        difflib.unified_diff(
+            before_lines,
+            after_lines,
+            fromfile=f"a/{path}",
+            tofile=f"b/{path}",
+            n=context,
+        )
+    )
 
-    diff_text = ''.join(diff_lines)
+    diff_text = "".join(diff_lines)
 
     # Ensure diff ends with newline
-    if diff_text and not diff_text.endswith('\n'):
-        diff_text += '\n'
+    if diff_text and not diff_text.endswith("\n"):
+        diff_text += "\n"
 
     return diff_text
 
@@ -196,7 +194,7 @@ def git_apply_check(diff_text: str) -> Tuple[bool, str]:
     """
     try:
         # Write diff to temporary file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.patch', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".patch", delete=False) as f:
             f.write(diff_text)
             temp_path = f.name
 
@@ -205,7 +203,7 @@ def git_apply_check(diff_text: str) -> Tuple[bool, str]:
             result = subprocess.run(
                 ["git", "apply", "--check", "--whitespace=nowarn", temp_path],
                 capture_output=True,
-                text=True
+                text=True,
             )
 
             success = result.returncode == 0
@@ -239,7 +237,9 @@ def commit_path(path: str, message: str) -> None:
     subprocess.run(["git", "commit", "-m", message], check=True)
 
 
-def apply_edits_package(edits_pkg_json: str, model_name: str, goal_tag: str) -> Dict[str, Any]:
+def apply_edits_package(
+    edits_pkg_json: str, model_name: str, goal_tag: str
+) -> Dict[str, Any]:
     """
     Apply a package of edits to multiple files.
 
@@ -256,12 +256,12 @@ def apply_edits_package(edits_pkg_json: str, model_name: str, goal_tag: str) -> 
         pkg = json.loads(edits_pkg_json)
 
         # Validate required fields
-        required_fields = ['area', 'goal_tag', 'rationale', 'edits']
+        required_fields = ["area", "goal_tag", "rationale", "edits"]
         for field in required_fields:
             if field not in pkg:
                 return {"ok": False, "error": f"Missing required field: {field}"}
 
-        edits = pkg['edits']
+        edits = pkg["edits"]
         if not isinstance(edits, list):
             return {"ok": False, "error": "edits must be a list"}
 
@@ -275,16 +275,22 @@ def apply_edits_package(edits_pkg_json: str, model_name: str, goal_tag: str) -> 
         for i, edit in enumerate(edits):
             try:
                 # Validate edit structure
-                if 'path' not in edit:
+                if "path" not in edit:
                     return {"ok": False, "error": f"Edit {i}: missing 'path' field"}
 
-                if 'replace' not in edit:
-                    return {"ok": False, "error": f"Edit {i}: missing 'replace' field"}
+                if "replace" not in edit and "group_replacement" not in edit:
+                    return {
+                        "ok": False,
+                        "error": f"Edit {i}: missing 'replace' or 'group_replacement' field",
+                    }
 
-                if 'match' not in edit and 'match_re' not in edit:
-                    return {"ok": False, "error": f"Edit {i}: must have 'match' or 'match_re'"}
+                if "match" not in edit and "match_re" not in edit:
+                    return {
+                        "ok": False,
+                        "error": f"Edit {i}: must have 'match' or 'match_re'",
+                    }
 
-                path = edit['path']
+                path = edit["path"]
 
                 # Record before SHA
                 before_sha = _get_file_sha(path)
@@ -299,7 +305,11 @@ def apply_edits_package(edits_pkg_json: str, model_name: str, goal_tag: str) -> 
                 try:
                     after_content = apply_one_edit(before_content, edit)
                 except ValueError as e:
-                    return {"ok": False, "error": f"Edit {i} failed: {str(e)}", "path": path}
+                    return {
+                        "ok": False,
+                        "error": f"Edit {i} failed: {str(e)}",
+                        "path": path,
+                    }
 
                 # Generate diff
                 diff_text = synth_unified_diff(path, before_content, after_content)
@@ -316,28 +326,33 @@ def apply_edits_package(edits_pkg_json: str, model_name: str, goal_tag: str) -> 
                             ["git", "apply", "--whitespace=nowarn", patch_path],
                             check=True,
                             text=True,
-                            capture_output=True
+                            capture_output=True,
                         )
                     finally:
                         os.unlink(patch_path)
                 else:
                     # Fallback to direct write
                     fallback_occurred = True
-                    # Ensure directory exists
-                    os.makedirs(os.path.dirname(path), exist_ok=True)
+                    # Ensure directory exists (only if path has a directory component)
+                    dir_path = os.path.dirname(path)
+                    if dir_path:
+                        os.makedirs(dir_path, exist_ok=True)
                     _write_text_norm(path, after_content)
 
                 # Record after SHA and track file
                 after_sha = _get_file_sha(path)
-                file_shas.append({
-                    "path": path,
-                    "before": before_sha,
-                    "after": after_sha
-                })
-                touched_files.append(path)
+                file_shas.append(
+                    {"path": path, "before": before_sha, "after": after_sha}
+                )
+                if path not in touched_files:
+                    touched_files.append(path)
 
             except Exception as e:
-                return {"ok": False, "error": f"Edit {i} failed: {str(e)}", "path": edit.get('path', 'unknown')}
+                return {
+                    "ok": False,
+                    "error": f"Edit {i} failed: {str(e)}",
+                    "path": edit.get("path", "unknown"),
+                }
 
         # Stage all touched files and make single commit
         if touched_files:
@@ -345,7 +360,9 @@ def apply_edits_package(edits_pkg_json: str, model_name: str, goal_tag: str) -> 
 
             # Build commit message
             if fallback_occurred:
-                commit_msg = f"meta({goal_tag}): direct write by {model_name} (fallback)"
+                commit_msg = (
+                    f"meta({goal_tag}): direct write by {model_name} (fallback)"
+                )
             else:
                 commit_msg = f"meta({goal_tag}): apply by {model_name}"
 
@@ -355,7 +372,7 @@ def apply_edits_package(edits_pkg_json: str, model_name: str, goal_tag: str) -> 
             "ok": True,
             "touched": touched_files,
             "diffs": all_diffs,
-            "file_shas": file_shas
+            "file_shas": file_shas,
         }
 
     except json.JSONDecodeError as e:

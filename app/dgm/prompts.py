@@ -14,26 +14,28 @@ Rules:
 - Do not include line numbers except optional 'line_number_hint'.
 - Assume UTF-8, LF newlines, exactly one trailing newline per file."""
 
+
 def make_edits_prompt(allowed_areas, max_loc, snapshots=None):
     """Create a prompt that instructs models to return edits package JSON"""
 
     if not snapshots or len(snapshots) == 0:
         return "ERROR: No file snapshot provided."
 
-    file_path = snapshots[0]['path']
-    file_content = snapshots[0].get('content', '')
+    file_path = snapshots[0]["path"]
+    file_content = snapshots[0].get("content", "")
 
     if not file_content:
         return "ERROR: No file content provided."
 
     # Choose a random area from allowed areas
     import random
+
     area = random.choice(allowed_areas) if allowed_areas else "operators"
 
     # Show file context (first 50 lines)
-    lines = file_content.split('\n')
-    context_lines = lines[:min(50, len(lines))]
-    context = '\n'.join(f"{i+1:3d}: {line}" for i, line in enumerate(context_lines))
+    lines = file_content.split("\n")
+    context_lines = lines[: min(50, len(lines))]
+    context = "\n".join(f"{i+1:3d}: {line}" for i, line in enumerate(context_lines))
 
     prompt = f"""Modify {file_path} to improve the {area} area.
 

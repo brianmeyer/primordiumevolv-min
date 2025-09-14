@@ -9,15 +9,20 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 # Import the patcher module
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from app.dgm.patcher import apply_edits_package, apply_one_edit, synth_unified_diff, git_apply_check
+from app.dgm.patcher import (
+    apply_edits_package,
+    apply_one_edit,
+    synth_unified_diff,
+    git_apply_check,
+)
 
 
 class TestPatcher(unittest.TestCase):
@@ -26,25 +31,25 @@ class TestPatcher(unittest.TestCase):
     def setUp(self):
         """Set up a temporary git repository for each test"""
         # Create temp directory
-        self.temp_dir = tempfile.mkdtemp(prefix='patcher_test_')
+        self.temp_dir = tempfile.mkdtemp(prefix="patcher_test_")
         self.original_cwd = os.getcwd()
 
         # Change to temp directory
         os.chdir(self.temp_dir)
 
         # Initialize git repo
-        subprocess.run(['git', 'init'], check=True)
-        subprocess.run(['git', 'config', 'user.email', 'test@example.com'], check=True)
-        subprocess.run(['git', 'config', 'user.name', 'Test User'], check=True)
+        subprocess.run(["git", "init"], check=True)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], check=True)
+        subprocess.run(["git", "config", "user.name", "Test User"], check=True)
 
         # Create initial test file
-        self.test_file = 'test_config.py'
-        with open(self.test_file, 'w') as f:
-            f.write('X = 1\nY = 2\nZ = 3\n')
+        self.test_file = "test_config.py"
+        with open(self.test_file, "w") as f:
+            f.write("X = 1\nY = 2\nZ = 3\n")
 
         # Make initial commit
-        subprocess.run(['git', 'add', self.test_file], check=True)
-        subprocess.run(['git', 'commit', '-m', 'Initial commit'], check=True)
+        subprocess.run(["git", "add", self.test_file], check=True)
+        subprocess.run(["git", "commit", "-m", "Initial commit"], check=True)
 
     def tearDown(self):
         """Clean up temporary directory"""
@@ -57,29 +62,22 @@ class TestPatcher(unittest.TestCase):
             "area": "test",
             "goal_tag": "change_x",
             "rationale": "update X value",
-            "edits": [
-                {
-                    "path": self.test_file,
-                    "match": "X = 1",
-                    "replace": "X = 10"
-                }
-            ]
+            "edits": [{"path": self.test_file, "match": "X = 1", "replace": "X = 10"}],
         }
 
         result = apply_edits_package(
-            json.dumps(edits_package),
-            model_name="test_model",
-            goal_tag="change_x"
+            json.dumps(edits_package), model_name="test_model", goal_tag="change_x"
         )
 
         self.assertTrue(result["ok"])
         self.assertIn(self.test_file, result["touched"])
 
         # Verify file content
-        with open(self.test_file, 'r') as f:
+        with open(self.test_file, "r") as f:
             content = f.read()
         self.assertIn("X = 10", content)
-        self.assertNotIn("X = 1", content)
+        # Check that X = 1 on its own line is not present (X = 10 contains "X = 1" as substring)
+        self.assertNotIn("X = 1\n", content)
 
     def test_regex_match(self):
         """Test regex pattern matching edit"""
@@ -91,33 +89,31 @@ class TestPatcher(unittest.TestCase):
                 {
                     "path": self.test_file,
                     "match_re": r"Y = (\d+)",
-                    "group_replacement": r"Y = \g<1>0"
+                    "group_replacement": r"Y = \g<1>0",
                 }
-            ]
+            ],
         }
 
         result = apply_edits_package(
-            json.dumps(edits_package),
-            model_name="test_model",
-            goal_tag="regex_test"
+            json.dumps(edits_package), model_name="test_model", goal_tag="regex_test"
         )
 
         self.assertTrue(result["ok"])
 
         # Verify file content
-        with open(self.test_file, 'r') as f:
+        with open(self.test_file, "r") as f:
             content = f.read()
         self.assertIn("Y = 20", content)
 
     def test_multiline_content(self):
         """Test handling of multiline content"""
         # Create a file with multiline content
-        multiline_file = 'multiline.py'
-        with open(multiline_file, 'w') as f:
-            f.write('def function():\n    x = 1\n    return x\n')
+        multiline_file = "multiline.py"
+        with open(multiline_file, "w") as f:
+            f.write("def function():\n    x = 1\n    return x\n")
 
-        subprocess.run(['git', 'add', multiline_file], check=True)
-        subprocess.run(['git', 'commit', '-m', 'Add multiline file'], check=True)
+        subprocess.run(["git", "add", multiline_file], check=True)
+        subprocess.run(["git", "commit", "-m", "Add multiline file"], check=True)
 
         edits_package = {
             "area": "test",
@@ -127,21 +123,21 @@ class TestPatcher(unittest.TestCase):
                 {
                     "path": multiline_file,
                     "match": "    x = 1\n    return x",
-                    "replace": "    x = 2\n    return x * 2"
+                    "replace": "    x = 2\n    return x * 2",
                 }
-            ]
+            ],
         }
 
         result = apply_edits_package(
             json.dumps(edits_package),
             model_name="test_model",
-            goal_tag="multiline_test"
+            goal_tag="multiline_test",
         )
 
         self.assertTrue(result["ok"])
 
         # Verify content
-        with open(multiline_file, 'r') as f:
+        with open(multiline_file, "r") as f:
             content = f.read()
         self.assertIn("x = 2", content)
         self.assertIn("return x * 2", content)
@@ -149,39 +145,33 @@ class TestPatcher(unittest.TestCase):
     def test_newline_normalization(self):
         """Test that line endings are properly normalized"""
         # Create file with CRLF endings
-        crlf_file = 'crlf_test.py'
-        with open(crlf_file, 'wb') as f:
-            f.write(b'line1\r\nline2\r\nline3\r\n')
+        crlf_file = "crlf_test.py"
+        with open(crlf_file, "wb") as f:
+            f.write(b"line1\r\nline2\r\nline3\r\n")
 
-        subprocess.run(['git', 'add', crlf_file], check=True)
-        subprocess.run(['git', 'commit', '-m', 'Add CRLF file'], check=True)
+        subprocess.run(["git", "add", crlf_file], check=True)
+        subprocess.run(["git", "commit", "-m", "Add CRLF file"], check=True)
 
         edits_package = {
             "area": "test",
             "goal_tag": "crlf_test",
             "rationale": "test CRLF handling",
             "edits": [
-                {
-                    "path": crlf_file,
-                    "match": "line2",
-                    "replace": "modified_line2"
-                }
-            ]
+                {"path": crlf_file, "match": "line2", "replace": "modified_line2"}
+            ],
         }
 
         result = apply_edits_package(
-            json.dumps(edits_package),
-            model_name="test_model",
-            goal_tag="crlf_test"
+            json.dumps(edits_package), model_name="test_model", goal_tag="crlf_test"
         )
 
         self.assertTrue(result["ok"])
 
         # Verify content has LF endings
-        with open(crlf_file, 'rb') as f:
+        with open(crlf_file, "rb") as f:
             content = f.read()
-        self.assertNotIn(b'\r\n', content)
-        self.assertIn(b'\n', content)
+        self.assertNotIn(b"\r\n", content)
+        self.assertIn(b"\n", content)
 
     def test_match_not_found(self):
         """Test error handling when match string is not found"""
@@ -193,15 +183,15 @@ class TestPatcher(unittest.TestCase):
                 {
                     "path": self.test_file,
                     "match": "THIS_DOES_NOT_EXIST",
-                    "replace": "replacement"
+                    "replace": "replacement",
                 }
-            ]
+            ],
         }
 
         result = apply_edits_package(
             json.dumps(edits_package),
             model_name="test_model",
-            goal_tag="not_found_test"
+            goal_tag="not_found_test",
         )
 
         self.assertFalse(result["ok"])
@@ -217,15 +207,15 @@ class TestPatcher(unittest.TestCase):
                 {
                     "path": self.test_file,
                     "match_re": "[invalid regex pattern",
-                    "group_replacement": "replacement"
+                    "group_replacement": "replacement",
                 }
-            ]
+            ],
         }
 
         result = apply_edits_package(
             json.dumps(edits_package),
             model_name="test_model",
-            goal_tag="invalid_regex_test"
+            goal_tag="invalid_regex_test",
         )
 
         self.assertFalse(result["ok"])
@@ -240,15 +230,15 @@ class TestPatcher(unittest.TestCase):
                 {
                     "path": "nonexistent.py",
                     "match": "anything",
-                    "replace": "replacement"
+                    "replace": "replacement",
                 }
-            ]
+            ],
         }
 
         result = apply_edits_package(
             json.dumps(edits_package),
             model_name="test_model",
-            goal_tag="missing_file_test"
+            goal_tag="missing_file_test",
         )
 
         # Should handle missing files gracefully by treating as empty content
@@ -262,33 +252,28 @@ class TestPatcher(unittest.TestCase):
             "goal_tag": "multi_edit_test",
             "rationale": "test multiple edits",
             "edits": [
-                {
-                    "path": self.test_file,
-                    "match": "X = 1",
-                    "replace": "X = 100"
-                },
-                {
-                    "path": self.test_file,
-                    "match": "Y = 2",
-                    "replace": "Y = 200"
-                }
-            ]
+                {"path": self.test_file, "match": "X = 1", "replace": "X = 100"},
+                {"path": self.test_file, "match": "Y = 2", "replace": "Y = 200"},
+            ],
         }
 
         result = apply_edits_package(
             json.dumps(edits_package),
             model_name="test_model",
-            goal_tag="multi_edit_test"
+            goal_tag="multi_edit_test",
         )
 
         self.assertTrue(result["ok"])
         self.assertEqual(len(result["touched"]), 1)  # Same file touched once
 
         # Verify both changes applied
-        with open(self.test_file, 'r') as f:
+        with open(self.test_file, "r") as f:
             content = f.read()
         self.assertIn("X = 100", content)
         self.assertIn("Y = 200", content)
+        # Verify old values are gone
+        self.assertNotIn("X = 1\n", content)
+        self.assertNotIn("Y = 2\n", content)
 
     def test_file_shas_tracking(self):
         """Test that file SHAs are properly tracked"""
@@ -296,19 +281,11 @@ class TestPatcher(unittest.TestCase):
             "area": "test",
             "goal_tag": "sha_test",
             "rationale": "test SHA tracking",
-            "edits": [
-                {
-                    "path": self.test_file,
-                    "match": "Z = 3",
-                    "replace": "Z = 30"
-                }
-            ]
+            "edits": [{"path": self.test_file, "match": "Z = 3", "replace": "Z = 30"}],
         }
 
         result = apply_edits_package(
-            json.dumps(edits_package),
-            model_name="test_model",
-            goal_tag="sha_test"
+            json.dumps(edits_package), model_name="test_model", goal_tag="sha_test"
         )
 
         self.assertTrue(result["ok"])
@@ -324,9 +301,7 @@ class TestPatcher(unittest.TestCase):
     def test_invalid_json(self):
         """Test error handling for invalid JSON"""
         result = apply_edits_package(
-            "invalid json {",
-            model_name="test_model",
-            goal_tag="invalid_json_test"
+            "invalid json {", model_name="test_model", goal_tag="invalid_json_test"
         )
 
         self.assertFalse(result["ok"])
@@ -342,7 +317,7 @@ class TestPatcher(unittest.TestCase):
         result = apply_edits_package(
             json.dumps(incomplete_package),
             model_name="test_model",
-            goal_tag="missing_fields_test"
+            goal_tag="missing_fields_test",
         )
 
         self.assertFalse(result["ok"])
@@ -377,10 +352,10 @@ class TestPatcher(unittest.TestCase):
     def test_git_apply_check(self):
         """Test git apply check functionality"""
         # Create a valid diff
-        with open('check_test.py', 'w') as f:
-            f.write('original content\n')
-        subprocess.run(['git', 'add', 'check_test.py'], check=True)
-        subprocess.run(['git', 'commit', '-m', 'Add check test file'], check=True)
+        with open("check_test.py", "w") as f:
+            f.write("original content\n")
+        subprocess.run(["git", "add", "check_test.py"], check=True)
+        subprocess.run(["git", "commit", "-m", "Add check test file"], check=True)
 
         diff = """--- a/check_test.py
 +++ b/check_test.py
@@ -393,5 +368,5 @@ class TestPatcher(unittest.TestCase):
         self.assertTrue(can_apply, f"Git apply check failed: {error}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
